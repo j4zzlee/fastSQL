@@ -1,0 +1,13 @@
+.show>.dropdown-menu {
+  display: block;
+}
+.dropdown-menu {
+  &.dropdown-menu-right {
+    right: 0;
+    left: auto;
+  }
+  &.dropdown-menu-left {
+    left: 0;
+    right: auto;
+  }
+}
