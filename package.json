@@ -1,6 +1,6 @@
 {
   "name": "fast-sql",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "author": "Le Huu Hoang Gia <hoanggia.lh@gmail.com>",
   "description": "A very small & simple database management for SQL server, mysql, accessdb...",
   "license": "MIT",
@@ -27,8 +27,15 @@
     "directories": {
       "output": "build"
     },
+    "asar": false,
     "files": [
       "dist/electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "src/api/bin/dist/win/",
+        "to": "app/dist/api/bin/dist/win/"
+      }
     ],
     "dmg": {
       "contents": [
@@ -60,6 +67,8 @@
     "axios": "^0.16.1",
     "bootstrap": "^4.0.0",
     "font-awesome": "^4.7.0",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.2",
     "uuid": "^3.2.1",
     "vue": "^2.3.3",
     "vue-electron": "^1.0.6",

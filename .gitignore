@@ -9,3 +9,8 @@ npm-debug.log
 npm-debug.log.*
 thumbs.db
 !.gitkeep
+bin/
+obj/
+.vs/
+appsettings.Development.json
+yarn-error.log

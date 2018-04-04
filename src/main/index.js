@@ -1,5 +1,7 @@
 'use strict';
 
+import path from 'path';
+import os from 'os';
 import { app, BrowserWindow } from 'electron';
 
 /**
@@ -34,8 +36,23 @@ function createWindow() {
     mainWindow = null;
   });
 }
+function startApi() {
+  const proc = require('child_process').spawn;
+  //  run server
+  let apipath = path.resolve(__dirname, '../api/bin/dist/win/api.exe');
+  if (os.platform() === 'darwin') {
+    apipath = path.resolve(__dirname, '../api/bin/dist/osx/Api');
+  }
+  const apiProcess = proc(apipath);
 
-app.on('ready', createWindow);
+  apiProcess.stdout.on('data', data => {
+    console.log(`stdout: ${data}`);
+    if (mainWindow == null) {
+      createWindow();
+    }
+  });
+}
+app.on('ready', startApi);
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

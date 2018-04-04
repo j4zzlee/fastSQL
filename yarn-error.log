@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js run dev
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js build
 
 PATH: 
   C:\Program Files\Docker\Docker\Resources\bin;C:\Program Files\Microsoft MPI\Bin\;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\130\Tools\Binn\;C:\Program Files (x86)\Microsoft SQL Server\140\Tools\Binn\;C:\Program Files\Microsoft SQL Server\140\Tools\Binn\;C:\Program Files\Microsoft SQL Server\140\DTS\Binn\;C:\Program Files (x86)\Microsoft SQL Server\Client SDK\ODBC\130\Tools\Binn\;C:\Program Files (x86)\Microsoft SQL Server\140\DTS\Binn\;C:\Program Files (x86)\Microsoft SQL Server\140\Tools\Binn\ManagementStudio\;c:\Program Files (x86)\Microsoft SQL Server\100\Tools\Binn\;c:\Program Files\Microsoft SQL Server\100\Tools\Binn\;c:\Program Files\Microsoft SQL Server\100\DTS\Binn\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Program Files (x86)\Microsoft SQL Server\90\Tools\binn\;C:\Users\BaoChau\AppData\Local\Programs\Python\Python36;C:\Program Files (x86)\Windows Kits\8.1\Windows Performance Toolkit\;C:\Program Files (x86)\Yarn\bin\;C:\Users\BaoChau\AppData\Local\Microsoft\WindowsApps;;C:\Program Files\Microsoft VS Code\bin;C:\Users\BaoChau\AppData\Roaming\npm;C:\Users\BaoChau\AppData\Local\Yarn\bin
@@ -16,7 +16,7 @@ Platform:
 npm manifest: 
   {
     "name": "fast-sql",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "author": "Le Huu Hoang Gia <hoanggia.lh@gmail.com>",
     "description": "A very small & simple database management for SQL server, mysql, accessdb...",
     "license": "MIT",
@@ -43,8 +43,16 @@ npm manifest:
       "directories": {
         "output": "build"
       },
+      "asar": true,
+      "asar-unpack": "**/app/*",
       "files": [
         "dist/electron/**/*"
+      ],
+      "extraResources": [
+        {
+          "from": "src/api/bin/dist/win/**/*",
+          "to": "dist/api/bin/dist/win/**/*"
+        }
       ],
       "dmg": {
         "contents": [
@@ -72,10 +80,16 @@ npm manifest:
       }
     },
     "dependencies": {
+      "@fortawesome/fontawesome": "^1.1.5",
       "axios": "^0.16.1",
       "bootstrap": "^4.0.0",
+      "font-awesome": "^4.7.0",
+      "jquery": "^3.3.1",
+      "popper.js": "^1.14.2",
+      "uuid": "^3.2.1",
       "vue": "^2.3.3",
       "vue-electron": "^1.0.6",
+      "vue-localstorage": "^0.6.2",
       "vue-router": "^2.5.3",
       "vuex": "^2.3.1"
     },
@@ -157,6 +171,16 @@ Lockfile:
   "7zip@0.0.6":
     version "0.0.6"
     resolved "https://registry.yarnpkg.com/7zip/-/7zip-0.0.6.tgz#9cafb171af82329490353b4816f03347aa150a30"
+  
+  "@fortawesome/fontawesome-common-types@^0.1.3":
+    version "0.1.3"
+    resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.1.3.tgz#8475e0f2d1ad1f858c4ec2e76ed9a2456a09ad83"
+  
+  "@fortawesome/fontawesome@^1.1.5":
+    version "1.1.5"
+    resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome/-/fontawesome-1.1.5.tgz#c7cfafdd3364245626293cc670357f9fb8487170"
+    dependencies:
+      "@fortawesome/fontawesome-common-types" "^0.1.3"
   
   "@types/node@^8.0.24":
     version "8.10.1"
@@ -3881,6 +3905,10 @@ Lockfile:
     dependencies:
       debug "^3.1.0"
   
+  font-awesome@^4.7.0:
+    version "4.7.0"
+    resolved "https://registry.yarnpkg.com/font-awesome/-/font-awesome-4.7.0.tgz#8fa8cf0411a1a31afd07b06d2902bb9fc815a133"
+  
   for-in@^0.1.3:
     version "0.1.8"
     resolved "https://registry.yarnpkg.com/for-in/-/for-in-0.1.8.tgz#d8773908e31256109952b1fdb9b3fa867d2775e1"
@@ -5070,6 +5098,10 @@ Lockfile:
       supports-color "^3.1.0"
       which "^1.1.1"
       wordwrap "^1.0.0"
+  
+  jquery@^3.3.1:
+    version "3.3.1"
+    resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
   
   js-base64@^2.1.8, js-base64@^2.1.9:
     version "2.4.3"
@@ -6541,6 +6573,10 @@ Lockfile:
   pluralize@^7.0.0:
     version "7.0.0"
     resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"
+  
+  popper.js@^1.14.2:
+    version "1.14.2"
+    resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.14.2.tgz#066e8e1613e65e69ba050f4b78e7bd4c8d54e443"
   
   portfinder@^1.0.9:
     version "1.0.13"
@@ -8631,7 +8667,7 @@ Lockfile:
     version "1.0.1"
     resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   
-  uuid@^3.0.0, uuid@^3.0.1, uuid@^3.1.0:
+  uuid@^3.0.0, uuid@^3.0.1, uuid@^3.1.0, uuid@^3.2.1:
     version "3.2.1"
     resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.2.1.tgz#12c528bb9d58d0b9265d9a2f6f0fe8be17ff1f14"
   
@@ -8703,6 +8739,10 @@ Lockfile:
       vue-hot-reload-api "^2.2.0"
       vue-style-loader "^3.0.0"
       vue-template-es2015-compiler "^1.6.0"
+  
+  vue-localstorage@^0.6.2:
+    version "0.6.2"
+    resolved "https://registry.yarnpkg.com/vue-localstorage/-/vue-localstorage-0.6.2.tgz#7f84c99f4ce0b6be23b16c1fab194d4d67182456"
   
   vue-router@^2.5.3:
     version "2.8.1"
@@ -9137,9 +9177,9 @@ Lockfile:
 
 Trace: 
   Error: Command failed.
-  Exit code: 3221225786
+  Exit code: 1
   Command: C:\Windows\system32\cmd.exe
-  Arguments: /d /s /c node .electron-vue/dev-runner.js
+  Arguments: /d /s /c node .electron-vue/build.js && electron-builder
   Directory: C:\Workspace\BCSolutions\fastSQL
   Output:
   

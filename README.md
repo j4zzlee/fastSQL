@@ -5,6 +5,10 @@
 #### Build Setup
 
 ``` bash
+# Build api
+cd project/src/api/main
+dotnet restore
+dotnet publish -r win10-x64 --output ../../dist/api/bin/dist/win
 # install dependencies
 npm install
 
