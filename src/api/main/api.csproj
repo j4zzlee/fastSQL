@@ -7,7 +7,17 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Castle.Windsor" Version="4.1.0" />
+    <PackageReference Include="Castle.Windsor.MsDependencyInjection" Version="3.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.1" />
 </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FastSQL.Core\FastSQL.Core.csproj" />
+    <ProjectReference Include="..\FastSQL.MsAccess\FastSQL.MsAccess.csproj" />
+    <ProjectReference Include="..\FastSQL.MsSql\FastSQL.MsSql.csproj" />
+    <ProjectReference Include="..\FastSQL.MySQL\FastSQL.MySQL.csproj" />
+  </ItemGroup>
 
 </Project>

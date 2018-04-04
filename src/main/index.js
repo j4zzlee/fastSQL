@@ -43,6 +43,7 @@ function startApi() {
   if (os.platform() === 'darwin') {
     apipath = path.resolve(__dirname, '../api/bin/dist/osx/Api');
   }
+  console.log(`Starting ${apipath}`)
   const apiProcess = proc(apipath);
 
   apiProcess.stdout.on('data', data => {

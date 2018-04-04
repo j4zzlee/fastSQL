@@ -6,9 +6,9 @@
 
 ``` bash
 # Build api
-cd project/src/api/main
+cd project/src/api
 dotnet restore
-dotnet publish -r win10-x64 --output ../../dist/api/bin/dist/win
+dotnet publish -r win10-x64 --output ../bin/dist/win
 # install dependencies
 npm install
 
