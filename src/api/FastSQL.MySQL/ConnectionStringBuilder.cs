@@ -24,6 +24,7 @@ namespace FastSQL.MySQL
             builder.Port = uint.Parse(!string.IsNullOrWhiteSpace(port) ? port : "3306");
             builder.UserID = _selfOptions.FirstOrDefault(o => o.Name == "UserID").Value;
             builder.Password = _selfOptions.FirstOrDefault(o => o.Name == "Password").Value;
+            builder.Database = _selfOptions.FirstOrDefault(o => o.Name == "Database").Value;
             builder.SslMode = string.IsNullOrWhiteSpace(sslModel) ? MySqlSslMode.None : (MySqlSslMode) Enum.Parse(typeof(MySqlSslMode), sslModel);
             return builder.ToString();
         }

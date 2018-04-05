@@ -26,6 +26,14 @@ namespace api.Controllers
         }
 
         // GET api/providers
+        [HttpGet("{id}")]
+        public IActionResult GetById(string id)
+        {
+            var result = _providers.FirstOrDefault(p => p.Id == id);
+            return Ok(result);
+        }
+
+        // GET api/providers
         [HttpPost("{id}/connect")]
         public IActionResult Connect(string id, [FromBody] List<OptionItem> options)
         {
@@ -46,7 +54,7 @@ namespace api.Controllers
             {
                 var provider = _providers.FirstOrDefault(p => p.Id == id);
                 provider.SetOptions(model.Options);
-                var data = provider.Query<object>(model.RawQuery);
+                var data = provider.Query(model.RawQuery);
                 return Ok(new
                 {
                     success = true,
@@ -55,9 +63,9 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new
+                return Ok(new
                 {
-                    sucess = false,
+                    success = false,
                     message = ex.Message
                 });
             }
@@ -80,9 +88,9 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new
+                return Ok(new
                 {
-                    sucess = false,
+                    success = false,
                     message = ex.Message
                 });
             }

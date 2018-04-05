@@ -31,6 +31,13 @@ namespace FastSQL.MsSql
                     DisplayName = "Password",
                     Type = OptionType.Password,
                     Value = ""
+                },
+                new OptionItem
+                {
+                    Name = "Database",
+                    DisplayName = "Database",
+                    Type = OptionType.Text,
+                    Value = ""
                 }
             };
         }

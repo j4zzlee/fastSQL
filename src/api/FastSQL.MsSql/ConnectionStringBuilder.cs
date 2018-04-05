@@ -17,10 +17,27 @@ namespace FastSQL.MsSql
 
         public string Build()
         {
-            var builder = new SqlConnectionStringBuilder();
-            builder.DataSource = _selfOptions.FirstOrDefault(o => o.Name == "DataSource").Value;
-            builder.UserID = _selfOptions.FirstOrDefault(o => o.Name == "UserID").Value;
-            builder.Password = _selfOptions.FirstOrDefault(o => o.Name == "Password").Value;
+            var username = _selfOptions.FirstOrDefault(o => o.Name == "UserID").Value;
+            var password = _selfOptions.FirstOrDefault(o => o.Name == "Password").Value;
+            var builder = new SqlConnectionStringBuilder
+            {
+                DataSource = _selfOptions.FirstOrDefault(o => o.Name == "DataSource").Value,
+                MultipleActiveResultSets = true,
+                //builder.MultiSubnetFailover = true;
+                Pooling = true,
+                InitialCatalog = _selfOptions.FirstOrDefault(o => o.Name == "Database").Value
+            };
+            if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+            {
+                builder.UserID = username;
+                builder.Password = password;
+                builder.IntegratedSecurity = false;
+            }
+            else
+            {
+                builder.IntegratedSecurity = true;
+            }
+            
             return builder.ToString();
         }
     }

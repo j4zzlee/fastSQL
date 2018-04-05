@@ -66,11 +66,11 @@ namespace FastSQL.MsAccess
             return this;
         }
 
-        public IEnumerable<T> Query<T>(string rawSQL, object @params = null)
+        public IEnumerable<QueryResult> Query(string rawSQL, object @params = null)
         {
             return _adapter
                 .SetFilePath(_selfOptions?.FirstOrDefault(o => o.Name == "db_path")?.Value)
-                .Query<T>(rawSQL, @params);
+                .Query(rawSQL, @params);
         }
 
         public int Execute(string rawQuery, object @params = null)

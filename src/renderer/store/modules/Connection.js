@@ -1,6 +1,7 @@
 import Vue from 'vue';
 const state = {
-  connections: []
+  connections: [],
+  connectedConnections: []
 };
 
 const mutations = {
@@ -14,6 +15,15 @@ const mutations = {
     state.connections = state.connections.filter(c => {
       return c.id !== id;
     });
+  },
+  ADD_CONNECTED_CONNECTION(state, connection) {
+    state.connectedConnections = [...state.connectedConnections, connection];
+  },
+  REMOVE_CONNECTED_CONNECTION(state, id) {
+    const conns = state.connectedConnections.filter(c => {
+      return c.id !== id;
+    });
+    state.connectedConnections = [...conns];
   }
 };
 

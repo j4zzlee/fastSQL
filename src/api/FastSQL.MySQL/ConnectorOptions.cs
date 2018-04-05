@@ -42,6 +42,13 @@ namespace FastSQL.MySQL
                 },
                 new OptionItem
                 {
+                    Name = "Database",
+                    DisplayName = "Database",
+                    Type = OptionType.Text,
+                    Value = ""
+                },
+                new OptionItem
+                {
                     Name = "SslMode",
                     DisplayName = "SslMode",
                     Type = OptionType.List,

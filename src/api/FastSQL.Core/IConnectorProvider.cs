@@ -12,7 +12,7 @@ namespace FastSQL.Core
         IEnumerable<OptionItem> Options { get; }
         IConnectorProvider SetOptions(IEnumerable<OptionItem> options);
         bool TryConnect(out string message);
-        IEnumerable<T> Query<T>(string rawQuery, object @params = null);
+        IEnumerable<QueryResult> Query(string rawQuery, object @params = null);
         int Execute(string rawQuery, object @params = null);
     }
 }

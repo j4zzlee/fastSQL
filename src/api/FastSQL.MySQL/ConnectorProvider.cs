@@ -62,11 +62,11 @@ namespace FastSQL.MySQL
             return this;
         }
 
-        public IEnumerable<T> Query<T>(string rawSQL, object @params = null)
+        public IEnumerable<QueryResult> Query(string rawSQL, object @params = null)
         {
             return _adapter
                 .SetOptions(_selfOptions)
-                .Query<T>(rawSQL, @params);
+                .Query(rawSQL, @params);
         }
 
         public int Execute(string rawQuery, object @params = null)

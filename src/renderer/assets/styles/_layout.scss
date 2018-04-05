@@ -1,0 +1,42 @@
+html,
+body,
+#app,
+#wrapper,
+main,
+.vue-codemirror {
+  height: 100%;
+}
+
+main {
+  position: relative;
+  &.sql-container {
+    display: flex;
+    flex-direction: column;
+    .sql-result {
+      flex-grow: .3;
+      overflow: auto;
+    }
+    .codemirror {
+      flex-grow: 1;
+      display: flex;
+      position: relative;
+      flex-direction: column;
+      .vue-codemirror-wrap, .vue-codemirror {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        .CodeMirror {
+          height: 100%;
+          width: 100%;
+        }        
+      }
+    }
+  }
+}
+
+.codemirror {
+  border: 1px solid #e9ecef;
+}
+
