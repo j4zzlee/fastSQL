@@ -8,8 +8,11 @@ namespace FastSQL.Core
 {
     public interface IConnectorAdapter
     {
-        IDbConnection GetConnection();
         IEnumerable<QueryResult> Query(string raw, object @params = null);
         int Execute(string raw, object @params = null);
+        IEnumerable<string> GetTables();
+        IEnumerable<string> GetViews();
+        IConnectorAdapter SetOptions(IEnumerable<OptionItem> options);
+        bool TryConnect(out string message);
     }
 }

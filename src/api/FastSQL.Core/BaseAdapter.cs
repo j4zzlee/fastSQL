@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.IO;
 
 namespace FastSQL.Core
@@ -26,7 +27,11 @@ namespace FastSQL.Core
             }
         }
 
-        public abstract IDbConnection GetConnection();
+        protected abstract DbConnection GetConnection();
+
+        public abstract IEnumerable<string> GetTables();
+
+        public abstract IEnumerable<string> GetViews();
 
         public virtual IEnumerable<QueryResult> Query(string raw, object @params = null)
         {
@@ -94,5 +99,9 @@ namespace FastSQL.Core
                 conn?.Dispose();
             }
         }
+
+        public abstract IConnectorAdapter SetOptions(IEnumerable<OptionItem> options);
+
+        public abstract bool TryConnect(out string message);
     }
 }

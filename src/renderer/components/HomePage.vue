@@ -7,21 +7,8 @@
         data-toggle="tooltip"
         title="New connection">+</a>
       <ul class="nav flex-column">
-        <li class="nav-item" v-for="connection in connectedConnections" v-bind:key="connection.id">
-          <a class="nav-link" href="#"><small>{{connection.profile}}</small></a>
-          <div class="btn-group btn-dropdown">
-            <button type="button" class="btn btn-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-              @click="() => onShowConnectionDropdown(connection)">
-              ...
-            </button>
-            <div class="dropdown-menu show dropdown-menu-right" v-if="connection.id === currentConnectionDropdownId">
-              <a class="dropdown-item" href="#" @click="() => onNewQuery(connection)">New Query</a>
-              <a class="dropdown-item" href="#">Refresh</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#" @click="() => onDisconnect(connection.id)">Disconnect</a>
-            </div>
-          </div>
-        </li>
+        <Connection v-for="connection in connectedConnections" v-bind:key="connection.id" :connection="connection"
+          :newQuery="onNewQuery" :disconnect="onDisconnect"></Connection>
       </ul>
     </div>
     <main class="sql-container" v-if="tabs && tabs.length">
@@ -80,7 +67,6 @@ export default {
   data() {
     return {
       isOpenNav: false,
-      currentConnectionDropdownId: '',
       selectedTabId: '',
       tabs: [],
       queryResults: null,
@@ -99,6 +85,7 @@ export default {
   },
   components: {
     ConnectionModal: () => import('@/components/Connection/NewConnection'),
+    Connection: () => import('@/components/Database'),
     codemirror
   },
   computed: {
@@ -117,19 +104,8 @@ export default {
     async onConnect() {
       this.SHOW_MODAL('NewConnection');
     },
-    async onShowConnectionDropdown(connection) {
-      if (this.currentConnectionDropdownId) {
-        if (this.currentConnectionDropdownId === connection.id) {
-          this.currentConnectionDropdownId = null;
-        } else {
-          this.currentConnectionDropdownId = connection.id;
-        }
-      } else {
-        this.currentConnectionDropdownId = connection.id;
-      }
-    },
-    async onDisconnect(connectionId) {
-      this.REMOVE_CONNECTED_CONNECTION(connectionId);
+    async onDisconnect(connection) {
+      this.REMOVE_CONNECTED_CONNECTION(connection.id);
     },
     async onTabSelect(tab) {
       this.selectedTabId = tab.id;
@@ -146,7 +122,6 @@ export default {
         sql: ''
       });
       this.selectedTabId = selectedTabId;
-      this.currentConnectionDropdownId = null;
       this.code = '';
     },
     async onCodeChange(newVal) {

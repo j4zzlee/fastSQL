@@ -33,13 +33,45 @@ namespace api.Controllers
             return Ok(result);
         }
 
+        [HttpPost("{id}/tables/get")]
+        public IActionResult GetTables(string id, [FromBody] List<OptionItem> options)
+        {
+            var provider = _providers.FirstOrDefault(p => p.Id == id);
+            provider.SetOptions(options);
+            var data = provider
+                .GetAdapter()
+                .GetTables();
+            return Ok(new
+            {
+                success = true,
+                data
+            });
+        }
+
+        [HttpPost("{id}/views/get")]
+        public IActionResult GetViews(string id, [FromBody] List<OptionItem> options)
+        {
+            var provider = _providers.FirstOrDefault(p => p.Id == id);
+            provider.SetOptions(options);
+            var data = provider
+                .GetAdapter()
+                .GetViews();
+            return Ok(new
+            {
+                success = true,
+                data
+            });
+        }
+
         // GET api/providers
         [HttpPost("{id}/connect")]
         public IActionResult Connect(string id, [FromBody] List<OptionItem> options)
         {
             var provider = _providers.FirstOrDefault(p => p.Id == id);
             provider.SetOptions(options);
-            var success = provider.TryConnect(out string message);
+            var success = provider
+                .GetAdapter()
+                .TryConnect(out string message);
             return Ok(new
             {
                 success,
@@ -54,7 +86,9 @@ namespace api.Controllers
             {
                 var provider = _providers.FirstOrDefault(p => p.Id == id);
                 provider.SetOptions(model.Options);
-                var data = provider.Query(model.RawQuery);
+                var data = provider
+                    .GetAdapter()
+                    .Query(model.RawQuery);
                 return Ok(new
                 {
                     success = true,
@@ -79,7 +113,9 @@ namespace api.Controllers
             {
                 var provider = _providers.FirstOrDefault(p => p.Id == id);
                 provider.SetOptions(model.Options);
-                var data = provider.Execute(model.RawQuery);
+                var data = provider
+                    .GetAdapter()
+                    .Execute(model.RawQuery);
                 return Ok(new
                 {
                     success = true,
