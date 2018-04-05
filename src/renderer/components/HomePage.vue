@@ -109,7 +109,7 @@ export default {
     },
     async onTabSelect(tab) {
       this.selectedTabId = tab.id;
-      this.code = tab.sql;
+      this.code = tab.sql; // && tab.sql.replace(/(\\n)+/g, '\n').replace(/\s+/g, ' ');
     },
     async onNewQuery(connection) {
       const len = this.tabs.length + 1;
@@ -127,7 +127,9 @@ export default {
     async onCodeChange(newVal) {
       for (var i = 0; i < this.tabs.length; i++) {
         if (this.tabs[i].id === this.selectedTabId) {
-          this.tabs[i].sql = newVal;
+          const code = newVal; // (newVal && newVal.replace(/(\\n)+/g, '\n').replace(/\s+/g, ' ')) || '';
+          this.tabs[i].sql = code;
+          this.code = code;
         }
       }
     },
