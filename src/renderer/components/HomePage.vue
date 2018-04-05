@@ -41,7 +41,7 @@
           <i class="fa fa-trash-o"></i>
         </button>
       </div>
-      <div class="codemirror">
+      <div class="codemirror" @keydown="(e) => onEditorKeyPress(e)">
         <codemirror v-model="code" :options="cmOptions" @input="onCodeChange"></codemirror> 
       </div>
       <div class="sql-result" v-if="(queryResults && queryResults.length > 0) || errorMessage">
@@ -57,7 +57,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="row in r.Rows" v-bind:key="row.Id">
+              <tr v-for="row in r.Rows" v-bind:key="Object.values(row).join(',')">
                 <td scope="row" v-bind:key="key" v-for="key in Object.keys(r.Rows[0])">{{row[key]}}</td>
               </tr>
             </tbody>
@@ -90,7 +90,7 @@ export default {
         tabSize: 4,
         lineNumbers: true,
         line: true,
-        mode: 'text/x-sql'
+        mode: 'text/x-mysql'
       }
     };
   },
@@ -147,6 +147,7 @@ export default {
       });
       this.selectedTabId = selectedTabId;
       this.currentConnectionDropdownId = null;
+      this.code = '';
     },
     async onCodeChange(newVal) {
       for (var i = 0; i < this.tabs.length; i++) {
@@ -175,6 +176,13 @@ export default {
         this.errorMessage = res.message;
       }
       this.queryResults = res.data;
+    },
+    async onEditorKeyPress(e) {
+      if ((e.which || e.keyCode) === 117) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.onExecuteScript();
+      }
     }
   }
 };
