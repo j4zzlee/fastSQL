@@ -37,7 +37,7 @@
         <button type="button" class="btn btn-link">
           <i class="fa fa-floppy-o"></i>
         </button>
-        <button type="button" class="btn btn-link">
+        <button type="button" class="btn btn-link" @click.prevent="onDeleteTab">
           <i class="fa fa-trash-o"></i>
         </button>
       </div>
@@ -182,6 +182,16 @@ export default {
         e.preventDefault();
         e.stopPropagation();
         this.onExecuteScript();
+      }
+    },
+    async onDeleteTab() {
+      this.tabs = this.tabs.filter(t => t.id !== this.selectedTabId);
+      if (this.tabs.length) {
+        this.selectedTabId = this.tabs[0].id;
+        this.code = this.tabs[0].sql;
+      } else {
+        this.code = '';
+        this.selectedTabId = null;
       }
     }
   }
