@@ -1,21 +1,22 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Cors;
 using System.Collections.Generic;
 using FastSQL.Core;
 using System.Linq;
-using api.ViewModels;
+using FastSQL.API.ViewModels;
 
-namespace api.Controllers
+namespace FastSQL.API.Controllers
 {
     [Route("api/[controller]")]
     public class ProvidersController : Controller
     {
-        private readonly IEnumerable<IConnectorProvider> _providers;
+        private readonly IEnumerable<IRichProvider> _providers;
+        private readonly IEnumerable<IRichAdapter> _adapters;
 
-        public ProvidersController(IEnumerable<IConnectorProvider> providers)
+        public ProvidersController(IEnumerable<IRichProvider> providers, IEnumerable<IRichAdapter> adapters)
         {
-            this._providers = providers;
+            _providers = providers;
+            _adapters = adapters;
         }
         // GET api/providers
         [HttpGet]
@@ -36,10 +37,9 @@ namespace api.Controllers
         [HttpPost("{id}/tables/get")]
         public IActionResult GetTables(string id, [FromBody] List<OptionItem> options)
         {
-            var provider = _providers.FirstOrDefault(p => p.Id == id);
-            provider.SetOptions(options);
-            var data = provider
-                .GetAdapter()
+            var adapter = _adapters.FirstOrDefault(p => p.GetProvider().Id == id);
+            var data = adapter
+                .SetOptions(options)
                 .GetTables();
             return Ok(new
             {
@@ -51,10 +51,9 @@ namespace api.Controllers
         [HttpPost("{id}/views/get")]
         public IActionResult GetViews(string id, [FromBody] List<OptionItem> options)
         {
-            var provider = _providers.FirstOrDefault(p => p.Id == id);
-            provider.SetOptions(options);
-            var data = provider
-                .GetAdapter()
+            var adapter = _adapters.FirstOrDefault(p => p.GetProvider().Id == id);
+            var data = adapter
+                .SetOptions(options)
                 .GetViews();
             return Ok(new
             {
@@ -67,10 +66,12 @@ namespace api.Controllers
         [HttpPost("{id}/connect")]
         public IActionResult Connect(string id, [FromBody] List<OptionItem> options)
         {
-            var provider = _providers.FirstOrDefault(p => p.Id == id);
-            provider.SetOptions(options);
-            var success = provider
-                .GetAdapter()
+            var adapter = _adapters.FirstOrDefault(p =>
+            {
+                return p.GetProvider().Id == id;
+            });
+            var success = adapter
+                .SetOptions(options)
                 .TryConnect(out string message);
             return Ok(new
             {
@@ -84,11 +85,10 @@ namespace api.Controllers
         {
             try
             {
-                var provider = _providers.FirstOrDefault(p => p.Id == id);
-                provider.SetOptions(model.Options);
-                var data = provider
-                    .GetAdapter()
-                    .Query(model.RawQuery);
+                var adapter = _adapters.FirstOrDefault(p => p.GetProvider().Id == id);
+                var data = adapter
+                    .SetOptions(model.Options)
+                        .Query(model.RawQuery);
                 return Ok(new
                 {
                     success = true,
@@ -111,10 +111,9 @@ namespace api.Controllers
         {
             try
             {
-                var provider = _providers.FirstOrDefault(p => p.Id == id);
-                provider.SetOptions(model.Options);
-                var data = provider
-                    .GetAdapter()
+                var adapter = _adapters.FirstOrDefault(p => p.GetProvider().Id == id);
+                var data = adapter
+                    .SetOptions(model.Options)
                     .Execute(model.RawQuery);
                 return Ok(new
                 {

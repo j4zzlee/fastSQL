@@ -3,15 +3,13 @@ using System.Collections.Generic;
 
 namespace FastSQL.Core
 {
-    public interface IConnectorProvider
+    public interface IRichProvider
     {
         string Id { get; }
         string Name { get; }
         string DisplayName { get; }
         string Description { get; }
         IEnumerable<OptionItem> Options { get; }
-        IConnectorProvider SetOptions(IEnumerable<OptionItem> options);
-        IConnectorAdapter GetAdapter();
-        IConnectorOptions GetOptions();
+        IRichProvider SetOptions(IEnumerable<OptionItem> options);
     }
 }

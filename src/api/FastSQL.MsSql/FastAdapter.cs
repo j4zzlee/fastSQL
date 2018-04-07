@@ -10,9 +10,11 @@ using System.Linq;
 
 namespace FastSQL.MsSql
 {
-    public class ConnectorAdapter : BaseAdapter
+    public class FastAdapter : BaseAdapter
     {
-        private IEnumerable<OptionItem> _options;
+        public FastAdapter(FastProvider provider) : base(provider)
+        {
+        }
 
         public override IEnumerable<string> GetTables()
         {
@@ -29,20 +31,14 @@ namespace FastSQL.MsSql
             using (var conn = GetConnection())
             {
                 conn.Open();
-                var dbName = _options.FirstOrDefault(o => o.Name == "Database")?.Value;
+                var dbName = Options.FirstOrDefault(o => o.Name == "Database")?.Value;
                 var schema = conn.GetSchema("Views");
                 return schema.Rows.Cast<DataRow>()
                     .Where(r => r["TABLE_CATALOG"].ToString() == dbName || string.IsNullOrWhiteSpace(dbName))
                     .Select(r => r["TABLE_NAME"].ToString());
             }
         }
-
-        public override IConnectorAdapter SetOptions(IEnumerable<OptionItem> options)
-        {
-            _options = options;
-            return this;
-        }
-
+        
         public override bool TryConnect(out string message)
         {
             IDbConnection conn = null;
@@ -68,7 +64,7 @@ namespace FastSQL.MsSql
 
         protected override DbConnection GetConnection()
         {
-            var builder = new ConnectionStringBuilder(_options);
+            var builder = new ConnectionStringBuilder(Options);
             return new SqlConnection(builder.Build());
         }
     }

@@ -8,26 +8,29 @@ using System.IO;
 
 namespace FastSQL.Core
 {
-    public abstract class BaseAdapter : IConnectorAdapter
+    public abstract class BaseAdapter : IRichAdapter
     {
-        public virtual int Execute(string raw, object @params = null)
+        protected IRichProvider Provider;
+        protected IEnumerable<OptionItem> Options;
+        protected BaseAdapter(IRichProvider provider)
         {
-            IDbConnection conn = null;
-            try
-            {
-                using (conn = GetConnection())
-                {
-                    conn.Open();
-                    return conn.Execute(raw, @params);
-                }
-            }
-            finally
-            {
-                conn?.Dispose();
-            }
+            Provider = provider;
+        }
+
+        public virtual IRichProvider GetProvider()
+        {
+            return Provider;
+        }
+
+        public virtual IRichAdapter SetOptions(IEnumerable<OptionItem> options)
+        {
+            Options = options;
+            return this;
         }
 
         protected abstract DbConnection GetConnection();
+
+        public abstract bool TryConnect(out string message);
 
         public abstract IEnumerable<string> GetTables();
 
@@ -100,8 +103,23 @@ namespace FastSQL.Core
             }
         }
 
-        public abstract IConnectorAdapter SetOptions(IEnumerable<OptionItem> options);
+        public virtual int Execute(string raw, object @params = null)
+        {
+            IDbConnection conn = null;
+            try
+            {
+                using (conn = GetConnection())
+                {
+                    conn.Open();
+                    return conn.Execute(raw, @params);
+                }
+            }
+            finally
+            {
+                conn?.Dispose();
+            }
+        }
 
-        public abstract bool TryConnect(out string message);
+        
     }
 }

@@ -1,29 +1,26 @@
 ﻿using FastSQL.Core;
-using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.Odbc;
+using System.IO;
 using System.Linq;
 
-namespace FastSQL.MySQL
+namespace FastSQL.MsAccess
 {
-    public class ConnectorAdapter : BaseAdapter
+    public class FastAdapter : BaseAdapter
     {
-        private IEnumerable<OptionItem> _options;
+        public FastAdapter(FastProvider provider) : base(provider)
+        {
+        }
 
         protected override DbConnection GetConnection()
         {
-            var builder = new ConnectionStringBuilder(_options);
-            return new MySqlConnection(builder.Build());
+            var builder = new ConnectionStringBuilder(Options);
+            return new OdbcConnection(builder.Build());
         }
-
-        public override IConnectorAdapter SetOptions(IEnumerable<OptionItem> options)
-        {
-            _options = options;
-            return this;
-        }
-
+        
         public override bool TryConnect(out string message)
         {
             IDbConnection conn = null;
@@ -62,11 +59,8 @@ namespace FastSQL.MySQL
             using (var conn = GetConnection())
             {
                 conn.Open();
-                var dbName = _options.FirstOrDefault(o => o.Name == "Database")?.Value;
                 var schema = conn.GetSchema("Views");
-                return schema.Rows.Cast<DataRow>()
-                    .Where(r => r["TABLE_SCHEMA"].ToString() == dbName || string.IsNullOrWhiteSpace(dbName))
-                    .Select(r => r["TABLE_NAME"].ToString());
+                return schema.Rows.Cast<DataRow>().Select(r => r["TABLE_NAME"].ToString());
             }
         }
     }

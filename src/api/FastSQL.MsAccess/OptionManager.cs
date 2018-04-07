@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace FastSQL.MsAccess
 {
-    public class ConnectorOptions : IConnectorOptions
+    public class OptionManager : IOptionManager
     {
-        public IEnumerable<OptionItem> GetOptions()
+        public IEnumerable<OptionItem> GetOptionsTemplate()
         {
             return new List<OptionItem>
             {

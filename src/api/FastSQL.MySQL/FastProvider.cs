@@ -11,7 +11,7 @@ using System.Text;
 
 namespace FastSQL.MySQL
 {
-    public class ConnectorProvider : BaseProvider
+    public class FastProvider : BaseProvider
     {
         public override string Id => "1064aecb081027138f91e1e7e401a99239f89283";
         public override string Name => "MySQL";
@@ -20,7 +20,7 @@ namespace FastSQL.MySQL
 
         public override string Description => "MySQL";
         
-        public ConnectorProvider(ConnectorOptions options, ConnectorAdapter adapter): base(options, adapter)
+        public FastProvider(OptionManager options): base(options)
         {
         }
     }

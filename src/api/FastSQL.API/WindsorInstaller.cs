@@ -4,10 +4,8 @@ using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using FastSQL.Core;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace api
+namespace FastSQL.API
 {
     public class WindsorInstaller : IWindsorInstaller
     {
@@ -15,18 +13,18 @@ namespace api
         {
             var fromAssembly = Classes.FromAssemblyInDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory));
             container.Register(fromAssembly
-                .BasedOn<IConnectorProvider>()
-                .WithService.Select(new Type[] { typeof(IConnectorProvider) })
+                .BasedOn<IRichProvider>()
+                .WithService.Select(new Type[] { typeof(IRichProvider) })
                 .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(fromAssembly
-                .BasedOn<IConnectorAdapter>()
-                .WithService.Select(new Type[] { typeof(IConnectorAdapter) })
+                .BasedOn<IRichAdapter>()
+                .WithService.Select(new Type[] { typeof(IRichAdapter) })
                 .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(fromAssembly
-                .BasedOn<IConnectorOptions>()
-                .WithService.Select(new Type[] { typeof(IConnectorOptions) })
+                .BasedOn<IOptionManager>()
+                .WithService.Select(new Type[] { typeof(IOptionManager) })
                 .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
         }

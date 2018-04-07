@@ -67,7 +67,7 @@ export default {
     async onLoadTables () {
       const req = await this.$http.post(
         `http://localhost:5000/api/providers/${this.connection.provider.id}/tables/get`,
-        this.connection.provider.Options
+        this.connection.provider.options
       );
       console.log(req.data)
     },

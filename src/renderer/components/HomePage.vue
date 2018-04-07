@@ -35,17 +35,17 @@
         <div class="alert alert-danger" role="alert" v-if="!!errorMessage">
           {{errorMessage}}
         </div>
-        <div class="form-group" v-for="r in queryResults" v-bind:key="r.Id">
-          <span class="form-control" v-if="r.RecordsAffected > -1">Records affected: {{r.RecordsAffected}}</span>
-          <table class="table table-striped" v-if="r.Rows && r.Rows.length > 0">
+        <div class="form-group" v-for="r in queryResults" v-bind:key="r.id">
+          <span class="form-control" v-if="r.recordsAffected > -1">Records affected: {{r.recordsAffected}}</span>
+          <table class="table table-striped" v-if="r.rows && r.rows.length > 0">
             <thead>
               <tr>
-                <th scope="col" v-bind:key="key" v-for="key in Object.keys(r.Rows[0])">{{key}}</th>
+                <th scope="col" v-bind:key="key" v-for="key in Object.keys(r.rows[0])">{{key}}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="row in r.Rows" v-bind:key="Object.values(row).join(',')">
-                <td scope="row" v-bind:key="key" v-for="key in Object.keys(r.Rows[0])">{{row[key]}}</td>
+              <tr v-for="row in r.rows" v-bind:key="Object.values(row).join(',')">
+                <td scope="row" v-bind:key="key" v-for="key in Object.keys(r.rows[0])">{{row[key]}}</td>
               </tr>
             </tbody>
           </table>
@@ -140,12 +140,12 @@ export default {
       const connection = _.find(this.connectedConnections, {
         id: tab.connectionId
       });
-      const providerId = connection.provider.Id;
+      const providerId = connection.provider.id;
       const req = await this.$http.post(
         `http://localhost:5000/api/providers/${providerId}/query`,
         {
           RawQuery: tab.sql,
-          Options: connection.provider.Options
+          Options: connection.provider.options
         }
       );
       const res = req.data;

@@ -39,9 +39,9 @@ function createWindow() {
 function startApi() {
   const proc = require('child_process').spawn;
   //  run server
-  let apipath = path.resolve(__dirname, '../api/bin/dist/win/api.exe');
+  let apipath = path.resolve(__dirname, '../api/bin/dist/win/FastSQL.API.exe');
   if (os.platform() === 'darwin') {
-    apipath = path.resolve(__dirname, '../api/bin/dist/osx/Api');
+    apipath = path.resolve(__dirname, '../api/bin/dist/osx/FastSQL.API');
   }
   console.log(`Starting ${apipath}`)
   const apiProcess = proc(apipath);

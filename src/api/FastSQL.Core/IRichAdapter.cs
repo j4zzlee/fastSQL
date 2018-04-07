@@ -6,13 +6,16 @@ using System.Text;
 
 namespace FastSQL.Core
 {
-    public interface IConnectorAdapter
+    public interface IRichAdapter
     {
+        IRichProvider GetProvider();
+        IRichAdapter SetOptions(IEnumerable<OptionItem> options);
+        bool TryConnect(out string message);
+
         IEnumerable<QueryResult> Query(string raw, object @params = null);
         int Execute(string raw, object @params = null);
+
         IEnumerable<string> GetTables();
         IEnumerable<string> GetViews();
-        IConnectorAdapter SetOptions(IEnumerable<OptionItem> options);
-        bool TryConnect(out string message);
     }
 }

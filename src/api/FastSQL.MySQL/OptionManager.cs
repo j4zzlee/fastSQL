@@ -1,29 +1,37 @@
 ﻿using FastSQL.Core;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FastSQL.MsSql
+namespace FastSQL.MySQL
 {
-    public class ConnectorOptions : IConnectorOptions
+    public class OptionManager : IOptionManager
     {
-        public IEnumerable<OptionItem> GetOptions()
+        public IEnumerable<OptionItem> GetOptionsTemplate()
         {
             return new List<OptionItem>
             {
                 new OptionItem
                 {
-                    Name = "DataSource",
-                    DisplayName = "Data Source",
+                    Name = "Server",
+                    DisplayName = "Server",
                     Type = OptionType.Text,
-                    Value = ".\\SQLEXPRESS"
+                    Value = "(localhost)"
+                },
+                new OptionItem
+                {
+                    Name = "Port",
+                    DisplayName = "Port",
+                    Type = OptionType.Text,
+                    Value = "3306"
                 },
                 new OptionItem
                 {
                     Name = "UserID",
                     DisplayName = "User ID",
                     Type = OptionType.Text,
-                    Value = "sa"
+                    Value = "root"
                 },
                 new OptionItem
                 {
@@ -38,6 +46,17 @@ namespace FastSQL.MsSql
                     DisplayName = "Database",
                     Type = OptionType.Text,
                     Value = ""
+                },
+                new OptionItem
+                {
+                    Name = "SslMode",
+                    DisplayName = "SslMode",
+                    Type = OptionType.List,
+                    Value = "",
+                    Source = Enum.GetValues(typeof(MySqlSslMode))
+                        .Cast<MySqlSslMode>()
+                        .Select(v => v.ToString())
+                        .ToList()
                 }
             };
         }

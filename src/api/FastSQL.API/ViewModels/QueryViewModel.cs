@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace api.ViewModels
+namespace FastSQL.API.ViewModels
 {
     public class QueryViewModel
     {

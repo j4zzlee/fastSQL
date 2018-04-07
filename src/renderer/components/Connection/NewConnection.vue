@@ -35,25 +35,25 @@
             <label for="providers">Providers</label>
             <select class="form-control" v-model="currentProviderId" @change="onProviderChanged">
               <option>Choose...</option>
-              <option v-for="connector in providers" v-bind:key="connector.Id" v-bind:value="connector.Id" >{{ connector.DisplayName }}</option>
+              <option v-for="connector in providers" v-bind:key="connector.id" v-bind:value="connector.id" >{{ connector.displayName }}</option>
             </select>
           </div>
-          <div class="form-group" v-bind:key="option.Name" v-for="option in currentProvider.Options">
-            <label for="name">{{ option.DisplayName }}</label>
-            <input v-if="option.Type === 0" type="text" class="form-control" v-model="option.Value"/>
-            <textarea v-if="option.Type === 1" class="form-control" v-model="option.Value"/>
-            <input v-if="option.Type === 2" type="password" class="form-control" v-model="option.Value"/>
-            <div class="form-check has-success" v-if="option.Type === 3">
+          <div class="form-group" v-bind:key="option.Name" v-for="option in currentProvider.options">
+            <label for="name">{{ option.displayName }}</label>
+            <input v-if="option.type === 0" type="text" class="form-control" v-model="option.value"/>
+            <textarea v-if="option.type === 1" class="form-control" v-model="option.value"/>
+            <input v-if="option.type === 2" type="password" class="form-control" v-model="option.value"/>
+            <div class="form-check has-success" v-if="option.type === 3">
               <label class="form-check-label">
-                <input type="checkbox" class="form-check-input" v-model="option.Value">
+                <input type="checkbox" class="form-check-input" v-model="option.value">
               </label>
             </div>
-            <div class="file-upload" v-if="option.Type === 4">
-              <span class="form-control">{{option.Value}}</span>
-              <input class="file" type="file" @change="(e) => onFileChange(e, option)" :ref="`fileUpload${option.Name}`"/>
+            <div class="file-upload" v-if="option.type === 4">
+              <span class="form-control">{{option.value}}</span>
+              <input class="file" type="file" @change="(e) => onFileChange(e, option)" :ref="`fileUpload${option.name}`"/>
             </div>
-            <select v-if="option.Type === 5" class="form-control" v-model="option.Value">
-              <option v-for="source in option.Source" v-bind:key="source" v-bind:value="source" >{{ source }}</option>
+            <select v-if="option.type === 5" class="form-control" v-model="option.value">
+              <option v-for="source in option.source" v-bind:key="source" v-bind:value="source" >{{ source }}</option>
             </select>
           </div>
           <div class="alert alert-danger" role="alert" v-if="!!errorMessage">
@@ -120,19 +120,19 @@ export default {
       this.successMessage = null;
       this.id = connection.id;
       this.profile = connection.profile;
-      if (connection.provider && connection.provider.Id) {
-        const provider = await this.getProviderById(connection.provider.Id);
-        for (var i = 0; i < provider.Options.length; i++) {
-          const currentOption = provider.Options[i];
-          const connOption = _.find(connection.provider.Options, {Name: currentOption.Name});
+      if (connection.provider && connection.provider.id) {
+        const provider = await this.getProviderById(connection.provider.id);
+        for (var i = 0; i < provider.options.length; i++) {
+          const currentOption = provider.options[i];
+          const connOption = _.find(connection.provider.options, {name: currentOption.name});
           if (connOption) {
-            provider.Options[i].Value = connOption.Value;
+            provider.options[i].value = connOption.value;
           }
         }
         this.currentProvider = {
           ...provider
         };
-        this.currentProviderId = connection.provider.Id
+        this.currentProviderId = connection.provider.id
       }
 
       this.isShowConnections = false;
@@ -152,14 +152,14 @@ export default {
     async onConnect() {
       this.errorMessage = null;
       this.successMessage = null;
-      if (!this.currentProvider || !this.currentProvider.Id) {
+      if (!this.currentProvider || !this.currentProvider.id) {
         this.errorMessage = 'Please select a provider';
         return;
       }
       // connect first
       const req = await this.$http.post(
         `http://localhost:5000/api/providers/${this.currentProviderId}/connect`,
-        this.currentProvider.Options
+        this.currentProvider.options
       );
       const res = req.data;
       if (!res.success) {
@@ -205,7 +205,7 @@ export default {
       if (
         !currentProfile.provider ||
         !this.currentProvider ||
-        currentProfile.provider.Id !== this.currentProviderId
+        currentProfile.provider.id !== this.currentProviderId
       ) {
         this.currentProvider = data;
         return;

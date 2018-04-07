@@ -1,19 +1,17 @@
-﻿using System;
+﻿using FastSQL.Core.ExtensionMethods;
 using System.Collections.Generic;
-using System.Data;
-using System.Text;
+using System.Linq;
 
 namespace FastSQL.Core
 {
-    public abstract class BaseProvider : IConnectorProvider
+    public abstract class BaseProvider : IRichProvider
     {
-        protected readonly IConnectorOptions ConnectorOptions;
-        protected readonly IConnectorAdapter ConnectorAdapter;
+        protected IEnumerable<OptionItem> InstanceOptions;
+        protected readonly IOptionManager OptionManager;
 
-        protected BaseProvider(IConnectorOptions connectorOptions, IConnectorAdapter connectorAdapter)
+        protected BaseProvider(IOptionManager optionManager)
         {
-            ConnectorOptions = connectorOptions;
-            ConnectorAdapter = connectorAdapter;
+            OptionManager = optionManager;
         }
 
         public abstract string Id { get; }
@@ -23,25 +21,38 @@ namespace FastSQL.Core
         public abstract string DisplayName { get; }
 
         public abstract string Description { get; }
-
-        protected IEnumerable<OptionItem> SelfOptions;
-        public IEnumerable<OptionItem> Options => SelfOptions ?? ConnectorOptions?.GetOptions() ?? new List<OptionItem>();
         
-        public IConnectorProvider SetOptions(IEnumerable<OptionItem> options)
+        public IRichProvider SetOptions(IEnumerable<OptionItem> options)
         {
-            SelfOptions = options;
-            ConnectorAdapter.SetOptions(options);
+            InstanceOptions = options;
             return this;
         }
-
-        public IConnectorAdapter GetAdapter()
+        
+        public IEnumerable<OptionItem> Options
         {
-            return ConnectorAdapter;
-        }
-
-        public IConnectorOptions GetOptions()
-        {
-            return ConnectorOptions;
+            get
+            {
+                // always merge with the template
+                var template = OptionManager.GetOptionsTemplate();
+                if (InstanceOptions == null || InstanceOptions.Count() <= 0)
+                {
+                    return template;
+                }
+                var result = new List<OptionItem>();
+                foreach (var o in template)
+                {
+                    var existedOption = InstanceOptions.FirstOrDefault(oo => oo.Name == o.Name);
+                    if (existedOption == null)
+                    {
+                        result.Add(o);
+                    }
+                    else
+                    {
+                        result.Add(o.Merge(existedOption));
+                    }
+                }
+                return result;
+            }
         }
     }
 }
