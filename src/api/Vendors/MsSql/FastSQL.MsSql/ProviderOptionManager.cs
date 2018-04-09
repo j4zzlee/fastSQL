@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace FastSQL.MsSql
 {
-    public class OptionManager : IOptionManager
+    public class ProviderOptionManager : BaseOptionMananger
     {
-        public IEnumerable<OptionItem> GetOptionsTemplate()
+        public override IEnumerable<OptionItem> GetOptionsTemplate()
         {
             return new List<OptionItem>
             {

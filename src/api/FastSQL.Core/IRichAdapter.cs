@@ -6,10 +6,8 @@ using System.Text;
 
 namespace FastSQL.Core
 {
-    public interface IRichAdapter
+    public interface IRichAdapter: IOptionManager, IRichProviderVerifier
     {
-        IRichProvider GetProvider();
-        IRichAdapter SetOptions(IEnumerable<OptionItem> options);
         bool TryConnect(out string message);
 
         IEnumerable<QueryResult> Query(string raw, object @params = null);

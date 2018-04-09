@@ -5,13 +5,11 @@ using System.Text;
 
 namespace FastSQL.Sync.Core
 {
-    public interface IVendor
+    public interface IVendor: IOptionManager
     {
         string Id { get; }
         string Name { get; }
         string DisplayName { get; }
         string Description { get; }
-        IEnumerable<OptionItem> Options { get; }
-        IVendor SetOptions(IEnumerable<OptionItem> options);
     }
 }

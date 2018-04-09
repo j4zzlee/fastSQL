@@ -1,14 +1,21 @@
 ﻿using FastSQL.Core;
 using System;
-using System.Collections.Generic;
 
 namespace FastSQL.Sync.Core
 {
-    public interface IPuller : IVendorVerifier
+    public interface IPuller : IVendorVerifier, IOptionManager
     {
-        IPuller SetOptions(IEnumerable<OptionItem> options);
-        IEnumerable<OptionItem> Options { get; }
         void PullAll();
         void PullRecent();
+    }
+
+    public interface IEntityPuller: IPuller
+    {
+        IEntityPuller SetEntity(Guid entityId);
+    }
+
+    public interface IAttributePuller: IPuller
+    {
+        IAttributePuller SetAttribute(Guid attributeId);
     }
 }

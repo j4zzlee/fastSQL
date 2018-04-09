@@ -22,37 +22,16 @@ namespace FastSQL.Core
 
         public abstract string Description { get; }
         
-        public IRichProvider SetOptions(IEnumerable<OptionItem> options)
+        public IOptionManager SetOptions(IEnumerable<OptionItem> options)
         {
-            InstanceOptions = options;
-            return this;
+            return OptionManager.SetOptions(options);
         }
-        
-        public IEnumerable<OptionItem> Options
+
+        public IEnumerable<OptionItem> GetOptionsTemplate()
         {
-            get
-            {
-                // always merge with the template
-                var template = OptionManager.GetOptionsTemplate();
-                if (InstanceOptions == null || InstanceOptions.Count() <= 0)
-                {
-                    return template;
-                }
-                var result = new List<OptionItem>();
-                foreach (var o in template)
-                {
-                    var existedOption = InstanceOptions.FirstOrDefault(oo => oo.Name == o.Name);
-                    if (existedOption == null)
-                    {
-                        result.Add(o);
-                    }
-                    else
-                    {
-                        result.Add(o.Merge(existedOption));
-                    }
-                }
-                return result;
-            }
+            return OptionManager.GetOptionsTemplate();
         }
+
+        public IEnumerable<OptionItem> Options => OptionManager.Options;
     }
 }

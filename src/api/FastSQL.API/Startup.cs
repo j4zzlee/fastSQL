@@ -35,6 +35,7 @@ namespace FastSQL.API
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            _container.Register(Component.For<IConfiguration>().UsingFactoryMethod(p => Configuration));
             return WindsorRegistrationHelper.CreateServiceProvider(_container, services);
         }
 

@@ -18,12 +18,12 @@ namespace FastSQL.API.Controllers
             _providers = providers;
             _adapters = adapters;
         }
+
         // GET api/providers
         [HttpGet]
         public IActionResult Get()
         {
-            var result = _providers.ToList();
-            return Ok(result);
+            return Ok(_providers);
         }
 
         // GET api/providers
@@ -34,101 +34,18 @@ namespace FastSQL.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("{id}/tables/get")]
-        public IActionResult GetTables(string id, [FromBody] List<OptionItem> options)
-        {
-            var adapter = _adapters.FirstOrDefault(p => p.GetProvider().Id == id);
-            var data = adapter
-                .SetOptions(options)
-                .GetTables();
-            return Ok(new
-            {
-                success = true,
-                data
-            });
-        }
-
-        [HttpPost("{id}/views/get")]
-        public IActionResult GetViews(string id, [FromBody] List<OptionItem> options)
-        {
-            var adapter = _adapters.FirstOrDefault(p => p.GetProvider().Id == id);
-            var data = adapter
-                .SetOptions(options)
-                .GetViews();
-            return Ok(new
-            {
-                success = true,
-                data
-            });
-        }
-
         // GET api/providers
         [HttpPost("{id}/connect")]
         public IActionResult Connect(string id, [FromBody] List<OptionItem> options)
         {
-            var adapter = _adapters.FirstOrDefault(p =>
-            {
-                return p.GetProvider().Id == id;
-            });
-            var success = adapter
-                .SetOptions(options)
-                .TryConnect(out string message);
+            var adapter = _adapters.FirstOrDefault(p => p.IsProvider(id));
+            adapter.SetOptions(options);
+            var success = adapter.TryConnect(out string message);
             return Ok(new
             {
                 success,
                 message
             });
-        }
-
-        [HttpPost("{id}/query")]
-        public IActionResult Query(string id, [FromBody] QueryViewModel model)
-        {
-            try
-            {
-                var adapter = _adapters.FirstOrDefault(p => p.GetProvider().Id == id);
-                var data = adapter
-                    .SetOptions(model.Options)
-                        .Query(model.RawQuery);
-                return Ok(new
-                {
-                    success = true,
-                    data
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    success = false,
-                    message = ex.Message
-                });
-            }
-
-        }
-
-        [HttpPost("{id}/execute")]
-        public IActionResult Execute(string id, [FromBody] QueryViewModel model)
-        {
-            try
-            {
-                var adapter = _adapters.FirstOrDefault(p => p.GetProvider().Id == id);
-                var data = adapter
-                    .SetOptions(model.Options)
-                    .Execute(model.RawQuery);
-                return Ok(new
-                {
-                    success = true,
-                    data
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    success = false,
-                    message = ex.Message
-                });
-            }
         }
     }
 }

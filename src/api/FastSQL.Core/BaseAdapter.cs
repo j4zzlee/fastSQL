@@ -11,23 +11,14 @@ namespace FastSQL.Core
     public abstract class BaseAdapter : IRichAdapter
     {
         protected IRichProvider Provider;
-        protected IEnumerable<OptionItem> Options;
+        public IEnumerable<OptionItem> Options => Provider.Options;
+
+        #region Adapter
         protected BaseAdapter(IRichProvider provider)
         {
             Provider = provider;
         }
-
-        public virtual IRichProvider GetProvider()
-        {
-            return Provider;
-        }
-
-        public virtual IRichAdapter SetOptions(IEnumerable<OptionItem> options)
-        {
-            Options = options;
-            return this;
-        }
-
+        
         protected abstract DbConnection GetConnection();
 
         public abstract bool TryConnect(out string message);
@@ -119,7 +110,34 @@ namespace FastSQL.Core
                 conn?.Dispose();
             }
         }
+        #endregion
 
-        
+        #region Options
+        public IOptionManager SetOptions(IEnumerable<OptionItem> options)
+        {
+            return Provider.SetOptions(options);
+        }
+
+        public IEnumerable<OptionItem> GetOptionsTemplate()
+        {
+            return Provider.GetOptionsTemplate();
+        }
+        #endregion
+
+        #region Providers
+        public virtual IRichProvider GetProvider()
+        {
+            return Provider;
+        }
+        public bool IsProvider(string providerId)
+        {
+            return Provider.Id == providerId;
+        }
+
+        public bool IsProvider(IRichProvider provider)
+        {
+            return Provider.Id == provider.Id;
+        }
+        #endregion
     }
 }

@@ -16,7 +16,7 @@ namespace FastSQL.MsSql
         public override string Description => "Microsoft SQL Server";
         
 
-        public FastProvider(OptionManager options): base (options)
+        public FastProvider(ProviderOptionManager options): base (options)
         {
         }
     }

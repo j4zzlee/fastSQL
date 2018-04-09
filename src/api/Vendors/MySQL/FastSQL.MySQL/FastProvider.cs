@@ -20,7 +20,7 @@ namespace FastSQL.MySQL
 
         public override string Description => "MySQL";
         
-        public FastProvider(OptionManager options): base(options)
+        public FastProvider(ProviderOptionManager options): base(options)
         {
         }
     }

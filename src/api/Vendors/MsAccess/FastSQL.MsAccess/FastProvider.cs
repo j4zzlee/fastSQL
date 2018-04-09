@@ -11,7 +11,7 @@ namespace FastSQL.MsAccess
 
         public override string Description => "Microsoft Access";
         
-        public FastProvider(OptionManager options) : base(options)
+        public FastProvider(ProviderOptionManager options) : base(options)
         {
         }
     }
