@@ -22,9 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FastSQL.Core\FastSQL.Core.csproj" />
-    <ProjectReference Include="..\FastSQL.MsAccess\FastSQL.MsAccess.csproj" />
-    <ProjectReference Include="..\FastSQL.MsSql\FastSQL.MsSql.csproj" />
-    <ProjectReference Include="..\FastSQL.MySQL\FastSQL.MySQL.csproj" />
   </ItemGroup>
 
 </Project>

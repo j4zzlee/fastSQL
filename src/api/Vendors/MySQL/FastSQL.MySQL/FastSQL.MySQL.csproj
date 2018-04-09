@@ -6,11 +6,11 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.4" />
-    <PackageReference Include="System.Data.Odbc" Version="4.5.0-preview1-26216-02" />
+    <PackageReference Include="MySql.Data" Version="8.0.10-rc" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FastSQL.Core\FastSQL.Core.csproj" />
+    <ProjectReference Include="..\..\..\FastSQL.Core\FastSQL.Core.csproj" />
   </ItemGroup>
 
 </Project>

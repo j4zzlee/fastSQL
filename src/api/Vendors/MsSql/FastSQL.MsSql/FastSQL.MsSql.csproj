@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FastSQL.Core\FastSQL.Core.csproj" />
+    <ProjectReference Include="..\..\..\FastSQL.Core\FastSQL.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
