@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Castle.MicroKernel.Registration;
@@ -7,6 +9,7 @@ using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Castle.Windsor.MsDependencyInjection;
+using Castle.MicroKernel.Lifestyle;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +27,18 @@ namespace FastSQL.API
             _container = new WindsorContainer();
             _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel, true));
             _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
+            
+            _container.Register(Component.For<DbConnection>().UsingFactoryMethod((p) => {
+                var conf = p.Resolve<IConfiguration>();
+                var connectionString = conf.GetConnectionString("__MigrationDatabase");
+                var conn = new SqlConnection(connectionString);
+                conn.Open();
+                return conn;
+            }).LifestyleCustom<MsScopedLifestyleManager>());
+            _container.Register(Component.For<DbTransaction>().UsingFactoryMethod((c) => {
+                var conn = c.Resolve<DbConnection>();
+                return conn.BeginTransaction();
+            }).LifestyleCustom<MsScopedLifestyleManager>());
             _container.Install(FromAssembly.InThisApplication(GetType().Assembly));
 
             Configuration = configuration;
@@ -35,7 +50,7 @@ namespace FastSQL.API
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            _container.Register(Component.For<IConfiguration>().UsingFactoryMethod(p => Configuration));
+            
             return WindsorRegistrationHelper.CreateServiceProvider(_container, services);
         }
 
@@ -46,6 +61,15 @@ namespace FastSQL.API
             {
                 app.UseDeveloperExceptionPage();
             }
+            _container.Register(Component.For<IConfiguration>().UsingFactoryMethod(p => {
+                IConfigurationBuilder builder = new ConfigurationBuilder()
+                    .SetBasePath(env.ContentRootPath)
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                    .AddEnvironmentVariables();
+                return builder.Build();
+            }).LifestyleCustom<MsScopedLifestyleManager>());
+            _container.Register(Component.For<IHostingEnvironment>().UsingFactoryMethod(p => env).LifestyleCustom<MsScopedLifestyleManager>());
             app.UseCors(options => options
                     .AllowAnyOrigin()
                     .AllowAnyMethod()

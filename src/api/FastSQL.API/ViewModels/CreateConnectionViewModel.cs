@@ -20,6 +20,7 @@ namespace FastSQL.API.ViewModels
         [MaxLength(255)]
         public string ProviderId { get; set; }
 
+        [Required]
         public IEnumerable<OptionItem> Options { get; set; }
     }
 }
