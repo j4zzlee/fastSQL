@@ -14,6 +14,8 @@ namespace FastSQL.API
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             var fromAssembly = Classes.FromAssemblyInDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory));
+
+            // Providers & adapters
             container.Register(fromAssembly
                 .BasedOn<IRichProvider>()
                 .WithService.Select(new Type[] { typeof(IRichProvider) })
@@ -38,17 +40,27 @@ namespace FastSQL.API
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(fromAssembly
                 .BasedOn<IEntityPuller>()
-                .WithServiceSelf()
+                .WithService.Select(new Type[] { typeof(IEntityPuller) })
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(fromAssembly
                 .BasedOn<IAttributePuller>()
-                .WithServiceSelf()
+                 .WithService.Select(new Type[] { typeof(IAttributePuller) })
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
             // Indexer
             container.Register(fromAssembly
                 .BasedOn<IIndexer>()
                 .WithService.Select(new Type[] { typeof(IIndexer) })
+                .WithServiceSelf()
+                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+            container.Register(fromAssembly
+                .BasedOn<IEntityIndexer>()
+                .WithService.Select(new Type[] { typeof(IEntityIndexer) })
+                .WithServiceSelf()
+                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+            container.Register(fromAssembly
+                .BasedOn<IAttributeIndexer>()
+                .WithService.Select(new Type[] { typeof(IAttributeIndexer) })
                 .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
@@ -60,28 +72,30 @@ namespace FastSQL.API
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(fromAssembly
                 .BasedOn<IEntityPusher>()
-                .WithServiceSelf()
+                .WithService.Select(new Type[] { typeof(IEntityPusher) })
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(fromAssembly
                 .BasedOn<IAttributePusher>()
-                .WithServiceSelf()
+                 .WithService.Select(new Type[] { typeof(IAttributePusher) })
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-
-            container.Register(fromAssembly
-                .BasedOn<IVendor>()
-                .WithService.Select(new Type[] { typeof(IVendor) })
-                .WithServiceSelf()
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-            container.Register(fromAssembly
-                .BasedOn<IVendorVerifier>()
-                .WithService.Select(new Type[] { typeof(IVendorVerifier) })
-                .WithServiceSelf()
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-
+            
+            // Repositories
             container.Register(fromAssembly
                .BasedOn<BaseRepository>()
+               .WithService.Select(new Type[] { typeof(BaseRepository) })
                .WithServiceSelf()
                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+            container.Register(fromAssembly
+               .BasedOn(typeof(BaseGenericRepository<>))
+               .WithService.Select(new Type[] { typeof(BaseGenericRepository<>) })
+               .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
+            // Processors
+            container.Register(fromAssembly
+             .BasedOn<IProcessor>()
+             .WithService.Select(new Type[] { typeof(IProcessor) })
+             .WithServiceSelf()
+             .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
         }
     }
 }

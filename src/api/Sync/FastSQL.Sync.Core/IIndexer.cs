@@ -4,12 +4,18 @@ using System.Collections.Generic;
 
 namespace FastSQL.Sync.Core
 {
-    public interface IIndexer : IVendorVerifier
+    public interface IIndexer : IProcessorVerifier, IRichProviderVerifier, IOptionManager
     {
-        IIndexer SetOptions(IEnumerable<OptionItem> options);
-        IEnumerable<OptionItem> Options { get; }
-        void IndexNews();
-        void IndexChanges();
-        void IndexRemovals();
+        void Persist(IEnumerable<object> data = null);
+    }
+
+    public interface IEntityIndexer: IIndexer
+    {
+        IEntityIndexer SetEntity(Guid entityId);
+    }
+
+    public interface IAttributeIndexer: IIndexer
+    {
+        IAttributeIndexer SetAttribute(Guid attributeId);
     }
 }

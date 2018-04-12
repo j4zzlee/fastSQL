@@ -7,8 +7,30 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home-page',
-      component: () => import('@/components/HomePage')
+      name: 'layout-page',
+      component: () => import('@/components/_Layout'),
+      children: [
+        {
+          path: '',
+          name: 'home',
+          component: () => import('@/components/Index')
+        },
+        {
+          path: '/global-connections',
+          name: 'global-connections',
+          component: () => import('@/components/Connections/Index')
+        },
+        {
+          path: '/entities',
+          name: 'entities',
+          component: () => import('@/components/Entities/Index')
+        },
+        {
+          path: '/attributes',
+          name: 'attributes',
+          component: () => import('@/components/Attributes/Index')
+        }
+      ]
     },
     {
       path: '*',

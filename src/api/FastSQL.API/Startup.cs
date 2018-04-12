@@ -30,6 +30,12 @@ namespace FastSQL.API
             
             _container.Register(Component.For<DbConnection>().UsingFactoryMethod((p) => {
                 var conf = p.Resolve<IConfiguration>();
+                //var builder = new ConfigurationBuilder()
+                //    .SetBasePath(env.ContentRootPath)
+                //    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                //    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                //    .AddEnvironmentVariables();
+                //var conf = builder.Build();
                 var connectionString = conf.GetConnectionString("__MigrationDatabase");
                 var conn = new SqlConnection(connectionString);
                 conn.Open();
@@ -61,15 +67,15 @@ namespace FastSQL.API
             {
                 app.UseDeveloperExceptionPage();
             }
-            _container.Register(Component.For<IConfiguration>().UsingFactoryMethod(p => {
-                IConfigurationBuilder builder = new ConfigurationBuilder()
-                    .SetBasePath(env.ContentRootPath)
-                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                    .AddEnvironmentVariables();
-                return builder.Build();
-            }).LifestyleCustom<MsScopedLifestyleManager>());
-            _container.Register(Component.For<IHostingEnvironment>().UsingFactoryMethod(p => env).LifestyleCustom<MsScopedLifestyleManager>());
+            //_container.Register(Component.For<IConfigurationRoot>().UsingFactoryMethod(p => {
+            //    var builder = new ConfigurationBuilder()
+            //        .SetBasePath(env.ContentRootPath)
+            //        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            //        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+            //        .AddEnvironmentVariables();
+            //    return builder.Build();
+            //}).LifestyleCustom<MsScopedLifestyleManager>());
+            //_container.Register(Component.For<IHostingEnvironment>().UsingFactoryMethod(p => env).LifestyleCustom<MsScopedLifestyleManager>());
             app.UseCors(options => options
                     .AllowAnyOrigin()
                     .AllowAnyMethod()

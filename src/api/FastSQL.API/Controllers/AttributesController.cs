@@ -1,4 +1,5 @@
 ﻿using FastSQL.API.ViewModels;
+using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Repositories;
@@ -12,23 +13,26 @@ using System.Threading.Tasks;
 namespace FastSQL.API.Controllers
 {
     [Route("api/[controller]")]
-    public class EntitiesController: Controller
+    public class AttributesController: Controller
     {
+        private readonly AttributeRepository attributeRepository;
         private readonly EntityRepository entityRepository;
         private readonly ConnectionRepository connectionRepository;
         private readonly IEnumerable<IProcessor> processors;
-        private readonly IEnumerable<IEntityPuller> pullers;
-        private readonly IEnumerable<IEntityIndexer> indexers;
+        private readonly IEnumerable<IAttributePuller> pullers;
+        private readonly IEnumerable<IAttributeIndexer> indexers;
         private readonly DbTransaction transaction;
 
-        public EntitiesController(
+        public AttributesController(
+            AttributeRepository attributeRepository,
             EntityRepository entityRepository,
             ConnectionRepository connectionRepository,
             IEnumerable<IProcessor> processors,
-            IEnumerable<IEntityPuller> pullers,
-            IEnumerable<IEntityIndexer> indexers,
+            IEnumerable<IAttributePuller> pullers,
+            IEnumerable<IAttributeIndexer> indexers,
             DbTransaction transaction)
         {
+            this.attributeRepository = attributeRepository;
             this.entityRepository = entityRepository;
             this.connectionRepository = connectionRepository;
             this.processors = processors;
@@ -36,13 +40,12 @@ namespace FastSQL.API.Controllers
             this.indexers = indexers;
             this.transaction = transaction;
         }
-
-        [HttpPost] 
-        public IActionResult Create([FromBody] CreateEntityViewModel model)
+        [HttpPost]
+        public IActionResult Create([FromBody] CreateAttributeViewModel model)
         {
             var sourceConnection = connectionRepository.GetById(model.SourceConnectionId.ToString());
             var destConnection = connectionRepository.GetById(model.DestinationConnectionId.ToString());
-            var processor = processors.FirstOrDefault(p => p.Id == model.ProcessorId && p.Type == ProcessorType.Entity);
+            var processor = processors.FirstOrDefault(p => p.Id == model.ProcessorId && p.Type == ProcessorType.Attribute);
             if (sourceConnection == null)
             {
                 return NotFound("The requested source connection is not found.");
@@ -57,16 +60,17 @@ namespace FastSQL.API.Controllers
             }
             try
             {
-                var result = entityRepository.Create(new
+                var result = attributeRepository.Create(new
                 {
                     model.Name,
                     model.Description,
                     model.SourceConnectionId,
                     model.DestinationConnectionId,
+                    model.EntityId,
                     model.ProcessorId
                 });
 
-                entityRepository.LinkOptions(Guid.Parse(result), model.Options);
+                attributeRepository.LinkOptions(Guid.Parse(result), model.Options);
 
                 transaction.Commit();
                 return Ok(result);
@@ -79,11 +83,11 @@ namespace FastSQL.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(string id, [FromBody] CreateEntityViewModel model)
+        public IActionResult Update(string id, [FromBody] CreateAttributeViewModel model)
         {
             var sourceConnection = connectionRepository.GetById(model.SourceConnectionId.ToString());
             var destConnection = connectionRepository.GetById(model.DestinationConnectionId.ToString());
-            var processor = processors.FirstOrDefault(p => p.Id == model.ProcessorId && p.Type == ProcessorType.Entity);
+            var processor = processors.FirstOrDefault(p => p.Id == model.ProcessorId && p.Type == ProcessorType.Attribute);
             if (sourceConnection == null)
             {
                 return NotFound("The requested source connection is not found.");
@@ -98,16 +102,17 @@ namespace FastSQL.API.Controllers
             }
             try
             {
-                var result = entityRepository.Update(id, new
+                var result = attributeRepository.Update(id, new
                 {
                     model.Name,
                     model.Description,
                     model.SourceConnectionId,
                     model.DestinationConnectionId,
+                    model.EntityId,
                     model.ProcessorId
                 });
 
-                entityRepository.LinkOptions(Guid.Parse(id), model.Options);
+                attributeRepository.LinkOptions(Guid.Parse(id), model.Options);
 
                 transaction.Commit();
                 return Ok(result);

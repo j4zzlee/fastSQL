@@ -8,7 +8,7 @@ using FastSQL.Sync.Core.Models;
 
 namespace FastSQL.Sync.Core.Repositories
 {
-    public class BaseGenericRepository<TModel> : BaseRepository
+    public abstract class BaseGenericRepository<TModel> : BaseRepository
          where TModel : class, new()
     {
         protected BaseGenericRepository(DbConnection connection, DbTransaction transaction) : base(connection, transaction)

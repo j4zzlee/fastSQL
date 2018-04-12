@@ -10,6 +10,8 @@
 <script>
 import Vue from 'vue';
 import { mapState } from 'vuex';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/mode/sql/sql';
 export default {
   name: 'fastSQL',
   data() {

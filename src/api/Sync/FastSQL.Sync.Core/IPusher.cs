@@ -3,7 +3,7 @@ using System;
 
 namespace FastSQL.Sync.Core
 {
-    public interface IPusher: IVendorVerifier, IOptionManager
+    public interface IPusher: IProcessorVerifier, IRichProviderVerifier, IOptionManager
     {
         void PushAll();
         void Push(Guid itemId);
