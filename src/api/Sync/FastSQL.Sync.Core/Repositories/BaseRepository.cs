@@ -22,14 +22,9 @@ namespace FastSQL.Sync.Core.Repositories
             _transaction = transaction;
         }
 
-        public virtual void LinkOptions<T>(Guid id, EntityType entityType, IEnumerable<OptionItem> options)
-            where T : class, new()
+        public virtual void LinkOptions(Guid id, EntityType entityType, IEnumerable<OptionItem> options)
         {
-            var sourceColumns = new [] { "EntityId", "EntityType", "Key", "Value" };
-            var compareColumns = new[] { "EntityId", "EntityType", "Key" };
-            var sourceColumnStr = string.Join(", ", sourceColumns.Select(c => $"[{c}]"));
-            var sourceParamsStr = string.Join(", ", sourceColumns.Select(c => $"@{c}"));
-            var compareColumnStr = string.Join(" AND ", compareColumns.Select(c => $@"[Target].[{c}] = [Source].[{c}]"));
+            // Options
             var optionParams = options.Select(o => new
             {
                 Key = o.Name,
@@ -37,23 +32,108 @@ namespace FastSQL.Sync.Core.Repositories
                 EntityId = id,
                 EntityType = entityType
             });
-            
-            var updateOptionsSql = $@"MERGE [beehexa_core_options] AS [Target]
-USING (VALUES ({sourceParamsStr})) as [Source]({sourceColumnStr})
-ON {compareColumnStr}
+
+            var updateOptionsSql = $@"MERGE [core_options] AS [Target]
+USING (VALUES (@EntityId, @EntityType, @Key, @Value)) AS [Source]([EntityId], [EntityType], [Key], [Value])
+ON [Target].[EntityId] = [Source].[EntityId] AND [Target].[EntityType] = [Source].[EntityType] AND [Target].[Key] = [Source].[Key]
 WHEN MATCHED THEN
     UPDATE SET [Target].[Value] = [Source].[Value]
 WHEN NOT MATCHED THEN
-    INSERT ({sourceColumnStr}) VALUES({string.Join(", ", sourceColumns.Select(c => $"[Source].[{c}]"))});
+    INSERT ([EntityId], [EntityType], [Key], [Value])
+    VALUES([Source].[EntityId], [Source].[EntityType], [Source].[Key], [Source].[Value]);
 ";
             _connection.Execute(updateOptionsSql, param: optionParams, transaction: _transaction);
+
+            // Option Groups
+            var optionGroupParams = options.Where(o => o.OptionGroupNames?.Count > 0).SelectMany(o => o.OptionGroupNames.Select(g => new
+            {
+                Key = o.Name,
+                o.Value,
+                EntityId = id,
+                EntityType = entityType,
+                GroupName = g
+            }));
+            var updateOptionGroupsSql = $@"MERGE [core_rel_option_option_group] AS [Target]
+USING (
+    SELECT DISTINCT v.GroupName, o.Id as OptionId FROM (VALUES (@EntityId, @EntityType, @Key, @Value, @GroupName)) v([EntityId], [EntityType], [Key], [Value], [GroupName])
+    INNER JOIN [core_option_groups] og ON og.[Name] = v.GroupName
+    LEFT JOIN [core_options] o ON o.EntityId = v.EntityId AND o.EntityType = v.EntityType AND o.[Key] = v.[Key]
+) AS [Source]([EntityId], [EntityType], [Key], [Value], [GroupName], [OptionId])
+ON [Target].[OptionId] = [Source].[OptionId] AND [Target].[GroupName] = [Source].[GroupName]
+WHEN NOT MATCHED THEN
+    INSERT ([GroupName], [OptionId])
+    VALUES([Source].[GroupName], [Source].[OptionId]);
+";
+            _connection.Execute(updateOptionGroupsSql, param: optionGroupParams, transaction: _transaction);
         }
 
-        internal IEnumerable<OptionModel> LoadOptions(IEnumerable<Guid> entityIds, EntityType entityType)
+        public virtual void UnlinkOptions(Guid id, EntityType entityType, IEnumerable<string> optionGroups = null)
         {
-            return _connection.Query<OptionModel>($@"SELECT *
-FROM [beehexa_core_options]
-WHERE EntityId IN @EntityIds AND EntityType = @EntityType",
+            var unlinkSql = $@"
+DELETE og FROM [core_rel_option_option_group] og
+INNER JOIN [core_options] o ON o.Id = og.OptionId
+WHERE o.[EntityId] = @EntityId AND o.[EntityType] = @EntityType;
+DELETE FROM [core_options]
+WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType;
+";
+            if (optionGroups?.Count() > 0)
+            {
+                unlinkSql = $@"
+SELECT * INTO #TEMP
+FROM (
+    SELECT oo.Id as OptionId, oog.GroupName FROM [core_rel_option_option_group] oog
+    INNER JOIN [core_options] oo ON oo.Id = oog.OptionId AND oo.[EntityId] = @EntityId AND oo.[EntityType] = @EntityType AND oog.GroupName IN @GroupNames;
+) as TMP;
+DELETE og FROM [core_rel_option_option_group] og
+INNER JOIN #TEMP t ON t.OptionId = og.OptionId AND t.GroupName = og.GroupName;
+DELETE o FROM [core_options] o
+INNER JOIN #TEMP t ON t.OptionId = o.Id;
+";
+            }
+            _connection.Execute(unlinkSql, param: new {
+                EntityId = id,
+                EntityType = entityType,
+                GroupNames = optionGroups
+            }, transaction: _transaction);
+        }
+        
+        public virtual IEnumerable<OptionModel> LoadOptions(Guid entityId, EntityType entityType, IEnumerable<string> optionGroups = null)
+        {
+            var optionsSql = $@"SELECT *
+FROM [core_options]
+WHERE EntityId = @EntityId AND EntityType = @EntityType";
+            if (optionGroups != null)
+            {
+                optionsSql = $@"SELECT o.*
+FROM [core_options] o
+INNER JOIN [core_rel_option_option_group] og ON o.Id = og.OptionId AND og.GroupName IN @GroupNames
+WHERE EntityId = @EntityId AND EntityType = @EntityType";
+            }
+            return _connection.Query<OptionModel>(
+                optionsSql,
+                param: new
+                {
+                    EntityType = entityType,
+                    EntityId = entityId,
+                    GroupNames = optionGroups
+                },
+                transaction: _transaction);
+        }
+
+        public virtual IEnumerable<OptionModel> LoadOptions(IEnumerable<Guid> entityIds, EntityType entityType, IEnumerable<string> optionGroups = null)
+        {
+            var optionsSql = $@"SELECT *
+FROM [core_options]
+WHERE EntityId IN @EntityIds AND EntityType = @EntityType";
+            if (optionGroups != null)
+            {
+                optionsSql = $@"SELECT o.*
+FROM [core_options] o
+INNER JOIN [core_rel_option_option_group] og ON o.Id = og.OptionId AND og.GroupName IN @GroupNames
+WHERE EntityId IN @EntityIds AND EntityType = @EntityType";
+            }
+            return _connection.Query<OptionModel>(
+                optionsSql,
                 param: new {
                     EntityType = entityType,
                     EntityIds = entityIds
@@ -135,5 +215,10 @@ SELECT [{keyColumnName}] FROM @InsertedRows";
             dParams.Add("Id", id); // Add param Id
             return _connection.Execute(sql, param: dParams, transaction: _transaction);
         }
+
+        public abstract void LinkOptions(Guid id, IEnumerable<OptionItem> options);
+        public abstract void UnlinkOptions(Guid id, IEnumerable<string> optionGroups = null);
+        public abstract IEnumerable<OptionModel> LoadOptions(Guid entityId, IEnumerable<string> optionGroups = null);
+        public abstract IEnumerable<OptionModel> LoadOptions(IEnumerable<Guid> entityIds, IEnumerable<string> optionGroups = null);
     }
 }

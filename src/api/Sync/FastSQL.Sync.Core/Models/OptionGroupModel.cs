@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FastSQL.Sync.Core.Models
 {
-    [Table("beehexa_core_option_groups")]
+    [Table("core_option_groups")]
     public class OptionGroupModel
     {
         [Key]

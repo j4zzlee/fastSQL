@@ -1,11 +1,13 @@
-﻿using FastSQL.Sync.Core.Enums;
+﻿using FastSQL.Sync.Core.Attributes;
+using FastSQL.Sync.Core.Enums;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FastSQL.Sync.Core.Models
 {
-    [Table("beehexa_core_entities")]
+    [Table("core_entities")]
+    [EntityType(EntityType.Entity)]
     public class EntityModel
     {
         [Key]

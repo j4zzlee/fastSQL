@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FastSQL.Sync.Core.Attributes;
+using FastSQL.Sync.Core.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -36,6 +38,21 @@ namespace FastSQL.Sync.Core.ExtensionMethods
                 .GetProperties()
                 .FirstOrDefault(p => Attribute.IsDefined(p, typeof(KeyAttribute)))
                 .Name;
+        }
+
+        public static EntityType GetEntityType<T>(this T model) where T: class, new()
+        {
+            return GetEntityType(typeof(T));
+        }
+
+        public static EntityType GetEntityType(this Type t)
+        {
+            var entityTypeAttr = t.GetTypeInfo().GetCustomAttributes<EntityTypeAttribute>().FirstOrDefault();
+            if (entityTypeAttr == null)
+            {
+                throw new Exception("The model is missing entity type");
+            }
+            return entityTypeAttr.EntityType;
         }
     }
 }
