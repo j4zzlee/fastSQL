@@ -26,10 +26,13 @@ namespace FastSQL.API
         {
             _container = new WindsorContainer();
             _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel, true));
+            var assemblyDescriptor = Classes.FromAssemblyInDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory));
+            _container.Register(Component
+                .For<FromAssemblyDescriptor>()
+                .UsingFactoryMethod(() => assemblyDescriptor)
+                .LifestyleSingleton());
             _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
-            
             _container.Register(Component.For<DbConnection>().UsingFactoryMethod((p) => {
-                var env = p.Resolve<IHostingEnvironment>();
                 var conf = p.Resolve<IConfiguration>();
                 var connectionString = conf.GetConnectionString("__MigrationDatabase");
                 var conn = new SqlConnection(connectionString);
@@ -40,7 +43,7 @@ namespace FastSQL.API
                 var conn = c.Resolve<DbConnection>();
                 return conn.BeginTransaction();
             }).LifestyleCustom<MsScopedLifestyleManager>());
-            _container.Install(FromAssembly.InThisApplication(GetType().Assembly));
+            _container.Install(FromAssembly.InDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory)));
 
             Configuration = configuration;
         }

@@ -6,8 +6,11 @@ namespace FastSQL.Magento2
 {
     public class FastAdapter : BaseAdapter
     {
-        public FastAdapter(FastProvider provider) : base(provider)
+        private readonly Magento2RestApi api;
+
+        public FastAdapter(FastProvider provider, Magento2RestApi api) : base(provider)
         {
+            this.api = api;
         }
 
         public override bool TryConnect(out string message)
@@ -16,6 +19,9 @@ namespace FastSQL.Magento2
             try
             {
                 message = "Connected.";
+                api.SetOptions(Options);
+                var task = api.Connect();
+                task.Wait();
                 return true;
             }
             catch (Exception ex)

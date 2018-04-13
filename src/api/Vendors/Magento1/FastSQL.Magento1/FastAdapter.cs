@@ -1,18 +1,20 @@
 ﻿using FastSQL.Core;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Data.Odbc;
-using System.IO;
-using System.Linq;
 
 namespace FastSQL.Magento1
 {
     public class FastAdapter : BaseAdapter
     {
-        public FastAdapter(FastProvider provider) : base(provider)
+        //protected FastAdapter(IRichProvider provider) : base(provider)
+        //{
+        //}
+
+        private readonly Magento1Soap api;
+
+        public FastAdapter(FastProvider provider, Magento1Soap api) : base(provider)
         {
+            this.api = api;
         }
 
         public override bool TryConnect(out string message)
@@ -21,6 +23,9 @@ namespace FastSQL.Magento1
             try
             {
                 message = "Connected.";
+                api.SetOptions(Options);
+                var task = api.Connect();
+                task.Wait();
                 return true;
             }
             catch (Exception ex)

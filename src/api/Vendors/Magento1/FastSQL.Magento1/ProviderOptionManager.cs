@@ -18,15 +18,15 @@ namespace FastSQL.Magento1
                 },
                 new OptionItem
                 {
-                    Name = "api_key",
-                    DisplayName = "Api Key",
-                    Type = OptionType.Password
+                    Name = "api_user",
+                    DisplayName = "Username",
+                    Type = OptionType.Text
                 },
                 new OptionItem
                 {
-                    Name = "api_user",
-                    DisplayName = "Api User",
-                    Type = OptionType.Text
+                    Name = "api_key",
+                    DisplayName = "Password",
+                    Type = OptionType.Password
                 }
             };
         }

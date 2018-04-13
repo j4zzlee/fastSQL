@@ -19,7 +19,7 @@
     <div class="alert alert-danger" v-if="errorMessage">{{errorMessage}}</div>
     <div class="alert alert-success" v-if="successMessage">{{successMessage}}</div>
     <DynamicOption v-bind:key="option.Name"
-      v-for="option in currentProvider.options"
+      v-for="option in options"
       :option="option"
       @change="(val) => option.value = val"></DynamicOption>
   </div>
@@ -40,7 +40,8 @@ export default {
     title: String,
     visible: Boolean,
     onClose: Function,
-    onSave: Function
+    onSave: Function,
+    connection: Object
   },
   data() {
     return {
@@ -51,12 +52,44 @@ export default {
       successMessage: null,
       providers: [],
       currentProvider: {},
-      currentProviderId: null
+      currentProviderId: null,
+      options: []
     }
   },
   async created() {},
-  async mounted() {
-    this.providers = await this.getProviders()
+  async mounted() {},
+  watch: {
+    async visible(visible) {
+      if (!visible) {
+        return
+      }
+      this.providers = await this.getProviders()
+      if (this.connection) {
+        this.connectionName = this.connection.Name
+        this.connectionDescription = this.connection.Description
+        this.currentProvider = this.providers.filter(
+          p => p.id === this.connection.ProviderId
+        )[0]
+        this.currentProviderId = this.currentProvider.id
+        this.options = this.currentProvider.options.map(o => {
+          var opts = this.connection.Options.filter(oo => oo.Name === o.name)
+          if (opts.length) {
+            return {
+              ...o,
+              value: opts[0].Value
+            }
+          } else {
+            return { ...o }
+          }
+        })
+      } else {
+        this.currentProvider = {}
+        this.currentProviderId = null
+        this.connectionName = ''
+        this.connectionDescription = ''
+        this.options = []
+      }
+    }
   },
   components: {
     Modal: () => import('@/components/Controls/Modal'),
@@ -65,16 +98,25 @@ export default {
   computed: {},
   methods: {
     async onSaveHandler() {
-      const res = await this.$http.post(
-        `${process.env.BACKEND}/api/connections`,
-        {
+      let res = null
+      if (this.connection) {
+        res = await this.$http.put(`${process.env.BACKEND}/api/connections/${this.connection.Id}`, {
           name: this.connectionName,
           description: this.connectionDescription,
           providerId: this.currentProvider.id,
-          options: this.currentProvider.options
-        }
-      )
-      this.onSave && this.onSave(res.data)
+          options: this.options
+        })
+        this.onSave && this.onSave(this.connection.Id)
+      } else {
+        res = await this.$http.post(`${process.env.BACKEND}/api/connections`, {
+          name: this.connectionName,
+          description: this.connectionDescription,
+          providerId: this.currentProvider.id,
+          options: this.options
+        })
+        this.onSave && this.onSave(res.data)
+      }
+
       this.onClose && this.onClose()
     },
     async onConnect() {
@@ -86,7 +128,7 @@ export default {
           `${process.env.BACKEND}/api/providers/${
             this.currentProvider.id
           }/connect`,
-          this.currentProvider.options
+          this.options
         )
         if (res.data.success) {
           this.successMessage = 'Connected Successfully.'
@@ -113,6 +155,23 @@ export default {
       this.errorMessage = null
       this.successMessage = null
       this.currentProvider = await this.getProviderById(this.currentProviderId)
+      if (this.connection) {
+        this.options = this.currentProvider.options.map(o => {
+          var opts = this.connection.Options.filter(oo => oo.Name === o.name)
+          if (opts.length) {
+            return {
+              ...o,
+              value: opts[0].Value
+            }
+          } else {
+            return { ...o }
+          }
+        })
+      } else {
+        this.options = this.currentProvider.options.map(o => {
+          return { ...o }
+        })
+      }
     }
   }
 }
