@@ -27,6 +27,10 @@ namespace FastSQL.API
                 .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(fromAssembly
+               .BasedOn<ISqlAdapter>()
+               .WithService.Select(new Type[] { typeof(ISqlAdapter) })
+               .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+            container.Register(fromAssembly
                 .BasedOn<IOptionManager>()
                 .WithService.Select(new Type[] { typeof(IOptionManager) })
                 .WithServiceSelf()

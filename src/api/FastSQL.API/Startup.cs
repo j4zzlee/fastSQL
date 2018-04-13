@@ -29,13 +29,8 @@ namespace FastSQL.API
             _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
             
             _container.Register(Component.For<DbConnection>().UsingFactoryMethod((p) => {
+                var env = p.Resolve<IHostingEnvironment>();
                 var conf = p.Resolve<IConfiguration>();
-                //var builder = new ConfigurationBuilder()
-                //    .SetBasePath(env.ContentRootPath)
-                //    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                //    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                //    .AddEnvironmentVariables();
-                //var conf = builder.Build();
                 var connectionString = conf.GetConnectionString("__MigrationDatabase");
                 var conn = new SqlConnection(connectionString);
                 conn.Open();

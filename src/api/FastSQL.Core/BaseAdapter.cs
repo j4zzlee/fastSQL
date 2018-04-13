@@ -11,18 +11,50 @@ namespace FastSQL.Core
     public abstract class BaseAdapter : IRichAdapter
     {
         protected IRichProvider Provider;
-        public IEnumerable<OptionItem> Options => Provider.Options;
-
-        #region Adapter
+        public virtual IEnumerable<OptionItem> Options => Provider.Options;
         protected BaseAdapter(IRichProvider provider)
         {
             Provider = provider;
         }
+        #region Options
+        public virtual IOptionManager SetOptions(IEnumerable<OptionItem> options)
+        {
+            return Provider.SetOptions(options);
+        }
+
+        public virtual IEnumerable<OptionItem> GetOptionsTemplate()
+        {
+            return Provider.GetOptionsTemplate();
+        }
+        #endregion
+
+        #region Providers
+        public virtual IRichProvider GetProvider()
+        {
+            return Provider;
+        }
+        public virtual bool IsProvider(string providerId)
+        {
+            return Provider.Id == providerId;
+        }
+
+        public virtual bool IsProvider(IRichProvider provider)
+        {
+            return Provider.Id == provider.Id;
+        }
+        #endregion
+        public abstract bool TryConnect(out string message);
+    }
+
+    public abstract class BaseSqlAdapter : BaseAdapter
+    {
+        #region Adapter
+        protected BaseSqlAdapter(IRichProvider provider): base(provider)
+        {
+        }
         
         protected abstract DbConnection GetConnection();
-
-        public abstract bool TryConnect(out string message);
-
+        
         public abstract IEnumerable<string> GetTables();
 
         public abstract IEnumerable<string> GetViews();
@@ -109,34 +141,6 @@ namespace FastSQL.Core
             {
                 conn?.Dispose();
             }
-        }
-        #endregion
-
-        #region Options
-        public IOptionManager SetOptions(IEnumerable<OptionItem> options)
-        {
-            return Provider.SetOptions(options);
-        }
-
-        public IEnumerable<OptionItem> GetOptionsTemplate()
-        {
-            return Provider.GetOptionsTemplate();
-        }
-        #endregion
-
-        #region Providers
-        public virtual IRichProvider GetProvider()
-        {
-            return Provider;
-        }
-        public bool IsProvider(string providerId)
-        {
-            return Provider.Id == providerId;
-        }
-
-        public bool IsProvider(IRichProvider provider)
-        {
-            return Provider.Id == provider.Id;
         }
         #endregion
     }

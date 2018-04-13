@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-import path from 'path';
-import os from 'os';
-import { app, BrowserWindow } from 'electron';
+import path from 'path'
+import os from 'os'
+import { app, BrowserWindow } from 'electron'
 
 /**
  * Set `__static` path to static files in production
@@ -11,14 +11,14 @@ import { app, BrowserWindow } from 'electron';
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path')
     .join(__dirname, '/static')
-    .replace(/\\/g, '\\\\');
+    .replace(/\\/g, '\\\\')
 }
 
-let mainWindow;
+let mainWindow
 const winURL =
   process.env.NODE_ENV === 'development'
     ? `http://localhost:9080`
-    : `file://${__dirname}/index.html`;
+    : `file://${__dirname}/index.html`
 
 function createWindow() {
   /**
@@ -28,44 +28,56 @@ function createWindow() {
     height: 563,
     useContentSize: true,
     width: 1000
-  });
+  })
 
-  mainWindow.loadURL(winURL);
-  mainWindow.maximize();
+  mainWindow.loadURL(winURL)
+  mainWindow.maximize()
   mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+    mainWindow = null
+  })
 }
 function startApi() {
-  const proc = require('child_process').spawn;
+  const proc = require('child_process').spawn
   //  run server
-  let apipath = path.resolve(__dirname, '../api/bin/dist/win/FastSQL.API.exe');
+  let workingDir = path.resolve(__dirname, '../api/bin/dist/win/')
+  let apipath = path.resolve(workingDir, 'FastSQL.API.exe')
   if (os.platform() === 'darwin') {
-    apipath = path.resolve(__dirname, '../api/bin/dist/osx/FastSQL.API');
+    apipath = path.resolve(workingDir, 'FastSQL.API')
   }
   console.log(`Starting ${apipath}`)
-  const apiProcess = proc(apipath);
+  const apiProcess = proc(apipath, {
+    cwd: workingDir,
+    env: {
+      ASPNETCORE_URLS: 'http://localhost:7001'
+    }
+  })
 
   apiProcess.stdout.on('data', data => {
-    console.log(`stdout: ${data}`);
+    console.log(`stdout: ${data}`)
     if (mainWindow == null) {
-      createWindow();
+      createWindow()
     }
-  });
+  })
 }
-app.on('ready', startApi);
+if (process.env.NODE_ENV === 'production') {
+  process.env.BACKEND = 'http://localhost:7001'
+  app.on('ready', startApi)
+} else {
+  process.env.BACKEND = 'http://localhost:63923'
+  app.on('ready', createWindow)
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    app.quit();
+    app.quit()
   }
-});
+})
 
 app.on('activate', () => {
   if (mainWindow === null) {
-    createWindow();
+    createWindow()
   }
-});
+})
 
 /**
  * Auto Updater

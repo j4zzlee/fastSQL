@@ -7,7 +7,6 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'layout-page',
       component: () => import('@/components/_Layout'),
       children: [
         {

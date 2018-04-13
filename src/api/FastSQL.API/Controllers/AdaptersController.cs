@@ -10,8 +10,8 @@ namespace FastSQL.API.Controllers
     [Route("api/[controller]")]
     public class AdaptersController : Controller
     {
-        private readonly IEnumerable<IRichAdapter> _adapters;
-        public AdaptersController(IEnumerable<IRichAdapter> adapters)
+        private readonly IEnumerable<ISqlAdapter> _adapters;
+        public AdaptersController(IEnumerable<ISqlAdapter> adapters)
         {
             _adapters = adapters;
         }

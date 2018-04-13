@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace FastSQL.MySQL
 {
-    public class FastAdapter : BaseAdapter
+    public class FastAdapter : BaseSqlAdapter
     {
         public FastAdapter(FastProvider provider) : base(provider)
         {

@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace FastSQL.MsAccess
 {
-    public class FastAdapter : BaseAdapter
+    public class FastAdapter : BaseSqlAdapter
     {
         public FastAdapter(FastProvider provider) : base(provider)
         {

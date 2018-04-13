@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace FastSQL.MsSql
 {
-    public class FastAdapter : BaseAdapter
+    public class FastAdapter : BaseSqlAdapter
     {
         public FastAdapter(FastProvider provider) : base(provider)
         {
