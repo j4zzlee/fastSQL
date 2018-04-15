@@ -4,6 +4,7 @@ using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -19,25 +20,28 @@ namespace FastSQL.API.Controllers
         private readonly ConnectionRepository _connectionRepository;
         private readonly DbTransaction _transaction;
         private readonly IEnumerable<IRichProvider> _providers;
+        private readonly JsonSerializer serializer;
 
         public ConnectionsController(
             ConnectionRepository connectionRepository,
             DbTransaction transaction,
-            IEnumerable<IRichProvider> providers)
+            IEnumerable<IRichProvider> providers,
+            JsonSerializer serializer)
         {
             _connectionRepository = connectionRepository;
             _transaction = transaction;
             _providers = providers;
+            this.serializer = serializer;
         }
 
         [HttpGet("")]
         public IActionResult GetAll()
         {
             var connections = _connectionRepository.GetAll<ConnectionModel>();
-            IEnumerable<OptionModel> options = _connectionRepository.LoadOptions(connections.Select(c => c.Id));
+            var options = _connectionRepository.LoadOptions(connections.Select(c => c.Id));
             return Ok(connections.Select(c =>
             {
-                var jConnection = JObject.FromObject(c);
+                var jConnection = JObject.FromObject(c, serializer);
                 var provider = _providers.FirstOrDefault(p => p.Id == c.ProviderId);
                 var cOptions = options.Where(o => o.EntityId == c.Id && o.EntityType == EntityType.Connection);
                 var optionItems = new List<OptionItem>();
@@ -50,7 +54,7 @@ namespace FastSQL.API.Controllers
                     }
                     optionItems.Add(po);
                 }
-                jConnection.Add("Options", JArray.FromObject(optionItems));
+                jConnection.Add("options", JArray.FromObject(optionItems, serializer));
                 return jConnection;
             }));
         }

@@ -17,22 +17,22 @@ namespace Magento1Soap
     {
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="endSessionReturn")]
         System.Threading.Tasks.Task<bool> endSessionAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="loginReturn")]
         System.Threading.Tasks.Task<string> loginAsync(string username, string apiKey);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="startSessionReturn")]
         System.Threading.Tasks.Task<string> startSessionAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -86,7 +86,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.apiEntity[]> resourcesAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -140,7 +140,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.existsFaltureEntity[]> globalFaultsAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -194,7 +194,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.existsFaltureEntity[]> resourceFaultsAsync(string resourceName, string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -248,7 +248,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.storeEntity[]> storeListAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -302,7 +302,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.storeEntity> storeInfoAsync(string sessionId, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -356,7 +356,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.magentoInfoEntity> magentoInfoAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -410,7 +410,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.directoryCountryEntity[]> directoryCountryListAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -464,7 +464,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.directoryRegionEntity[]> directoryRegionListAsync(string sessionId, string country);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -518,7 +518,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.customerCustomerEntity[]> customerCustomerListAsync(string sessionId, Magento1Soap.filters filters);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -572,7 +572,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> customerCustomerCreateAsync(string sessionId, Magento1Soap.customerCustomerEntityToCreate customerData);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -626,7 +626,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.customerCustomerEntity> customerCustomerInfoAsync(string sessionId, int customerId, string[] attributes);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -680,7 +680,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> customerCustomerUpdateAsync(string sessionId, int customerId, Magento1Soap.customerCustomerEntityToCreate customerData);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -734,7 +734,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> customerCustomerDeleteAsync(string sessionId, int customerId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -788,7 +788,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.customerGroupEntity[]> customerGroupListAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -842,7 +842,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.customerAddressEntityItem[]> customerAddressListAsync(string sessionId, int customerId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -896,7 +896,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> customerAddressCreateAsync(string sessionId, int customerId, Magento1Soap.customerAddressEntityCreate addressData);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -950,7 +950,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.customerAddressEntityItem> customerAddressInfoAsync(string sessionId, int addressId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1004,7 +1004,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> customerAddressUpdateAsync(string sessionId, int addressId, Magento1Soap.customerAddressEntityCreate addressData);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1059,7 +1059,7 @@ namespace Magento1Soap
         
         // CODEGEN: Generating message contract since the operation has multiple return values.
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1112,7 +1112,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogCategoryCurrentStoreResponse> catalogCategoryCurrentStoreAsync(Magento1Soap.catalogCategoryCurrentStoreRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1166,7 +1166,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogCategoryTree> catalogCategoryTreeAsync(string sessionId, string parentId, string storeView);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1220,7 +1220,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogCategoryEntityNoChildren[]> catalogCategoryLevelAsync(string sessionId, string website, string storeView, string parentCategory);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1274,7 +1274,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogCategoryInfo> catalogCategoryInfoAsync(string sessionId, int categoryId, string storeView, string[] attributes);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1328,7 +1328,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> catalogCategoryCreateAsync(string sessionId, int parentId, Magento1Soap.catalogCategoryEntityCreate categoryData, string storeView);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1382,7 +1382,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogCategoryUpdateAsync(string sessionId, int categoryId, Magento1Soap.catalogCategoryEntityCreate categoryData, string storeView);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1436,7 +1436,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogCategoryMoveAsync(string sessionId, int categoryId, int parentId, string afterId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1490,7 +1490,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogCategoryDeleteAsync(string sessionId, int categoryId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1544,7 +1544,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogAssignedProduct[]> catalogCategoryAssignedProductsAsync(string sessionId, int categoryId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1598,7 +1598,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogCategoryAssignProductAsync(string sessionId, int categoryId, string product, string position, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1652,7 +1652,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogCategoryUpdateProductAsync(string sessionId, int categoryId, string product, string position, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1707,7 +1707,7 @@ namespace Magento1Soap
         
         // CODEGEN: Generating message contract since the operation has multiple return values.
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1760,7 +1760,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogCategoryAttributeCurrentStoreResponse> catalogCategoryAttributeCurrentStoreAsync(Magento1Soap.catalogCategoryAttributeCurrentStoreRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1814,7 +1814,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogAttributeEntity[]> catalogCategoryAttributeListAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1869,7 +1869,7 @@ namespace Magento1Soap
         
         // CODEGEN: Generating message contract since the operation has multiple return values.
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1923,7 +1923,7 @@ namespace Magento1Soap
         
         // CODEGEN: Generating message contract since the operation has multiple return values.
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -1976,7 +1976,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductListResponse> catalogProductListAsync(Magento1Soap.catalogProductListRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2030,7 +2030,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductReturnEntity> catalogProductInfoAsync(string sessionId, string productId, string storeView, Magento1Soap.catalogProductRequestAttributes attributes, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2084,7 +2084,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> catalogProductCreateAsync(string sessionId, string type, string set, string sku, Magento1Soap.catalogProductCreateEntity productData, string storeView);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2138,7 +2138,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductUpdateAsync(string sessionId, string product, Magento1Soap.catalogProductCreateEntity productData, string storeView, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2192,7 +2192,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductMultiUpdateAsync(string sessionId, string[] productIds, Magento1Soap.catalogProductCreateEntity[] productData, string store, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2246,7 +2246,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> catalogProductSetSpecialPriceAsync(string sessionId, string product, string specialPrice, string fromDate, string toDate, string storeView, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2300,7 +2300,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductSpecialPriceReturnEntity> catalogProductGetSpecialPriceAsync(string sessionId, string product, string storeView, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2355,7 +2355,7 @@ namespace Magento1Soap
         
         // CODEGEN: Generating message contract since the operation has multiple return values.
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2408,7 +2408,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductAttributeCurrentStoreResponse> catalogProductAttributeCurrentStoreAsync(Magento1Soap.catalogProductAttributeCurrentStoreRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2462,7 +2462,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogAttributeEntity[]> catalogProductListOfAdditionalAttributesAsync(string sessionId, string productType, string attributeSetId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2516,7 +2516,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogAttributeEntity[]> catalogProductAttributeListAsync(string sessionId, int setId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2570,7 +2570,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogAttributeOptionEntity[]> catalogProductAttributeOptionsAsync(string sessionId, string attributeId, string storeView);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2624,7 +2624,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> catalogProductAttributeSetCreateAsync(string sessionId, string attributeSetName, string skeletonSetId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2678,7 +2678,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeSetRemoveAsync(string sessionId, string attributeSetId, string forceProductsRemove);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2732,7 +2732,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductAttributeSetEntity[]> catalogProductAttributeSetListAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2786,7 +2786,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeSetAttributeAddAsync(string sessionId, string attributeId, string attributeSetId, string attributeGroupId, string sortOrder);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2840,7 +2840,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeSetAttributeRemoveAsync(string sessionId, string attributeId, string attributeSetId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2894,7 +2894,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> catalogProductAttributeSetGroupAddAsync(string sessionId, string attributeSetId, string groupName);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -2948,7 +2948,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeSetGroupRenameAsync(string sessionId, string groupId, string groupName);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3002,7 +3002,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeSetGroupRemoveAsync(string sessionId, string attributeGroupId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3056,7 +3056,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogAttributeOptionEntity[]> catalogProductAttributeTypesAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3110,7 +3110,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> catalogProductAttributeCreateAsync(string sessionId, Magento1Soap.catalogProductAttributeEntityToCreate data);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3164,7 +3164,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeRemoveAsync(string sessionId, string attribute);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3218,7 +3218,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductAttributeEntity> catalogProductAttributeInfoAsync(string sessionId, string attribute);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3272,7 +3272,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeUpdateAsync(string sessionId, string attribute, Magento1Soap.catalogProductAttributeEntityToUpdate data);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3326,7 +3326,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeAddOptionAsync(string sessionId, string attribute, Magento1Soap.catalogProductAttributeOptionEntityToAdd data);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3380,7 +3380,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeRemoveOptionAsync(string sessionId, string attribute, string optionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3434,7 +3434,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductTypeEntity[]> catalogProductTypeListAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3488,7 +3488,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductTierPriceEntity[]> catalogProductAttributeTierPriceInfoAsync(string sessionId, string product, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3543,7 +3543,7 @@ namespace Magento1Soap
         
         // CODEGEN: Generating message contract since the operation has multiple return values.
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3596,7 +3596,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductAttributeMediaCurrentStoreResponse> catalogProductAttributeMediaCurrentStoreAsync(Magento1Soap.catalogProductAttributeMediaCurrentStoreRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3650,7 +3650,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductImageEntity[]> catalogProductAttributeMediaListAsync(string sessionId, string product, string storeView, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3704,7 +3704,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductImageEntity> catalogProductAttributeMediaInfoAsync(string sessionId, string product, string file, string storeView, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3758,7 +3758,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductAttributeMediaTypeEntity[]> catalogProductAttributeMediaTypesAsync(string sessionId, string setId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3812,7 +3812,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<string> catalogProductAttributeMediaCreateAsync(string sessionId, string product, Magento1Soap.catalogProductAttributeMediaCreateEntity data, string storeView, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3866,7 +3866,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeMediaUpdateAsync(string sessionId, string product, string file, Magento1Soap.catalogProductAttributeMediaCreateEntity data, string storeView, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3920,7 +3920,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductAttributeMediaRemoveAsync(string sessionId, string product, string file, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -3974,7 +3974,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductLinkEntity[]> catalogProductLinkListAsync(string sessionId, string type, string product, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4028,7 +4028,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductLinkAssignAsync(string sessionId, string type, string product, string linkedProduct, Magento1Soap.catalogProductLinkEntity data, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4082,7 +4082,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductLinkUpdateAsync(string sessionId, string type, string product, string linkedProduct, Magento1Soap.catalogProductLinkEntity data, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4136,7 +4136,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductLinkRemoveAsync(string sessionId, string type, string product, string linkedProduct, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4190,7 +4190,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<string[]> catalogProductLinkTypesAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4244,7 +4244,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductLinkAttributeEntity[]> catalogProductLinkAttributesAsync(string sessionId, string type);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4298,7 +4298,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductCustomOptionAddAsync(string sessionId, string productId, Magento1Soap.catalogProductCustomOptionToAdd data, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4352,7 +4352,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductCustomOptionUpdateAsync(string sessionId, string optionId, Magento1Soap.catalogProductCustomOptionToUpdate data, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4406,7 +4406,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductCustomOptionTypesEntity[]> catalogProductCustomOptionTypesAsync(string sessionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4460,7 +4460,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductCustomOptionInfoEntity> catalogProductCustomOptionInfoAsync(string sessionId, string optionId, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4514,7 +4514,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductCustomOptionListEntity[]> catalogProductCustomOptionListAsync(string sessionId, string productId, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4568,7 +4568,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductCustomOptionRemoveAsync(string sessionId, string optionId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4622,7 +4622,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductCustomOptionValueInfoEntity> catalogProductCustomOptionValueInfoAsync(string sessionId, string valueId, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4676,7 +4676,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductCustomOptionValueListEntity[]> catalogProductCustomOptionValueListAsync(string sessionId, string optionId, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4730,7 +4730,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductCustomOptionValueAddAsync(string sessionId, string optionId, Magento1Soap.catalogProductCustomOptionValueAddEntity[] data, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4784,7 +4784,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductCustomOptionValueUpdateAsync(string sessionId, string valueId, Magento1Soap.catalogProductCustomOptionValueUpdateEntity data, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4838,7 +4838,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductCustomOptionValueRemoveAsync(string sessionId, string valueId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4892,7 +4892,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.salesOrderListEntity[]> salesOrderListAsync(string sessionId, Magento1Soap.filters filters);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -4946,7 +4946,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.salesOrderEntity> salesOrderInfoAsync(string sessionId, string orderIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5000,7 +5000,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderAddCommentAsync(string sessionId, string orderIncrementId, string status, string comment, string notify);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5054,7 +5054,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderHoldAsync(string sessionId, string orderIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5108,7 +5108,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderUnholdAsync(string sessionId, string orderIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5162,7 +5162,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderCancelAsync(string sessionId, string orderIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5216,7 +5216,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.salesOrderShipmentEntity[]> salesOrderShipmentListAsync(string sessionId, Magento1Soap.filters filters);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5270,7 +5270,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.salesOrderShipmentEntity> salesOrderShipmentInfoAsync(string sessionId, string shipmentIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5325,7 +5325,7 @@ namespace Magento1Soap
         
         // CODEGEN: Generating message contract since the operation has multiple return values.
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5378,7 +5378,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.salesOrderShipmentAddCommentResponse> salesOrderShipmentAddCommentAsync(Magento1Soap.salesOrderShipmentAddCommentRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5432,7 +5432,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> salesOrderShipmentAddTrackAsync(string sessionId, string shipmentIncrementId, string carrier, string title, string trackNumber);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5486,7 +5486,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderShipmentSendInfoAsync(string sessionId, string shipmentIncrementId, string comment);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5540,7 +5540,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderShipmentRemoveTrackAsync(string sessionId, string shipmentIncrementId, string trackId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5594,7 +5594,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.associativeEntity[]> salesOrderShipmentGetCarriersAsync(string sessionId, string orderIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5648,7 +5648,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.salesOrderInvoiceEntity[]> salesOrderInvoiceListAsync(string sessionId, Magento1Soap.filters filters);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5702,7 +5702,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.salesOrderInvoiceEntity> salesOrderInvoiceInfoAsync(string sessionId, string invoiceIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5756,7 +5756,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<string> salesOrderInvoiceCreateAsync(string sessionId, string invoiceIncrementId, Magento1Soap.orderItemIdQty[] itemsQty, string comment, string email, string includeComment);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5810,7 +5810,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderInvoiceAddCommentAsync(string sessionId, string invoiceIncrementId, string comment, string email, string includeComment);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5864,7 +5864,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderInvoiceCaptureAsync(string sessionId, string invoiceIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5918,7 +5918,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderInvoiceVoidAsync(string sessionId, string invoiceIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -5972,7 +5972,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderInvoiceCancelAsync(string sessionId, string invoiceIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6026,7 +6026,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.salesOrderCreditmemoEntity[]> salesOrderCreditmemoListAsync(string sessionId, Magento1Soap.filters filters);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6080,7 +6080,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.salesOrderCreditmemoEntity> salesOrderCreditmemoInfoAsync(string sessionId, string creditmemoIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6134,7 +6134,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<string> salesOrderCreditmemoCreateAsync(string sessionId, string orderIncrementId, Magento1Soap.salesOrderCreditmemoData creditmemoData, string comment, int notifyCustomer, int includeComment, string refundToStoreCreditAmount);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6188,7 +6188,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderCreditmemoAddCommentAsync(string sessionId, string creditmemoIncrementId, string comment, int notifyCustomer, int includeComment);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6242,7 +6242,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> salesOrderCreditmemoCancelAsync(string sessionId, string creditmemoIncrementId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6296,7 +6296,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogInventoryStockItemEntity[]> catalogInventoryStockItemListAsync(string sessionId, string[] products);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6350,7 +6350,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> catalogInventoryStockItemUpdateAsync(string sessionId, string product, Magento1Soap.catalogInventoryStockItemUpdateEntity data);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6404,7 +6404,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogInventoryStockItemMultiUpdateAsync(string sessionId, string[] productIds, Magento1Soap.catalogInventoryStockItemUpdateEntity[] productData);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6458,7 +6458,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> shoppingCartCreateAsync(string sessionId, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6512,7 +6512,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.shoppingCartInfoEntity> shoppingCartInfoAsync(string sessionId, int quoteId, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6566,7 +6566,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<string> shoppingCartOrderAsync(string sessionId, int quoteId, string storeId, string[] licenses);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6620,7 +6620,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.shoppingCartTotalsEntity[]> shoppingCartTotalsAsync(string sessionId, int quoteId, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6674,7 +6674,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.shoppingCartLicenseEntity[]> shoppingCartLicenseAsync(string sessionId, int quoteId, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6728,7 +6728,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> shoppingCartProductAddAsync(string sessionId, int quoteId, Magento1Soap.shoppingCartProductEntity[] products, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6782,7 +6782,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> shoppingCartProductUpdateAsync(string sessionId, int quoteId, Magento1Soap.shoppingCartProductEntity[] products, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6836,7 +6836,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> shoppingCartProductRemoveAsync(string sessionId, int quoteId, Magento1Soap.shoppingCartProductEntity[] products, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6890,7 +6890,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductEntity[]> shoppingCartProductListAsync(string sessionId, int quoteId, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6944,7 +6944,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> shoppingCartProductMoveToCustomerQuoteAsync(string sessionId, int quoteId, Magento1Soap.shoppingCartProductEntity[] products, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -6998,7 +6998,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> shoppingCartCustomerSetAsync(string sessionId, int quoteId, Magento1Soap.shoppingCartCustomerEntity customer, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7052,7 +7052,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> shoppingCartCustomerAddressesAsync(string sessionId, int quoteId, Magento1Soap.shoppingCartCustomerAddressEntity[] customer, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7106,7 +7106,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> shoppingCartShippingMethodAsync(string sessionId, int quoteId, string method, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7160,7 +7160,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.shoppingCartShippingMethodEntity[]> shoppingCartShippingListAsync(string sessionId, int quoteId, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7214,7 +7214,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> shoppingCartPaymentMethodAsync(string sessionId, int quoteId, Magento1Soap.shoppingCartPaymentMethodEntity method, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7268,7 +7268,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.shoppingCartPaymentMethodResponseEntity[]> shoppingCartPaymentListAsync(string sessionId, int quoteId, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7322,7 +7322,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> shoppingCartCouponAddAsync(string sessionId, int quoteId, string couponCode, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7376,7 +7376,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> shoppingCartCouponRemoveAsync(string sessionId, int quoteId, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7430,7 +7430,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductTagListEntity[]> catalogProductTagListAsync(string sessionId, string productId, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7484,7 +7484,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductTagInfoEntity> catalogProductTagInfoAsync(string sessionId, string tagId, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7538,7 +7538,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.associativeEntity[]> catalogProductTagAddAsync(string sessionId, Magento1Soap.catalogProductTagAddEntity data);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7592,7 +7592,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductTagUpdateAsync(string sessionId, string tagId, Magento1Soap.catalogProductTagUpdateEntity data, string store);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7646,7 +7646,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<bool> catalogProductTagRemoveAsync(string sessionId, string tagId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7700,7 +7700,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.giftMessageResponse> giftMessageSetForQuoteAsync(string sessionId, string quoteId, Magento1Soap.giftMessageEntity giftMessage, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7754,7 +7754,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.giftMessageResponse> giftMessageSetForQuoteItemAsync(string sessionId, string quoteItemId, Magento1Soap.giftMessageEntity giftMessage, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7808,7 +7808,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.giftMessageResponse[]> giftMessageSetForQuoteProductAsync(string sessionId, string quoteId, Magento1Soap.giftMessageAssociativeProductsEntity[] productsAndMessages, string storeId);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7862,7 +7862,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<int> catalogProductDownloadableLinkAddAsync(string sessionId, string productId, Magento1Soap.catalogProductDownloadableLinkAddEntity resource, string resourceType, string store, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]
@@ -7916,7 +7916,7 @@ namespace Magento1Soap
         System.Threading.Tasks.Task<Magento1Soap.catalogProductDownloadableLinkInfoEntity> catalogProductDownloadableLinkListAsync(string sessionId, string productId, string store, string identifierType);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Action", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Literal)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true, Use=System.ServiceModel.OperationFormatUse.Encoded)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkSampleEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkFileInfoEntity))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(catalogProductDownloadableLinkEntity))]

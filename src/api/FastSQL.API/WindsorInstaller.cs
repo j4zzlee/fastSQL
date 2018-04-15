@@ -5,6 +5,7 @@ using Castle.Windsor;
 using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Repositories;
+using Newtonsoft.Json;
 using System;
 
 namespace FastSQL.API
@@ -99,6 +100,10 @@ namespace FastSQL.API
              .WithService.Select(new Type[] { typeof(IProcessor) })
              .WithServiceSelf()
              .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+            container.Register(Component.For<JsonSerializer>().UsingFactoryMethod(() => new JsonSerializer()
+            {
+                ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+            }).LifestyleSingleton());
         }
     }
 }
