@@ -9,30 +9,29 @@
 </template>
 
 <script>
-
 export default {
   name: 'entities-page',
   data() {
     return {
       entities: []
-    };
+    }
   },
-  async mounted () {
+  async mounted() {
     this.entities = await this.getEntities()
   },
   components: {
     Dropdown: () => import('@/components/Controls/Dropdown')
   },
-  computed: {
-  },
+  computed: {},
   methods: {
-    onNewEntity () {
+    onNewEntity() {
+      this.$router.push({ name: 'edit-entity' }) /* , params: { id: '123' } */
     },
     async getEntities() {
       var res = await this.$http.get(`${process.env.BACKEND}/api/entities`)
       return res.data
     }
   }
-};
+}
 </script>
  

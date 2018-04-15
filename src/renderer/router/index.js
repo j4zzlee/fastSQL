@@ -25,6 +25,11 @@ export default new Router({
           component: () => import('@/components/Entities/Index')
         },
         {
+          path: '/entities/:id/edit',
+          name: 'edit-entity',
+          component: () => import('@/components/Entities/EditEntity')
+        },
+        {
           path: '/attributes',
           name: 'attributes',
           component: () => import('@/components/Attributes/Index')
