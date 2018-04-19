@@ -20,17 +20,15 @@ namespace FastSQL.Core
                 }
                 var result = new List<OptionItem>();
                 // merge instance options with template
+                // Template should be remains
                 foreach (var o in template)
                 {
                     var existedOption = InstanceOptions.FirstOrDefault(oo => oo.Name == o.Name);
-                    if (existedOption == null)
+                    if (existedOption != null)
                     {
-                        result.Add(o);
+                        o.Value = existedOption.Value; // only need value
                     }
-                    else
-                    {
-                        result.Add(o.Merge(existedOption));
-                    }
+                    result.Add(o);
                 }
                 return result;
             }

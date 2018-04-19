@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Sync\FastSQL.Sync.Core\FastSQL.Sync.Core.csproj" />
+    <ProjectReference Include="..\FastSQL.MsSql\FastSQL.MsSql.csproj" />
+  </ItemGroup>
+
+</Project>

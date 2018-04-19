@@ -1,12 +1,14 @@
 ﻿using FastSQL.Core;
+using FastSQL.Sync.Core.Enums;
 using System;
 using System.Collections.Generic;
 
 namespace FastSQL.Sync.Core
 {
-    public interface IIndexer : IProcessorVerifier, IRichProviderVerifier, IOptionManager
+    public interface IIndexer : IOptionManager
     {
         void Persist(IEnumerable<object> data = null);
+        bool Is(EntityType entityType);
     }
 
     public interface IEntityIndexer: IIndexer

@@ -20,6 +20,16 @@ namespace FastSQL.Sync.Core.Repositories
             return GetById<TModel>(id);
         }
 
+        public virtual IEnumerable<TModel> GetByIds(IEnumerable<string> ids)
+        {
+            return GetByIds<TModel>(ids);
+        }
+
+        public virtual IEnumerable<TModel> GetByIds (params string[] ids)
+        {
+            return GetByIds<TModel>(ids);
+        }
+
         public virtual IEnumerable<TModel> GetAll(int? limit = null, int? offset = null)
         {
             return GetAll<TModel>(limit, offset);

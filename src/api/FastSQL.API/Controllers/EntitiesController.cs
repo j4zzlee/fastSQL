@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace FastSQL.API.Controllers
 {
     [Route("api/[controller]")]
-    public class EntitiesController: Controller
+    public class EntitiesController : Controller
     {
         private readonly EntityRepository entityRepository;
         private readonly ConnectionRepository connectionRepository;
@@ -47,32 +47,128 @@ namespace FastSQL.API.Controllers
             this.serializer = serializer;
         }
 
-        private IEnumerable<OptionItem> GetPullerOptions(EntityModel e)
+        private IEnumerable<OptionItem> GetPullerTemplateOptions(EntityModel e)
         {
             if (string.IsNullOrWhiteSpace(e.SourceConnectionId.ToString()) || e.SourceConnectionId == Guid.Empty)
             {
                 return new List<OptionItem>();
             }
             var conn = connectionRepository.GetById(e.SourceConnectionId.ToString());
-            var puller = pullers.FirstOrDefault(p => p.IsProcessor(e.ProcessorId) && p.IsProvider(conn.ProviderId));
+            var puller = pullers.FirstOrDefault(p => p.IsImplemented(e.SourceProcessorId, conn.ProviderId));
             return puller?.Options ?? new List<OptionItem>();
         }
 
-        private IEnumerable<OptionItem> GetIndexerOptions(EntityModel e)
+        private IEnumerable<OptionItem> GetIndexerTemplateOptions(EntityModel e)
         {
-            var indexer = indexers.FirstOrDefault(); // damn we only have 1 indexer?
+            var indexer = indexers.FirstOrDefault(i => i.Is(EntityType.Entity));
             return indexer?.Options ?? new List<OptionItem>();
         }
 
-        private IEnumerable<OptionItem> GetPusherOptions(EntityModel e)
+        private IEnumerable<OptionItem> GetPusherTemplateOptions(EntityModel e)
         {
             if (string.IsNullOrWhiteSpace(e.DestinationConnectionId.ToString()) || e.DestinationConnectionId == Guid.Empty)
             {
                 return new List<OptionItem>();
             }
             var conn = connectionRepository.GetById(e.DestinationConnectionId.ToString());
-            var pusher = pushers.FirstOrDefault(p => p.IsProcessor(e.ProcessorId) && p.IsProvider(conn.ProviderId));
+            var pusher = pushers.FirstOrDefault(p => p.IsImplemented(e.DestinationProcessorId, conn.ProviderId));
             return pusher?.Options ?? new List<OptionItem>();
+        }
+
+        [HttpPost("options/template")]
+        public IActionResult GetOptions([FromBody] EntityTemplateOptionRequestViewModel model)
+        {
+            IEntityPuller puller = null;
+            IEntityPusher pusher = null;
+            ConnectionModel source = null;
+            ConnectionModel dest = null;
+
+            if (!string.IsNullOrWhiteSpace(model.SourceConnectionId))
+            {
+                source = connectionRepository.GetById(model.SourceConnectionId);
+                puller = pullers.FirstOrDefault(p => p.IsImplemented(model.SourceProcessorId, source.ProviderId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.DestinationConnectionId))
+            {
+                dest = connectionRepository.GetById(model.DestinationConnectionId);
+                pusher = pushers.FirstOrDefault(p => p.IsImplemented(model.DestinationProcessorId, dest.ProviderId));
+            }
+
+            var indexer = indexers.FirstOrDefault(i => i.Is(EntityType.Entity));
+            return Ok(new
+            {
+                Puller = puller?.Options ?? new List<OptionItem>(),
+                Indexer = indexer?.Options ?? new List<OptionItem>(),
+                Pusher = pusher?.Options ?? new List<OptionItem>(),
+            });
+        }
+
+        [HttpPost("{id}/options/template")]
+        public IActionResult GetOptions(Guid id, [FromBody] EntityTemplateOptionRequestViewModel model)
+        {
+            IEntityPuller puller = null;
+            IEntityPusher pusher = null;
+            ConnectionModel source = null;
+            ConnectionModel dest = null;
+            var entity = entityRepository.GetById(id.ToString());
+            var options = entityRepository.LoadOptions(id);
+            var instanceOptions = options.Select(o => new OptionItem
+            {
+                Name = o.Key,
+                Value = o.Value
+            }).ToList();
+
+
+            if (!string.IsNullOrWhiteSpace(model.SourceConnectionId))
+            {
+                source = connectionRepository.GetById(model.SourceConnectionId);
+                puller = pullers.FirstOrDefault(p => p.IsImplemented(model.SourceProcessorId, source.ProviderId));
+                puller.SetOptions(instanceOptions);
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.DestinationConnectionId))
+            {
+                dest = connectionRepository.GetById(model.DestinationConnectionId);
+                pusher = pushers.FirstOrDefault(p => p.IsImplemented(model.DestinationProcessorId, dest.ProviderId));
+                pusher.SetOptions(instanceOptions);
+            }
+
+            var indexer = indexers.FirstOrDefault(i => i.Is(EntityType.Entity));
+            indexer.SetOptions(instanceOptions);
+            return Ok(new
+            {
+                Puller = puller?.Options ?? new List<OptionItem>(),
+                Indexer = indexer?.Options ?? new List<OptionItem>(),
+                Pusher = pusher?.Options ?? new List<OptionItem>(),
+            });
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetById(string id)
+        {
+            var entity = entityRepository.GetById(id);
+            var options = entityRepository.LoadOptions(entity.Id);
+            var jEntity = JObject.FromObject(entity, serializer);
+            var templateOpts = new List<OptionItem>();
+            templateOpts.AddRange(GetPullerTemplateOptions(entity));
+            templateOpts.AddRange(GetPusherTemplateOptions(entity));
+            templateOpts.AddRange(GetIndexerTemplateOptions(entity));
+            var destConnection = connectionRepository.GetById(entity.DestinationConnectionId.ToString());
+
+            var cOptions = options.Where(o => o.EntityId == entity.Id && o.EntityType == EntityType.Entity);
+            var optionItems = new List<OptionItem>();
+            foreach (var po in templateOpts)
+            {
+                var o = cOptions.FirstOrDefault(oo => oo.Key == po.Name);
+                if (o != null)
+                {
+                    po.Value = o.Value;
+                }
+                optionItems.Add(po);
+            }
+            jEntity.Add("options", JArray.FromObject(optionItems, serializer));
+            return Ok(jEntity);
         }
 
         [HttpGet]
@@ -84,12 +180,12 @@ namespace FastSQL.API.Controllers
             {
                 var jEntity = JObject.FromObject(c, serializer);
                 var templateOpts = new List<OptionItem>();
-                templateOpts.AddRange(GetPullerOptions(c));
-                templateOpts.AddRange(GetPusherOptions(c));
-                templateOpts.AddRange(GetIndexerOptions(c));
+                templateOpts.AddRange(GetPullerTemplateOptions(c));
+                templateOpts.AddRange(GetPusherTemplateOptions(c));
+                templateOpts.AddRange(GetIndexerTemplateOptions(c));
                 var destConnection = connectionRepository.GetById(c.DestinationConnectionId.ToString());
-                
-                var cOptions = options.Where(o => o.EntityId == c.Id && o.EntityType == EntityType.Connection);
+
+                var cOptions = options.Where(o => o.EntityId == c.Id && o.EntityType == EntityType.Entity);
                 var optionItems = new List<OptionItem>();
                 foreach (var po in templateOpts)
                 {
@@ -105,24 +201,9 @@ namespace FastSQL.API.Controllers
             }));
         }
 
-        [HttpPost] 
+        [HttpPost]
         public IActionResult Create([FromBody] CreateEntityViewModel model)
         {
-            var sourceConnection = connectionRepository.GetById(model.SourceConnectionId.ToString());
-            var destConnection = connectionRepository.GetById(model.DestinationConnectionId.ToString());
-            var processor = processors.FirstOrDefault(p => p.Id == model.ProcessorId && p.Type == ProcessorType.Entity);
-            if (sourceConnection == null)
-            {
-                return NotFound("The requested source connection is not found.");
-            }
-            if (destConnection == null)
-            {
-                return NotFound("The requested destination connection is not found.");
-            }
-            if (processor == null)
-            {
-                return NotFound("The requested processor is not found.");
-            }
             try
             {
                 var result = entityRepository.Create(new
@@ -131,10 +212,14 @@ namespace FastSQL.API.Controllers
                     model.Description,
                     model.SourceConnectionId,
                     model.DestinationConnectionId,
-                    model.ProcessorId
+                    model.SourceProcessorId,
+                    model.DestinationProcessorId
                 });
 
-                entityRepository.LinkOptions(Guid.Parse(result), model.Options);
+                if (model.Options != null && model.Options.Count() > 0)
+                {
+                    entityRepository.LinkOptions(Guid.Parse(result), model.Options);
+                }
 
                 transaction.Commit();
                 return Ok(result);
@@ -146,36 +231,56 @@ namespace FastSQL.API.Controllers
             }
         }
 
+        [HttpPut("{id}/options")]
+        public IActionResult UpdateOptions(string id, [FromBody] IEnumerable<OptionItem> options)
+        {
+            try
+            {
+                if (options != null && options.Count() > 0)
+                {
+                    entityRepository.LinkOptions(Guid.Parse(id), options);
+                }
+                transaction.Commit();
+                return Ok(id);
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
         [HttpPut("{id}")]
         public IActionResult Update(string id, [FromBody] CreateEntityViewModel model)
         {
-            var sourceConnection = connectionRepository.GetById(model.SourceConnectionId.ToString());
-            var destConnection = connectionRepository.GetById(model.DestinationConnectionId.ToString());
-            var processor = processors.FirstOrDefault(p => p.Id == model.ProcessorId && p.Type == ProcessorType.Entity);
-            if (sourceConnection == null)
-            {
-                return NotFound("The requested source connection is not found.");
-            }
-            if (destConnection == null)
-            {
-                return NotFound("The requested destination connection is not found.");
-            }
-            if (processor == null)
-            {
-                return NotFound("The requested processor is not found.");
-            }
             try
             {
+                var entity = entityRepository.GetById(id);
+                var state = entity.State;
+                if (model.Enabled)
+                {
+                    state = (state | EntityState.Disabled) ^ EntityState.Disabled;
+                }
+                else
+                {
+                    state = state | EntityState.Disabled;
+                }
+
                 var result = entityRepository.Update(id, new
                 {
                     model.Name,
                     model.Description,
                     model.SourceConnectionId,
                     model.DestinationConnectionId,
-                    model.ProcessorId
+                    model.SourceProcessorId,
+                    model.DestinationProcessorId, 
+                    State = state
                 });
 
-                entityRepository.LinkOptions(Guid.Parse(id), model.Options);
+                if (model.Options != null && model.Options.Count() > 0)
+                {
+                    entityRepository.LinkOptions(Guid.Parse(id), model.Options);
+                }
 
                 transaction.Commit();
                 return Ok(result);

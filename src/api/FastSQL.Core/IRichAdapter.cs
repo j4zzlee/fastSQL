@@ -14,8 +14,11 @@ namespace FastSQL.Core
         IEnumerable<string> GetTables();
         IEnumerable<string> GetViews();
     }
-    public interface IRichAdapter: IOptionManager, IRichProviderVerifier
+    public interface IRichAdapter: IOptionManager
     {
+        IRichProvider GetProvider();
+        bool IsProvider(string providerId);
+        bool IsProvider(IRichProvider provider);
         bool TryConnect(out string message);
     }
 }

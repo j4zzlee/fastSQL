@@ -1,9 +1,12 @@
 <template>
   <div class="form-group">
-    <label for="name" class="font-weight-bold font-italic">{{ option.displayName }}</label>
-    <input v-if="option.type === 0" type="text" class="form-control" v-model="option.value" @change="(e) => onInputChange(e.target.value)"/>
-    <textarea v-if="option.type === 1" class="form-control" v-model="option.value" @change="(e) => onInputChange(e.target.value)"/>
-    <input v-if="option.type === 2" type="password" class="form-control" v-model="option.value" @change="(e) => onInputChange(e.target.value)"/>
+    <label for="name" class="font-weight-bold font-italic">
+      {{ option.displayName }}
+      <small class="text-muted">({{option.description}})</small>
+    </label>
+    <input v-if="option.type === 0" :placeholder="option.example" type="text" class="form-control" v-model="option.value" @change="(e) => onInputChange(e.target.value)"/>
+    <textarea v-if="option.type === 1" :placeholder="option.example" rows="5" class="form-control" v-model="option.value" @change="(e) => onInputChange(e.target.value)"/>
+    <input v-if="option.type === 2" :placeholder="option.example" type="password" class="form-control" v-model="option.value" @change="(e) => onInputChange(e.target.value)"/>
     <div class="form-check has-success" v-if="option.type === 3">
       <label class="form-check-label">
         <input type="checkbox" class="form-check-input" v-model="option.value" @change="(e) => onInputChange(e.target.value)">

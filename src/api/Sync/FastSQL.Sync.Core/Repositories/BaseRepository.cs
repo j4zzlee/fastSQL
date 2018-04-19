@@ -55,10 +55,11 @@ WHEN NOT MATCHED THEN
             }));
             var updateOptionGroupsSql = $@"MERGE [core_rel_option_option_group] AS [Target]
 USING (
-    SELECT DISTINCT v.GroupName, o.Id as OptionId FROM (VALUES (@EntityId, @EntityType, @Key, @Value, @GroupName)) v([EntityId], [EntityType], [Key], [Value], [GroupName])
+    SELECT DISTINCT v.GroupName, o.Id as OptionId
+    FROM (VALUES (@EntityId, @EntityType, @Key, @Value, @GroupName)) AS v([EntityId], [EntityType], [Key], [Value], [GroupName])
     INNER JOIN [core_option_groups] og ON og.[Name] = v.GroupName
     LEFT JOIN [core_options] o ON o.EntityId = v.EntityId AND o.EntityType = v.EntityType AND o.[Key] = v.[Key]
-) AS [Source]([EntityId], [EntityType], [Key], [Value], [GroupName], [OptionId])
+) AS [Source]([GroupName], [OptionId])
 ON [Target].[OptionId] = [Source].[OptionId] AND [Target].[GroupName] = [Source].[GroupName]
 WHEN NOT MATCHED THEN
     INSERT ([GroupName], [OptionId])
@@ -150,6 +151,37 @@ WHERE EntityId IN @EntityIds AND EntityType = @EntityType";
                 param: new { Id = id },
                 transaction: _transaction);
             return items.FirstOrDefault();
+        }
+        
+        public virtual IEnumerable<T> GetByIds<T>(IEnumerable<string> ids) where T : class, new()
+        {
+            return GetByIds<T>(ids.ToArray());
+        }
+
+        public virtual IEnumerable<T> GetByIds<T>(params string[] ids) where T : class, new()
+        {
+            if (ids == null)
+            {
+                return new List<T>();
+            }
+            var tableName = typeof(T).GetTableName();
+            var keyColumnName = typeof(T).GetKeyColumnName();
+            var @conditions = new List<string>();
+            var @params = new DynamicParameters();
+            var random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            foreach (var id in ids)
+            {
+                var randomId = new string(Enumerable.Repeat(chars, 10).Select(s => s[random.Next(s.Length)]).ToArray());
+                var paramKey = $"id_{randomId}";
+                @params.Add(paramKey, id);
+                conditions.Add($"[{keyColumnName}] = @{paramKey}");
+            }
+            var items = _connection
+                .Query<T>($@"SELECT * FROM [{tableName}] WHERE {string.Join(" OR ", conditions)}",
+                param: @params,
+                transaction: _transaction);
+            return items;
         }
 
         public virtual IEnumerable<T> GetAll<T>(int? limit = null, int? offset = null)

@@ -1,22 +1,28 @@
 <template>
 <main>
   <div class="form-group">
-    <label for="entity-name" class="font-weight-bold font-italic">Entity Name</label>
-    <input type="text" class="form-control" id="entity-name" v-model="entityName">
+    <label for="attribute-name" class="font-weight-bold font-italic">Attribute Name</label>
+    <input type="text" class="form-control" id="attribute-name" v-model="attributeName">
   </div>
   <div class="form-group">
-    <label for="entity-description" class="font-weight-bold font-italic">Entity Description</label>
-    <textarea rows="4" class="form-control" id="entity-description" v-model="entityDescription"/>
+    <label for="attribute-description" class="font-weight-bold font-italic">Attribute Description</label>
+    <textarea rows="4" class="form-control" id="attribute-description" v-model="attributeDescription"/>
   </div>
   <div class="form-group">
     <div class="row">
-      <label class="font-weight-bold font-italic col-form-label col-sm-2 pt-0" for="entity-enabled">Enabled</label>
+      <label class="font-weight-bold font-italic col-form-label col-sm-2 pt-0" for="attribute-enabled">Enabled</label>
       <div class="col-sm-10">
         <div class="form-check">
-          <input type="checkbox" v-model="entityEnabled" class="form-check-input" id="entity-enabled">
+          <input type="checkbox" class="form-check-input" v-model="attributeEnabled" id="attribute-enabled">
         </div>
       </div>
     </div>
+  </div>
+  <div class="form-group">
+    <label for="entity" class="font-weight-bold font-italic">Entity</label>
+    <select class="form-control" v-model="entityId" id="entity" @change="onEntityChanged">
+      <option v-for="entity in entities" v-bind:key="entity.id" v-bind:value="entity.id">{{ entity.name }}</option>
+    </select>
   </div>
   <div class="form-group">
     <label for="source-processor" class="font-weight-bold font-italic">Source Processor</label>
@@ -84,13 +90,13 @@
 </template>
 <script>
 export default {
-  name: 'edit-entity-page',
+  name: 'edit-attribute-page',
   props: {},
   data() {
     return {
-      entityName: '',
-      entityDescription: '',
-      entityEnabled: true,
+      attributeName: '',
+      attributeDescription: '',
+      attributeEnabled: true,
       sourceConnectionId: '',
       sourceConnection: {},
       destinationConnectionId: '',
@@ -101,21 +107,27 @@ export default {
       destinationProcessor: {},
       processors: [],
       connections: [],
+      entities: [],
+      entityId: '',
+      entity: {},
+      attributeOptions: [],
       pullerOptions: [],
-      indexerOptions: [],
       pusherOptions: [],
-      entityOptions: []
+      indexerOptions: []
     }
   },
   async created() {},
   async mounted() {
     this.connections = await this.getConnections()
     this.processors = await this.getProcessors()
-    if (this.entityId) {
-      var res = await this.$http.get(`${process.env.BACKEND}/api/entities/${this.entityId}`)
-      this.entityName = res.data.name
-      this.entityDescription = res.data.description
-      this.entityEnabled = (res.data.state & 1) === 0
+    this.entities = await this.getEntities()
+    if (this.attributeId) {
+      var res = await this.$http.get(`${process.env.BACKEND}/api/attributes/${this.attributeId}`)
+      this.attributeName = res.data.name
+      this.attributeDescription = res.data.description
+      this.attributeEnabled = (res.data.state & 1) === 0
+      this.entityId = res.data.entityId
+      this.entity = this.entities.filter(e => e.id === this.entityId)
       this.sourceConnectionId = res.data.sourceConnectionId
       this.sourceConnection = this.connections.filter(c => c.id === this.sourceConnectionId)[0]
       this.sourceProcessorId = res.data.sourceProcessorId
@@ -124,7 +136,7 @@ export default {
       this.destinationConnection = this.connections.filter(c => c.id === this.destinationConnectionId)[0]
       this.destinationProcessorId = res.data.destinationProcessorId
       this.destinationProcessor = this.processors.filter(p => p.id === this.destinationProcessorId)[0]
-      this.entityOptions = res.data.options || []
+      this.attributeOptions = res.data.options || []
       await this.getOptions()
     }
   },
@@ -134,7 +146,7 @@ export default {
     DynamicOption: () => import('@/components/Controls/DynamicOption')
   },
   computed: {
-    entityId() {
+    attributeId() {
       return this.$route.params.id
     }
   },
@@ -144,13 +156,18 @@ export default {
       return res.data
     },
     async getProcessors() {
-      var res = await this.$http.get(`${process.env.BACKEND}/api/processors`)
+      var res = await this.$http.get(`${process.env.BACKEND}/api/processors?type=2`)
+      return res.data
+    },
+    async getEntities() {
+      var res = await this.$http.get(`${process.env.BACKEND}/api/entities`)
       return res.data
     },
     async getOptions() {
       var res = await this.$http.post(
-        `${process.env.BACKEND}/api/entities/options/template`,
+        `${process.env.BACKEND}/api/attributes/options/template`,
         {
+          entityId: this.entityId,
           sourceConnectionId: this.sourceConnectionId,
           destinationConnectionId: this.destinationConnectionId,
           sourceProcessorId: this.sourceProcessorId,
@@ -159,7 +176,7 @@ export default {
       )
       this.pullerOptions = res.data.puller
       for (var i = 0; i < this.pullerOptions.length; i++) {
-        var pullerOptions = this.entityOptions.filter(e => e.name === this.pullerOptions[i].name);
+        var pullerOptions = this.attributeOptions.filter(e => e.name === this.pullerOptions[i].name);
         var pullerOption = pullerOptions && pullerOptions.length ? pullerOptions[0] : null;
         if (pullerOption) {
           this.pullerOptions[i].value = pullerOption.value
@@ -167,7 +184,7 @@ export default {
       }
       this.pusherOptions = res.data.pusher
       for (var k = 0; k < this.pusherOptions.length; k++) {
-        var pusherOptions = this.entityOptions.filter(e => e.name === this.pusherOptions[k].name);
+        var pusherOptions = this.attributeOptions.filter(e => e.name === this.pusherOptions[k].name);
         var pusherOption = pusherOptions && pusherOptions.length ? pusherOptions[0] : null;
         if (pusherOption) {
           this.pusherOptions[k].value = pusherOption.value
@@ -175,7 +192,7 @@ export default {
       }
       this.indexerOptions = res.data.indexer
       for (var j = 0; j < this.indexerOptions.length; j++) {
-        var indexerOptions = this.entityOptions.filter(e => e.name === this.indexerOptions[j].name);
+        var indexerOptions = this.attributeOptions.filter(e => e.name === this.indexerOptions[j].name);
         var indexerOption = indexerOptions && indexerOptions.length ? indexerOptions[0] : null;
         if (indexerOption) {
           this.indexerOptions[j].value = indexerOption.value
@@ -208,29 +225,36 @@ export default {
       }
       await this.getOptions()
     },
+    async onEntityChanged() {
+      this.entity = {
+        ...this.entities.filter(p => p.id === this.entityId)[0]
+      }
+      await this.getOptions()
+    },
     async onSaveHandler() {
       let params = {
-        name: this.entityName,
-        description: this.entityDescription,
+        name: this.attributeName,
+        description: this.attributeDescription,
+        entityId: this.entityId,
         sourceProcessorId: this.sourceProcessorId,
         destinationProcessorId: this.destinationProcessorId,
         sourceConnectionId: this.sourceConnectionId,
         destinationConnectionId: this.destinationConnectionId,
-        enabled: this.entityEnabled,
+        enabled: this.attributeEnabled,
         options: [
           ...this.pullerOptions,
           ...this.indexerOptions,
           ...this.pusherOptions
         ]
       }
-      if (!this.entityId) {
+      if (!this.attributeId) {
         await this.$http.post(
-          `${process.env.BACKEND}/api/entities`,
+          `${process.env.BACKEND}/api/attributes`,
           params
         )
       } else {
         await this.$http.put(
-          `${process.env.BACKEND}/api/entities/${this.entityId}`,
+          `${process.env.BACKEND}/api/attributes/${this.attributeId}`,
           params
         )
       }

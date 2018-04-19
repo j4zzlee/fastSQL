@@ -1,4 +1,5 @@
 ﻿using FastSQL.Sync.Core;
+using FastSQL.Sync.Core.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -18,9 +19,9 @@ namespace FastSQL.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult Get([FromQuery] ProcessorType type = ProcessorType.Entity)
         {
-            return Ok(processors);
+            return Ok(processors.Where(p => p.Type == type));
         }
     }
 }

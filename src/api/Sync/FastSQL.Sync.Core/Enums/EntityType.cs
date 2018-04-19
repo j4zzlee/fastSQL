@@ -4,6 +4,7 @@ using System.Text;
 
 namespace FastSQL.Sync.Core.Enums
 {
+    [Flags]
     public enum EntityType
     {
         Connection = 1,

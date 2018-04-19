@@ -14,7 +14,8 @@ namespace FastSQL.Sync.Core.Models
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string ProcessorId { get; set; }
+        public string SourceProcessorId { get; set; }
+        public string DestinationProcessorId { get; set; }
         public Guid SourceConnectionId { get; set; }
         public Guid DestinationConnectionId { get; set; }
         public EntityState State { get; set; }

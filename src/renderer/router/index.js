@@ -33,6 +33,11 @@ export default new Router({
           path: '/attributes',
           name: 'attributes',
           component: () => import('@/components/Attributes/Index')
+        },
+        {
+          path: '/attributes/:id/edit',
+          name: 'edit-attribute',
+          component: () => import('@/components/Attributes/EditAttribute')
         }
       ]
     },

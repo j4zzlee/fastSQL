@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FastSQL.Sync.Core;
+using FastSQL.Sync.Core.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,13 +12,47 @@ namespace FastSQL.API.Controllers
     [Route("api/[controller]")]
     public class PullersController : Controller
     {
-        private readonly IEnumerable<IPuller> _pullers;
+        private readonly IEnumerable<IEntityPuller> _entityPullers;
+        private readonly IEnumerable<IAttributePuller> attributePullers;
         private readonly IEnumerable<IIndexer> _indexers;
+        private readonly EntityRepository entityRepository;
+        private readonly AttributeRepository attributeRepository;
+        private readonly ConnectionRepository connectionRepository;
 
-        public PullersController(IEnumerable<IPuller> pullers, IEnumerable<IIndexer> indexers)
+        public PullersController(IEnumerable<IEntityPuller> entityPullers,
+            IEnumerable<IAttributePuller> attributePullers,
+            IEnumerable<IIndexer> indexers,
+            EntityRepository entityRepository,
+            AttributeRepository attributeRepository,
+            ConnectionRepository connectionRepository)
         {
-            _pullers = pullers;
+            _entityPullers = entityPullers;
+            this.attributePullers = attributePullers;
             _indexers = indexers;
+            this.entityRepository = entityRepository;
+            this.attributeRepository = attributeRepository;
+            this.connectionRepository = connectionRepository;
+        }
+
+        [HttpPost("entity/{id}")]
+        public IActionResult PullEntityData(string id, [FromBody] object nextToken)
+        {
+            var entity = entityRepository.GetById(id);
+            var sourceConnection = connectionRepository.GetById(entity.SourceConnectionId.ToString());
+            var puller = _entityPullers.FirstOrDefault(p => p.IsImplemented(entity.SourceProcessorId, sourceConnection.ProviderId));
+            var data = puller.PullNext(nextToken);
+            return Ok(data);
+        }
+
+        [HttpPost("attribute/{id}")]
+        public IActionResult PullAttributeData(string id, [FromBody] object nextToken)
+        {
+            var attribute = attributeRepository.GetById(id);
+            var entity = entityRepository.GetById(attribute.EntityId.ToString());
+            var sourceConnection = connectionRepository.GetById(attribute.SourceConnectionId.ToString());
+            var puller = _entityPullers.FirstOrDefault(p => p.IsImplemented(attribute.SourceProcessorId, sourceConnection.ProviderId));
+            var data = puller.PullNext(nextToken);
+            return Ok(data);
         }
     }
 }

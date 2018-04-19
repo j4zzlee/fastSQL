@@ -4,9 +4,9 @@ using System.Text;
 
 namespace FastSQL.Sync.Core.Enums
 {
+    [Flags]
     public enum EntityState
     {
-        Enabled = 1,
-        Disabled = 2
+        Disabled = 1
     }
 }

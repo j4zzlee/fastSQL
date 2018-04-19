@@ -19,79 +19,52 @@ namespace FastSQL.API
             container.Register(descriptor
                 .BasedOn<IRichProvider>()
                 .WithService.Select(new Type[] { typeof(IRichProvider) })
-                .WithServiceSelf()
+                .WithServiceAllInterfaces()
+               .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(descriptor
                 .BasedOn<IRichAdapter>()
                 .WithService.Select(new Type[] { typeof(IRichAdapter) })
-                .WithServiceSelf()
+                .WithServiceAllInterfaces()
+               .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-            container.Register(descriptor
-               .BasedOn<ISqlAdapter>()
-               .WithService.Select(new Type[] { typeof(ISqlAdapter) })
-               .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(descriptor
                 .BasedOn<IOptionManager>()
                 .WithService.Select(new Type[] { typeof(IOptionManager) })
-                .WithServiceSelf()
+                .WithServiceAllInterfaces()
+               .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
             // Puller
             container.Register(descriptor
                 .BasedOn<IPuller>()
                 .WithService.Select(new Type[] { typeof(IPuller) })
-                .WithServiceSelf()
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-            container.Register(descriptor
-                .BasedOn<IEntityPuller>()
-                .WithService.Select(new Type[] { typeof(IEntityPuller) })
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-            container.Register(descriptor
-                .BasedOn<IAttributePuller>()
-                 .WithService.Select(new Type[] { typeof(IAttributePuller) })
+                .WithServiceAllInterfaces()
+               .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
             // Indexer
             container.Register(descriptor
                 .BasedOn<IIndexer>()
                 .WithService.Select(new Type[] { typeof(IIndexer) })
-                .WithServiceSelf()
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-            container.Register(descriptor
-                .BasedOn<IEntityIndexer>()
-                .WithService.Select(new Type[] { typeof(IEntityIndexer) })
-                .WithServiceSelf()
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-            container.Register(descriptor
-                .BasedOn<IAttributeIndexer>()
-                .WithService.Select(new Type[] { typeof(IAttributeIndexer) })
-                .WithServiceSelf()
+              .WithServiceAllInterfaces()
+               .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
             // Pusher
             container.Register(descriptor
                 .BasedOn<IPusher>()
                 .WithService.Select(new Type[] { typeof(IPusher) })
-                .WithServiceSelf()
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-            container.Register(descriptor
-                .BasedOn<IEntityPusher>()
-                .WithService.Select(new Type[] { typeof(IEntityPusher) })
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-            container.Register(descriptor
-                .BasedOn<IAttributePusher>()
-                 .WithService.Select(new Type[] { typeof(IAttributePusher) })
+            .WithServiceAllInterfaces()
+               .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             
             // Repositories
             container.Register(descriptor
                .BasedOn<BaseRepository>()
                .WithService.Select(new Type[] { typeof(BaseRepository) })
+               .WithServiceAllInterfaces()
                .WithServiceSelf()
-               .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-            container.Register(descriptor
-               .BasedOn(typeof(BaseGenericRepository<>))
-               .WithService.Select(new Type[] { typeof(BaseGenericRepository<>) })
                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
             // Processors
@@ -99,7 +72,9 @@ namespace FastSQL.API
              .BasedOn<IProcessor>()
              .WithService.Select(new Type[] { typeof(IProcessor) })
              .WithServiceSelf()
+             .WithServiceAllInterfaces()
              .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
             container.Register(Component.For<JsonSerializer>().UsingFactoryMethod(() => new JsonSerializer()
             {
                 ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
