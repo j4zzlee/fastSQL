@@ -70,6 +70,8 @@
     "codemirror": "^5.36.0",
     "font-awesome": "^4.7.0",
     "jquery": "^3.3.1",
+    "node-windows": "^0.1.14",
+    "os-service": "^2.0.0",
     "popper.js": "^1.14.2",
     "uuid": "^3.2.1",
     "v-click-outside": "^1.0.4",

@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Hangfire;
 
 namespace FastSQL.API
 {
@@ -53,8 +54,8 @@ namespace FastSQL.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            services.AddHangfire(conf => conf.UseSqlServerStorage(Configuration.GetConnectionString("__MigrationDatabase")));
             services.AddMvc();
-            
             return WindsorRegistrationHelper.CreateServiceProvider(_container, services);
         }
 
@@ -65,15 +66,9 @@ namespace FastSQL.API
             {
                 app.UseDeveloperExceptionPage();
             }
-            //_container.Register(Component.For<IConfigurationRoot>().UsingFactoryMethod(p => {
-            //    var builder = new ConfigurationBuilder()
-            //        .SetBasePath(env.ContentRootPath)
-            //        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            //        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-            //        .AddEnvironmentVariables();
-            //    return builder.Build();
-            //}).LifestyleCustom<MsScopedLifestyleManager>());
-            //_container.Register(Component.For<IHostingEnvironment>().UsingFactoryMethod(p => env).LifestyleCustom<MsScopedLifestyleManager>());
+
+            app.UseHangfireDashboard();
+            app.UseHangfireServer();
             app.UseCors(options => options
                     .AllowAnyOrigin()
                     .AllowAnyMethod()

@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">{{text}}</a>
+    <a class="navbar-brand" href="#" @click="goToHomePage">{{text}}</a>
     <button class="navbar-toggler" type="button" 
       data-toggle="collapse" 
       data-target="#navbarSupportedContent" 
@@ -37,6 +37,9 @@ export default {
   methods: {
     onToggleNav() {
       this.isOpenNav = !this.isOpenNav
+    },
+    goToHomePage () {
+      this.$router.push({name: 'home'})
     }
   }
 };

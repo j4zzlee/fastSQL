@@ -14,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Castle.Windsor" Version="4.1.0" />
     <PackageReference Include="Castle.Windsor.MsDependencyInjection" Version="3.3.0" />
+    <PackageReference Include="Hangfire" Version="1.6.19" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
   </ItemGroup>
@@ -34,6 +35,12 @@
     <ProjectReference Include="..\Vendors\MsSql\FastSQL.MsSql.Integration\FastSQL.MsSql.Integration.csproj" />
     <ProjectReference Include="..\Vendors\MsSql\FastSQL.MsSql\FastSQL.MsSql.csproj" />
     <ProjectReference Include="..\Vendors\MySQL\FastSQL.MySQL\FastSQL.MySQL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Properties\launchSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

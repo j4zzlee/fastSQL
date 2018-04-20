@@ -1,7 +1,8 @@
 'use strict'
 
 import path from 'path'
-import os from 'os'
+import fs from 'fs'
+// import os from 'os'
 import { app, BrowserWindow } from 'electron'
 
 /**
@@ -13,7 +14,7 @@ if (process.env.NODE_ENV !== 'development') {
     .join(__dirname, '/static')
     .replace(/\\/g, '\\\\')
 }
-
+process.env.APP_DIR = path.resolve(__dirname)
 let mainWindow
 const winURL =
   process.env.NODE_ENV === 'development'
@@ -36,36 +37,39 @@ function createWindow() {
     mainWindow = null
   })
 }
-function startApi() {
-  const proc = require('child_process').spawn
-  //  run server
-  let workingDir = path.resolve(__dirname, '../api/bin/dist/win/')
-  let apipath = path.resolve(workingDir, 'FastSQL.API.exe')
-  if (os.platform() === 'darwin') {
-    apipath = path.resolve(workingDir, 'FastSQL.API')
-  }
-  console.log(`Starting ${apipath}`)
-  const apiProcess = proc(apipath, {
-    cwd: workingDir,
-    env: {
-      ASPNETCORE_URLS: 'http://localhost:7001'
-    }
-  })
+// function startApi() {
+//   const proc = require('child_process').spawn
+//   //  run server
+//   let workingDir = path.resolve(__dirname, '../api/bin/dist/win/')
+//   let apipath = path.resolve(workingDir, 'FastSQL.API.exe')
+//   if (os.platform() === 'darwin') {
+//     apipath = path.resolve(workingDir, 'FastSQL.API')
+//   }
+//   console.log(`Starting ${apipath}`)
+//   const apiProcess = proc(apipath, {
+//     cwd: workingDir,
+//     env: {
+//       ASPNETCORE_URLS: 'http://localhost:7001'
+//     }
+//   })
 
-  apiProcess.stdout.on('data', data => {
-    console.log(`stdout: ${data}`)
-    if (mainWindow == null) {
-      createWindow()
-    }
+//   apiProcess.stdout.on('data', data => {
+//     console.log(`stdout: ${data}`)
+//     if (mainWindow == null) {
+//       createWindow()
+//     }
+//   })
+// }
+
+var confPath = path.resolve(process.env.APP_DIR, 'config.json')
+
+if (fs.existsSync(confPath)) {
+  import(confPath).then((conf) => {
+    process.env.BACKEND = `http://localhost:${conf.api.port}`
   })
 }
-if (process.env.NODE_ENV === 'production') {
-  process.env.BACKEND = 'http://localhost:7001'
-  app.on('ready', startApi)
-} else {
-  process.env.BACKEND = 'http://localhost:63923'
-  app.on('ready', createWindow)
-}
+
+app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
