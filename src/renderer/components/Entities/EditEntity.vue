@@ -45,7 +45,7 @@
   <div class="card" v-if="pullerOptions && pullerOptions.length">
     <div class="card-header">
       <span class="font-weight-bold">Puller Options</span>
-      <a class="btn btn-link btn-sm pull-right" title="Preview"><i class="fa fa-play"></i></a>
+      <a class="btn btn-link btn-sm pull-right" title="Preview" @click="onTryPull"><i class="fa fa-play"></i></a>
     </div>
     <div class="card-body">
       <DynamicOption v-bind:key="option.name"
@@ -79,7 +79,9 @@
   <br>
   <div class="form-group">
     <button type="button" class="btn btn-primary" @click="onSaveHandler">Save</button>
+    <button type="button" class="btn btn-default" @click="onManageEntity">Manage</button>
   </div>
+  <PreviewDataModal :isShow="previewVisible" :data="previewData" :onClose="onClosePreview"></PreviewDataModal>
 </main>
 </template>
 <script>
@@ -104,7 +106,9 @@ export default {
       pullerOptions: [],
       indexerOptions: [],
       pusherOptions: [],
-      entityOptions: []
+      entityOptions: [],
+      previewVisible: false,
+      previewData: []
     }
   },
   async created() {},
@@ -112,18 +116,28 @@ export default {
     this.connections = await this.getConnections()
     this.processors = await this.getProcessors()
     if (this.entityId) {
-      var res = await this.$http.get(`${process.env.BACKEND}/api/entities/${this.entityId}`)
+      var res = await this.$http.get(
+        `${process.env.BACKEND}/api/entities/${this.entityId}`
+      )
       this.entityName = res.data.name
       this.entityDescription = res.data.description
       this.entityEnabled = (res.data.state & 1) === 0
       this.sourceConnectionId = res.data.sourceConnectionId
-      this.sourceConnection = this.connections.filter(c => c.id === this.sourceConnectionId)[0]
+      this.sourceConnection = this.connections.filter(
+        c => c.id === this.sourceConnectionId
+      )[0]
       this.sourceProcessorId = res.data.sourceProcessorId
-      this.sourceProcessor = this.processors.filter(p => p.id === this.sourceProcessorId)[0]
+      this.sourceProcessor = this.processors.filter(
+        p => p.id === this.sourceProcessorId
+      )[0]
       this.destinationConnectionId = res.data.destinationConnectionId
-      this.destinationConnection = this.connections.filter(c => c.id === this.destinationConnectionId)[0]
+      this.destinationConnection = this.connections.filter(
+        c => c.id === this.destinationConnectionId
+      )[0]
       this.destinationProcessorId = res.data.destinationProcessorId
-      this.destinationProcessor = this.processors.filter(p => p.id === this.destinationProcessorId)[0]
+      this.destinationProcessor = this.processors.filter(
+        p => p.id === this.destinationProcessorId
+      )[0]
       this.entityOptions = res.data.options || []
       await this.getOptions()
     }
@@ -131,7 +145,8 @@ export default {
   watch: {},
   components: {
     Modal: () => import('@/components/Controls/Modal'),
-    DynamicOption: () => import('@/components/Controls/DynamicOption')
+    DynamicOption: () => import('@/components/Controls/DynamicOption'),
+    PreviewDataModal: () => import('@/components/Controls/PreviewDataModal')
   },
   computed: {
     entityId() {
@@ -159,24 +174,33 @@ export default {
       )
       this.pullerOptions = res.data.puller
       for (var i = 0; i < this.pullerOptions.length; i++) {
-        var pullerOptions = this.entityOptions.filter(e => e.name === this.pullerOptions[i].name);
-        var pullerOption = pullerOptions && pullerOptions.length ? pullerOptions[0] : null;
+        var pullerOptions = this.entityOptions.filter(
+          e => e.name === this.pullerOptions[i].name
+        )
+        var pullerOption =
+          pullerOptions && pullerOptions.length ? pullerOptions[0] : null
         if (pullerOption) {
           this.pullerOptions[i].value = pullerOption.value
         }
       }
       this.pusherOptions = res.data.pusher
       for (var k = 0; k < this.pusherOptions.length; k++) {
-        var pusherOptions = this.entityOptions.filter(e => e.name === this.pusherOptions[k].name);
-        var pusherOption = pusherOptions && pusherOptions.length ? pusherOptions[0] : null;
+        var pusherOptions = this.entityOptions.filter(
+          e => e.name === this.pusherOptions[k].name
+        )
+        var pusherOption =
+          pusherOptions && pusherOptions.length ? pusherOptions[0] : null
         if (pusherOption) {
           this.pusherOptions[k].value = pusherOption.value
         }
       }
       this.indexerOptions = res.data.indexer
       for (var j = 0; j < this.indexerOptions.length; j++) {
-        var indexerOptions = this.entityOptions.filter(e => e.name === this.indexerOptions[j].name);
-        var indexerOption = indexerOptions && indexerOptions.length ? indexerOptions[0] : null;
+        var indexerOptions = this.entityOptions.filter(
+          e => e.name === this.indexerOptions[j].name
+        )
+        var indexerOption =
+          indexerOptions && indexerOptions.length ? indexerOptions[0] : null
         if (indexerOption) {
           this.indexerOptions[j].value = indexerOption.value
         }
@@ -224,16 +248,30 @@ export default {
         ]
       }
       if (!this.entityId) {
-        await this.$http.post(
-          `${process.env.BACKEND}/api/entities`,
-          params
-        )
+        await this.$http.post(`${process.env.BACKEND}/api/entities`, params)
       } else {
         await this.$http.put(
           `${process.env.BACKEND}/api/entities/${this.entityId}`,
           params
         )
       }
+      await this.$router.push({ name: 'entities' })
+    },
+    async onManageEntity() {
+      await this.$router.push({
+        name: 'manage-entity',
+        params: { id: this.entityId }
+      })
+    },
+    async onTryPull() {
+      const res = await this.$http.post(
+        `${process.env.BACKEND}/api/pullers/entity/${this.entityId}`, {}
+      )
+      this.previewData = res.data.data
+      this.previewVisible = true
+    },
+    onClosePreview () {
+      this.previewVisible = false
     }
   }
 }

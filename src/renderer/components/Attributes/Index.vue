@@ -56,8 +56,8 @@ export default {
     onEditAttribute(a) {
       this.$router.push({name: 'edit-attribute', params: {id: a.id}})
     },
-    onManageAttribute(a) {
-
+    async onManageAttribute(a) {
+      await this.$router.push({name: 'manage-attribute', params: {id: a.id}})
     }
   }
 };

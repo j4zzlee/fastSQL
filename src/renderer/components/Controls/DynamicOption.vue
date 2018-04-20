@@ -2,7 +2,7 @@
   <div class="form-group">
     <label for="name" class="font-weight-bold font-italic">
       {{ option.displayName }}
-      <small class="text-muted">({{option.description}})</small>
+      <small class="text-muted" v-if="option.description">({{option.description}})</small>
     </label>
     <input v-if="option.type === 0" :placeholder="option.example" type="text" class="form-control" v-model="option.value" @change="(e) => onInputChange(e.target.value)"/>
     <textarea v-if="option.type === 1" :placeholder="option.example" rows="5" class="form-control" v-model="option.value" @change="(e) => onInputChange(e.target.value)"/>
@@ -25,7 +25,7 @@
 <script>
 import { mapState } from 'vuex'
 export default {
-  name: 'settings-modal',
+  name: 'dynamic-option',
   props: {
     option: Object
   },

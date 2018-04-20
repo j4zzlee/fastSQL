@@ -1,4 +1,5 @@
 ﻿using FastSQL.Core;
+using FastSQL.Sync.Core.Models;
 using System;
 
 namespace FastSQL.Sync.Core
@@ -14,11 +15,13 @@ namespace FastSQL.Sync.Core
         IEntityPuller SetEntity(Guid entityId);
         IProcessor GetProcessor();
         bool IsImplemented(string processorId, string providerId);
+        IEntityPuller SetEntity(EntityModel entity);
     }
 
     public interface IAttributePuller : IPuller
     {
         IAttributePuller SetAttribute(Guid attributeId);
+        IAttributePuller SetAttribute(AttributeModel attribute, EntityModel entityModel = null);
         IProcessor GetAttributeProcessor();
         IProcessor GetEntityProcessor();
         

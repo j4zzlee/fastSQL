@@ -4,9 +4,9 @@
     <TopNav :text="'fastSQL'">
       <ul class="navbar-nav mr-auto" slot="left">
         <Dropdown :text="'Global Configurations'" v-if="dbConnected">
-          <router-link class="dropdown-item" :to="'global-connections'">Connections</router-link>
-          <router-link class="dropdown-item" :to="'entities'">Entities</router-link>
-          <router-link class="dropdown-item" :to="'attributes'">Attributes</router-link>
+          <a href="#" class="dropdown-item" to="global-connections" @click="() => goTo('global-connections')">Connections</a>
+          <a href="#" class="dropdown-item" to="entities" @click="() => goTo('entities')">Entities</a>
+          <a href="#" class="dropdown-item" to="attributes" @click="() => goTo('attributes')">Attributes</a>
         </Dropdown>
         <Dropdown :text="'Queues'" v-if="dbConnected">
           <a class="dropdown-item" href="#">Action</a>
@@ -55,6 +55,9 @@ export default {
   methods: {
     onConnected() {
       this.showSettings = false
+    },
+    goTo(routeName) {
+      this.$router.push({name: routeName})
     }
   }
 }

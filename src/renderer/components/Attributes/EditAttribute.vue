@@ -51,7 +51,7 @@
   <div class="card" v-if="pullerOptions && pullerOptions.length">
     <div class="card-header">
       <span class="font-weight-bold">Puller Options</span>
-      <a class="btn btn-link btn-sm pull-right" title="Preview"><i class="fa fa-play"></i></a>
+      <a class="btn btn-link btn-sm pull-right" title="Preview" @click="onTryPull"><i class="fa fa-play"></i></a>
     </div>
     <div class="card-body">
       <DynamicOption v-bind:key="option.name"
@@ -85,7 +85,9 @@
   <br>
   <div class="form-group">
     <button type="button" class="btn btn-primary" @click="onSaveHandler">Save</button>
+    <button type="button" class="btn btn-default" @click="onManageAttribute">Manage</button>
   </div>
+  <PreviewDataModal :isShow="previewVisible" :data="previewData" :onClose="onClosePreview"></PreviewDataModal>
 </main>
 </template>
 <script>
@@ -113,7 +115,9 @@ export default {
       attributeOptions: [],
       pullerOptions: [],
       pusherOptions: [],
-      indexerOptions: []
+      indexerOptions: [],
+      previewVisible: false,
+      previewData: []
     }
   },
   async created() {},
@@ -143,7 +147,8 @@ export default {
   watch: {},
   components: {
     Modal: () => import('@/components/Controls/Modal'),
-    DynamicOption: () => import('@/components/Controls/DynamicOption')
+    DynamicOption: () => import('@/components/Controls/DynamicOption'),
+    PreviewDataModal: () => import('@/components/Controls/PreviewDataModal')
   },
   computed: {
     attributeId() {
@@ -258,6 +263,20 @@ export default {
           params
         )
       }
+      await this.$router.push({name: 'attributes'})
+    },
+    async onManageAttribute() {
+      await this.$router.push({name: 'manage-attribute', params: {id: this.attributeId}})
+    },
+    async onTryPull() {
+      const res = await this.$http.post(
+        `${process.env.BACKEND}/api/pullers/attribute/${this.attributeId}`, {}
+      )
+      this.previewData = res.data.data
+      this.previewVisible = true
+    },
+    onClosePreview () {
+      this.previewVisible = false
     }
   }
 }

@@ -1,4 +1,5 @@
-﻿using FastSQL.Sync.Core;
+﻿using FastSQL.Core;
+using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Processors;
 using FastSQL.Sync.Core.Repositories;
@@ -18,7 +19,8 @@ namespace FastSQL.MsSql.Integration
             FastProvider provider,
             EntityRepository entityRepository,
             AttributeRepository attributeRepository,
-            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, provider, entityRepository, attributeRepository)
+            ConnectionRepository connectionRepository,
+            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter, entityRepository, attributeRepository, connectionRepository)
         {
             this.adapter = adapter;
         }
@@ -32,18 +34,23 @@ namespace FastSQL.MsSql.Integration
             if (lastToken != null)
             {
                 var jToken = JObject.FromObject(lastToken);
-                limit = int.Parse(jToken.GetValue("Limit").ToString());
-                offset = int.Parse(jToken.GetValue("Offset").ToString());
-                offset = offset + limit;
+                if (jToken != null && jToken.ContainsKey("limit") && jToken.ContainsKey("offset"))
+                {
+                    limit = int.Parse(jToken.GetValue("limit").ToString());
+                    offset = int.Parse(jToken.GetValue("offset").ToString());
+                    offset = offset + limit;
+                }
             }
-            var results = adapter.Query(sqlScript, new
+            var sets = adapter.Query(sqlScript, new
             {
                 Limit = limit,
                 Offset = offset
-            }).FirstOrDefault()?.Rows;
+            });
+            var set = sets.FirstOrDefault();
+            var results = set?.Rows;
             return new PullResult
             {
-                Status = results.Count() > 0 ? SyncState.HasData : SyncState.Invalid,
+                Status = results != null && results.Count() > 0 ? SyncState.HasData : SyncState.Invalid,
                 LastToken = new
                 {
                     Limit = limit,

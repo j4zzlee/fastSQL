@@ -17,7 +17,8 @@ namespace FastSQL.MsSql.Integration
             EntityProcessor processor,
             FastProvider provider,
             FastAdapter adapter,
-            EntityRepository entityRepository) : base(optionManager, processor, provider, entityRepository)
+            EntityRepository entityRepository,
+            ConnectionRepository connectionRepository) : base(optionManager, processor, provider, adapter, entityRepository, connectionRepository)
         {
             this.adapter = adapter;
         }
@@ -31,18 +32,23 @@ namespace FastSQL.MsSql.Integration
             if (lastToken != null)
             {
                 var jToken = JObject.FromObject(lastToken);
-                limit = int.Parse(jToken.GetValue("Limit").ToString());
-                offset = int.Parse(jToken.GetValue("Offset").ToString());
-                offset = offset + limit;
+                if (jToken.ContainsKey("limit") && jToken.ContainsKey("offset"))
+                {
+                    limit = int.Parse(jToken.GetValue("limit").ToString());
+                    offset = int.Parse(jToken.GetValue("offset").ToString());
+                    offset = offset + limit;
+                }
             }
-            var results = adapter.Query(sqlScript, new
+            var sets = adapter.Query(sqlScript, new
             {
                 Limit = limit,
                 Offset = offset
-            }).FirstOrDefault()?.Rows;
+            });
+            var set = sets.FirstOrDefault();
+            var results = set?.Rows;
             return new PullResult
             {
-                Status = results.Count() > 0 ? SyncState.HasData : SyncState.Invalid,
+                Status = results != null && results.Count() > 0 ? SyncState.HasData : SyncState.Invalid,
                 LastToken = new
                 {
                     Limit = limit,

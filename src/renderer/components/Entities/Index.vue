@@ -54,8 +54,8 @@ export default {
     onEditEntity(entity) {
       this.$router.push({name: 'edit-entity', params: {id: entity.id}})
     },
-    onManageEntity(entity) {
-
+    async onManageEntity(entity) {
+      await this.$router.push({name: 'manage-entity', params: {id: entity.id}})
     }
   }
 }

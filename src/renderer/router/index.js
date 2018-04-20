@@ -30,6 +30,11 @@ export default new Router({
           component: () => import('@/components/Entities/EditEntity')
         },
         {
+          path: '/entities/:id/manage',
+          name: 'manage-entity',
+          component: () => import('@/components/Entities/ManageEntity')
+        },
+        {
           path: '/attributes',
           name: 'attributes',
           component: () => import('@/components/Attributes/Index')
@@ -38,6 +43,11 @@ export default new Router({
           path: '/attributes/:id/edit',
           name: 'edit-attribute',
           component: () => import('@/components/Attributes/EditAttribute')
+        },
+        {
+          path: '/attributes/:id/manage',
+          name: 'manage-attribute',
+          component: () => import('@/components/Attributes/ManageAttribute')
         }
       ]
     },
