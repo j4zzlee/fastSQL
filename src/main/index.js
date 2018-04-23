@@ -40,7 +40,8 @@ let apiDir = path.resolve(__dirname, '../api/FastSQL.API/')
 if (process.env.NODE_ENV !== 'development') {
   apiDir = path.resolve(__dirname, '../dist/api/bin/dist/win')
 }
-let confFile = `appsettings.${process.env.NODE_ENV}.json`
+let envName = process.env.NODE_ENV[0].toUpperCase() + process.env.NODE_ENV.slice(1);
+let confFile = `appsettings.${envName}.json`
 process.env.API_DIR = apiDir;
 process.env.CONFIG_FILE = confFile
 

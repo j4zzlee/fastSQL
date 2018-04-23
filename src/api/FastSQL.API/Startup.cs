@@ -54,7 +54,7 @@ namespace FastSQL.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            _container.Register(Component.For<IServiceCollection>().UsingFactoryMethod(() => services).LifestyleSingleton());
+            //services.AddHangfire(conf => conf.UseSqlServerStorage(Configuration.GetConnectionString("__MigrationDatabase")));
             services.AddMvc();
             return WindsorRegistrationHelper.CreateServiceProvider(_container, services);
         }
@@ -62,12 +62,13 @@ namespace FastSQL.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            _container.Register(Component.For<IApplicationBuilder>().UsingFactoryMethod(() => app).LifestyleSingleton());
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            //app.UseHangfireDashboard();
+            //app.UseHangfireServer();
             app.UseCors(options => options
                     .AllowAnyOrigin()
                     .AllowAnyMethod()
