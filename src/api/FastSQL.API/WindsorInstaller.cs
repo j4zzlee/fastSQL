@@ -20,7 +20,7 @@ namespace FastSQL.API
                 .BasedOn<IRichProvider>()
                 .WithService.Select(new Type[] { typeof(IRichProvider) })
                 .WithServiceAllInterfaces()
-               .WithServiceSelf()
+                .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(descriptor
                 .BasedOn<IRichAdapter>()

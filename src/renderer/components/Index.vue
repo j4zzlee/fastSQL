@@ -57,9 +57,14 @@ export default {
     }
   },
   async created() {
-    var confPath = path.resolve(process.env.APP_DIR, 'config.json')
+    var confPath = path.resolve(process.env.API_DIR, process.env.CONFIG_FILE)
     if (fs.existsSync(confPath)) {
       this.conf = JSON.parse(fs.readFileSync(confPath, 'utf8'))
+      if (!this.conf.api) {
+        this.conf.api = {
+          port: 7001
+        }
+      }
       process.env.BACKEND = `http://localhost:${this.conf.api.port}`
       await this.onRefreshStatus()
     }
@@ -115,7 +120,7 @@ export default {
     },
     async onSave() {
       try {
-        var confPath = path.resolve(process.env.APP_DIR, 'config.json')
+        var confPath = path.resolve(process.env.API_DIR, process.env.CONFIG_FILE)
         process.env.BACKEND = `http://localhost:${this.conf.api.port}`
         fs.writeFileSync(confPath, JSON.stringify(this.conf, null, 2))
         await this.onRefreshStatus()

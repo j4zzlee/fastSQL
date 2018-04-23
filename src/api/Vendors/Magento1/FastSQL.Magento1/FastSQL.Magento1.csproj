@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <PackageReference Include="Castle.Windsor" Version="4.1.0" />
-    <PackageReference Include="System.Private.ServiceModel" Version="4.4.1" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="4.4.1" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.4.1" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.1" />

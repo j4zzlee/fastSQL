@@ -1,8 +1,11 @@
 ﻿using FastSQL.API.ViewModels;
 using FastSQL.Core;
+using Hangfire;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -21,17 +24,23 @@ namespace FastSQL.API.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IHostingEnvironment _env;
+        private readonly IServiceCollection services;
+        private readonly IApplicationBuilder app;
         private readonly MsSql.FastProvider provider;
         private readonly MsSql.FastAdapter adapter;
 
         public SettingsController(
             IConfiguration configuration,
             IHostingEnvironment env,
+            IServiceCollection services,
+            IApplicationBuilder app,
             MsSql.FastProvider provider,
             MsSql.FastAdapter adapter)
         {
             _configuration = configuration;
             _env = env;
+            this.services = services;
+            this.app = app;
             this.provider = provider;
             this.adapter = adapter;
         }
@@ -129,6 +138,9 @@ namespace FastSQL.API.Controllers
                     using (conn = new SqlConnection(connStr))
                     {
                         conn.Open();
+                        //services.AddHangfire(conf => conf.UseSqlServerStorage(connStr));
+                        //app.UseHangfireDashboard();
+                        //app.UseHangfireServer();
                         return Ok(new
                         {
                             Success = true,

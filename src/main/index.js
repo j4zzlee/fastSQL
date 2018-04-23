@@ -14,7 +14,6 @@ if (process.env.NODE_ENV !== 'development') {
     .join(__dirname, '/static')
     .replace(/\\/g, '\\\\')
 }
-process.env.APP_DIR = path.resolve(__dirname)
 let mainWindow
 const winURL =
   process.env.NODE_ENV === 'development'
@@ -37,37 +36,30 @@ function createWindow() {
     mainWindow = null
   })
 }
-// function startApi() {
-//   const proc = require('child_process').spawn
-//   //  run server
-//   let workingDir = path.resolve(__dirname, '../api/bin/dist/win/')
-//   let apipath = path.resolve(workingDir, 'FastSQL.API.exe')
-//   if (os.platform() === 'darwin') {
-//     apipath = path.resolve(workingDir, 'FastSQL.API')
-//   }
-//   console.log(`Starting ${apipath}`)
-//   const apiProcess = proc(apipath, {
-//     cwd: workingDir,
-//     env: {
-//       ASPNETCORE_URLS: 'http://localhost:7001'
-//     }
-//   })
-
-//   apiProcess.stdout.on('data', data => {
-//     console.log(`stdout: ${data}`)
-//     if (mainWindow == null) {
-//       createWindow()
-//     }
-//   })
-// }
-
-var confPath = path.resolve(process.env.APP_DIR, 'config.json')
-
-if (fs.existsSync(confPath)) {
-  import(confPath).then((conf) => {
-    process.env.BACKEND = `http://localhost:${conf.api.port}`
-  })
+let apiDir = path.resolve(__dirname, '../api/FastSQL.API/')
+if (process.env.NODE_ENV !== 'development') {
+  apiDir = path.resolve(__dirname, '../dist/api/bin/dist/win')
 }
+let confFile = `appsettings.${process.env.NODE_ENV}.json`
+process.env.API_DIR = apiDir;
+process.env.CONFIG_FILE = confFile
+
+var confPath = path.resolve(apiDir, confFile)
+var conf = {
+  api: {
+    port: 7001
+  }
+}
+if (fs.existsSync(confPath)) {
+  conf = JSON.parse(fs.readFileSync(confPath, 'utf8'))
+  if (!conf.api) {
+    conf.api = {
+      port: 7001
+    }
+  }
+}
+
+process.env.BACKEND = `http://localhost:${conf.api.port}`
 
 app.on('ready', createWindow)
 

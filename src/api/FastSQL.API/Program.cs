@@ -17,9 +17,11 @@ namespace FastSQL.API
         {
             var host = WebHost.CreateDefaultBuilder(args)
                 .UseKestrel()
+                .UseSetting("detailedErrors", "true")
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
                 .UseIISIntegration()
+                .CaptureStartupErrors(true)
                 .Build();
             host.Run();
         }
