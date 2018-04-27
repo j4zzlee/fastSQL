@@ -61,20 +61,20 @@ namespace FastSQL.Magento1
             }
         }
 
-        public async Task<PortTypeClient> Begin()
+        public PortTypeClient Begin()
         {
-            await End();
+            End();
             _client = GetClient();
-            await _client?.OpenAsync();
-            CurrentSession = await _client?.loginAsync(ApiUser, ApiKey);
+            _client?.Open();
+            CurrentSession = _client?.login(ApiUser, ApiKey);
             return _client;
         }
 
-        public async Task End()
+        public void End()
         {
             try
             {
-                await _client?.CloseAsync();
+                _client?.Close();
             }
             catch
             {
@@ -82,7 +82,7 @@ namespace FastSQL.Magento1
             }
         }
 
-        public async Task<bool> Connect()
+        public bool Connect()
         {
             try
             {
@@ -92,18 +92,18 @@ namespace FastSQL.Magento1
                 {
                     return false;
                 }
-                await Begin();
+                Begin();
                 return !string.IsNullOrWhiteSpace(CurrentSession);
             }
             finally
             {
-                await End();
+                End();
             }
         }
 
-        public async void Dispose()
+        public void Dispose()
         {
-            await _client?.CloseAsync();
+            _client?.Close();
         }
     }
 }

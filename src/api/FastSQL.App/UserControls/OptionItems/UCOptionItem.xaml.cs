@@ -45,6 +45,8 @@ namespace FastSQL.App.UserControls
                 case Core.OptionType.Text:
                     val = new TextBox();
                     val.SetBinding(TextBox.TextProperty, binding);
+                    val.Padding = new Thickness(5);
+                    val.Margin = new Thickness(0, 0, 0, 10);
                     break;
                 case Core.OptionType.TextArea:
                 case Core.OptionType.Sql:
@@ -54,6 +56,8 @@ namespace FastSQL.App.UserControls
                         TextWrapping = TextWrapping.Wrap
                     };
                     val.SetBinding(TextBox.TextProperty, binding);
+                    val.Padding = new Thickness(5);
+                    val.Margin = new Thickness(0, 0, 0, 10);
                     break;
                 case Core.OptionType.Password:
                     var box = new PasswordBox {
@@ -66,10 +70,14 @@ namespace FastSQL.App.UserControls
                         viewModel.Value = ((PasswordBox)ee.Source).Password;
                     };
                     val = box;
+                    val.Padding = new Thickness(5);
+                    val.Margin = new Thickness(0, 0, 0, 10);
                     break;
                 case Core.OptionType.Boolean:
                     val = new CheckBox();
                     val.SetBinding(CheckBox.IsCheckedProperty, binding);
+                    val.Padding = new Thickness(5);
+                    val.Margin = new Thickness(0, 0, 0, 10);
                     break;
                 case Core.OptionType.File:
                     val = new UCOpenFileDialog();
@@ -78,14 +86,15 @@ namespace FastSQL.App.UserControls
                 case Core.OptionType.List:
                     val = new ComboBox();
                     val.SetBinding(ComboBox.ItemsSourceProperty, binding);
+                    val.Padding = new Thickness(5);
+                    val.Margin = new Thickness(0, 0, 0, 10);
                     break;
             }
             if (val != null)
             {
                 val.SetValue(Grid.RowProperty, 2);
                 val.SetValue(Grid.ColumnProperty, 0);
-                val.Padding = new Thickness(5);
-                val.Margin = new Thickness(0, 0, 0, 10);
+
                 grdContainer.Children.Add(val);
             }
         }

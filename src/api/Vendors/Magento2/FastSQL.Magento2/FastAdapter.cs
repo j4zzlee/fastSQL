@@ -26,7 +26,7 @@ namespace FastSQL.Magento2
             }
             catch (Exception ex)
             {
-                message = ex.Message;
+                message = ex.ToString();
                 return false;
             }
             finally

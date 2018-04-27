@@ -6,12 +6,9 @@
              xmlns:local="clr-namespace:FastSQL.App.UserControls.OptionItems"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <DockPanel Margin="10">
-            <WrapPanel HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="0,0,0,10">
-                <Button Name="btnOpenFile" Click="BtnOpenFile_Click">Open file</Button>
-            </WrapPanel>
-            <TextBox Name="txtEditor" />
-        </DockPanel>
+    <Grid DataContext="{Binding}" Name="grdContainer">
+        <Button Name="btnOpenFile" Click="BtnOpenFile_Click" Background="Transparent" BorderBrush="LightGray" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+            <TextBlock Name="txtEditor" Text="{Binding ElementName=grdContainer, Path=DataContext.Value}" Padding="5"/>
+        </Button>
     </Grid>
 </UserControl>

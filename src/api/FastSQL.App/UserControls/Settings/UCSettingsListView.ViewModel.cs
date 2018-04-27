@@ -39,9 +39,7 @@ namespace FastSQL.App.UserControls
             set
             {
                 _selectedSetting = value;
-
                 
-
                 OnPropertyChanged(nameof(SelectedSettiing));
             }
         }

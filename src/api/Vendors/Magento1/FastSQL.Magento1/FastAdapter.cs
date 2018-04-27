@@ -24,13 +24,12 @@ namespace FastSQL.Magento1
             {
                 message = "Connected.";
                 api.SetOptions(Options);
-                var task = api.Connect();
-                task.Wait();
+                var sessionId = api.Connect();
                 return true;
             }
             catch (Exception ex)
             {
-                message = ex.Message;
+                message = ex.ToString();
                 return false;
             }
             finally
