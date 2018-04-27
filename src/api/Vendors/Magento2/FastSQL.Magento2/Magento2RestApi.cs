@@ -20,7 +20,7 @@ namespace FastSQL.Magento2
         private string _accessToken;
         private string _accessTokenSecret;
 
-        private JsonSerializer _jsonSerializer;
+        private Magento2JsonSerializer _jsonSerializer;
 
         public async Task<object> Connect()
         {
@@ -38,7 +38,7 @@ namespace FastSQL.Magento2
             _accessToken = options.FirstOrDefault(o => o.Name == "access_token").Value;
             _accessTokenSecret = options.FirstOrDefault(o => o.Name == "access_token_secret").Value;
 
-            _jsonSerializer = new JsonSerializer();
+            _jsonSerializer = new Magento2JsonSerializer();
             
             return this;
         }

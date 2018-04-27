@@ -16,7 +16,7 @@ namespace FastSQL.MsSql.Integration
                     Name = "puller_sql_script",
                     DisplayName= "SQL Script",
                     OptionGroupNames = new List<string>{ "Puller" },
-                    Type = OptionType.TextArea,
+                    Type = OptionType.Sql,
                     Description = @"SQL Script to get values from Source Database.
 Please remember that @Limit & @Offset are required.",
                     Example = $@";WITH Results_CTE AS

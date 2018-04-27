@@ -8,6 +8,7 @@ namespace FastSQL.Core
     {
         Text,
         TextArea,
+        Sql,
         Password,
         Boolean,
         File,

@@ -1,12 +1,16 @@
 ﻿using Castle.Core;
+using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Repositories;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
+using System.Data.Common;
+using System.Data.SqlClient;
 
 namespace FastSQL.API
 {
@@ -15,6 +19,17 @@ namespace FastSQL.API
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             var descriptor = container.Resolve<FromAssemblyDescriptor>();
+            container.Register(Component.For<DbConnection>().UsingFactoryMethod((p) => {
+                var conf = p.Resolve<IConfiguration>();
+                var connectionString = conf.GetConnectionString("__MigrationDatabase");
+                var conn = new SqlConnection(connectionString);
+                conn.Open();
+                return conn;
+            }).LifestyleCustom<ScopedLifestyleManager>());
+            container.Register(Component.For<DbTransaction>().UsingFactoryMethod((c) => {
+                var conn = c.Resolve<DbConnection>();
+                return conn.BeginTransaction();
+            }).LifestyleCustom<ScopedLifestyleManager>());
             // Providers & adapters
             container.Register(descriptor
                 .BasedOn<IRichProvider>()

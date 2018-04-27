@@ -21,7 +21,7 @@
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
     <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
-    <DotNetCliToolReference Include="st2forget.migrations" Version="2.0.6" />
+    <DotNetCliToolReference Include="st2forget.migrations" Version="2.0.7" />
   </ItemGroup>
 
   <ItemGroup>

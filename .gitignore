@@ -14,3 +14,4 @@ obj/
 .vs/
 appsettings.Development.json
 yarn-error.log
+src/api/published

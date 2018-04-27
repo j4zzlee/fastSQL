@@ -8,14 +8,14 @@ using System.Text;
 
 namespace FastSQL.Magento2
 {
-    public class JsonSerializer : ISerializer, IDeserializer
+    public class Magento2JsonSerializer : ISerializer, IDeserializer
     {
         private JsonSerializerSettings _settings;
 
         /// <summary>
         /// Default serializer
         /// </summary>
-        public JsonSerializer()
+        public Magento2JsonSerializer()
         {
             ContentType = "application/json";
             _settings = new JsonSerializerSettings
