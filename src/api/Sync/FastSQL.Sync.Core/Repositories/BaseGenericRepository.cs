@@ -5,13 +5,14 @@ using System.Text;
 using FastSQL.Core;
 using FastSQL.Sync.Core.ExtensionMethods;
 using FastSQL.Sync.Core.Models;
+using st2forget.utils.sql;
 
 namespace FastSQL.Sync.Core.Repositories
 {
     public abstract class BaseGenericRepository<TModel> : BaseRepository
          where TModel : class, new()
     {
-        protected BaseGenericRepository(DbConnection connection, DbTransaction transaction) : base(connection, transaction)
+        protected BaseGenericRepository(DbConnection connection) : base(connection)
         {
         }
 

@@ -31,36 +31,17 @@ namespace FastSQL.App.UserControls.Connections
         private readonly IEnumerable<IRichProvider> providers;
         private string _currentConnectionId;
 
-        public UCConnectionsContent(
-            UCConnectionsContentViewModel viewModel,
-            ConnectionRepository connectionRepository,
-            IEnumerable<IRichProvider> providers,
-            IEventAggregator eventAggregator)
+        public UCConnectionsContent(UCConnectionsContentViewModel viewModel)
         {
             InitializeComponent();
-            eventAggregator.GetEvent<SelectConnectionEvent>().Subscribe(OnSelectConnection);
             this.viewModel = viewModel;
-            this.connectionRepository = connectionRepository;
-            this.providers = providers;
             DataContext = viewModel;
         }
-
-        private void OnSelectConnection(SelectConnectionEventArgument obj)
-        {
-            _currentConnectionId = obj.ConnectionId;
-            var currentSetting = connectionRepository.GetById(_currentConnectionId);
-            var options = connectionRepository.LoadOptions(currentSetting.Id);
-            var provider = providers.FirstOrDefault(p => p.Id == currentSetting.ProviderId);
-            provider.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-            viewModel.SetConnection(currentSetting);
-            viewModel.SetOptions(provider.Options);
-            viewModel.SetCommands(new List<string> { "Try Connect", "Save", "Delete" });
-        }
-
+        
         public string Id => "NZWVJgnbIEOxA5)#$)*%#*%UU8r8tNA==";
 
-        public string ControlName => "Settings";
-
+        public string ControlName => "settings";
+        public string ControlHeader => "Settings";
         public string Description => "Settings Details";
 
         public bool IsActive { get; set; }

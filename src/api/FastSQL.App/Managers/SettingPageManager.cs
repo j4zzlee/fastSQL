@@ -15,6 +15,7 @@ namespace FastSQL.App.Managers
     {
         private readonly IEventAggregator eventAggregator;
         private readonly UCSettingsListView uCSettingsListView;
+        private readonly UCSettingsContent uCSettingsContent;
 
         public string Id => "LI5b8oVnMUqTxSHIgNj6wQ";
 
@@ -22,11 +23,14 @@ namespace FastSQL.App.Managers
 
         public string Description => "FastSQL Settings Management";
 
-        public SettingPageManager(IEventAggregator eventAggregator,
-            UCSettingsListView uCSettingsListView)
+        public SettingPageManager(
+            IEventAggregator eventAggregator,
+            UCSettingsListView uCSettingsListView,
+            UCSettingsContent uCSettingsContent)
         {
             this.eventAggregator = eventAggregator;
             this.uCSettingsListView = uCSettingsListView;
+            this.uCSettingsContent = uCSettingsContent;
         }
 
         public IPageManager Apply()
@@ -35,7 +39,11 @@ namespace FastSQL.App.Managers
             {
                 PageDefinition = uCSettingsListView
             });
-            
+
+            eventAggregator.GetEvent<AddPageEvent>().Publish(new AddPageEventArgument
+            {
+                PageDefinition = uCSettingsContent
+            });
             return this;
         }
     }

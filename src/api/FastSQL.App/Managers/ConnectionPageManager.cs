@@ -16,6 +16,7 @@ namespace FastSQL.App.Managers
     {
         private readonly IEventAggregator eventAggregator;
         private readonly UCConnectionsListView ucConnectionListView;
+        private readonly UCConnectionsContent uCConnectionsContent;
 
         public string Id => "LI5b8oVn@#$%@asdf#@$MUqTxSHIgNj6wQ";
 
@@ -23,11 +24,14 @@ namespace FastSQL.App.Managers
 
         public string Description => "Global Connections";
 
-        public ConnectionPageManager(IEventAggregator eventAggregator,
-            UCConnectionsListView ucConnectionListView)
+        public ConnectionPageManager(
+            IEventAggregator eventAggregator,
+            UCConnectionsListView ucConnectionListView,
+            UCConnectionsContent uCConnectionsContent)
         {
             this.eventAggregator = eventAggregator;
             this.ucConnectionListView = ucConnectionListView;
+            this.uCConnectionsContent = uCConnectionsContent;
         }
 
         public IPageManager Apply()
@@ -37,6 +41,10 @@ namespace FastSQL.App.Managers
                 PageDefinition = ucConnectionListView
             });
             
+            eventAggregator.GetEvent<AddPageEvent>().Publish(new AddPageEventArgument
+            {
+                PageDefinition = uCConnectionsContent
+            });
             return this;
         }
     }

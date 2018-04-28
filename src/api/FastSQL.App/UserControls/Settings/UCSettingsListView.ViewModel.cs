@@ -18,7 +18,6 @@ namespace FastSQL.App.UserControls
         private ObservableCollection<ISettingProvider> _settings;
         private ISettingProvider _selectedSetting;
         private readonly IEventAggregator eventAggregator;
-        private readonly UCSettingsContent uCSettingsContent;
 
         public ObservableCollection<ISettingProvider> Settings
         {
@@ -46,12 +45,6 @@ namespace FastSQL.App.UserControls
 
         public BaseCommand SelectItemCommand => new BaseCommand(o => true, o => {
             var id = o.ToString();
-            // A selected setting has been changed
-            eventAggregator.GetEvent<AddPageEvent>().Publish(new AddPageEventArgument
-            {
-                PageDefinition = uCSettingsContent
-            });
-
             eventAggregator.GetEvent<SelectSettingEvent>().Publish(new SelectSettingEventArgument
             {
                 SettingId = id
@@ -60,12 +53,10 @@ namespace FastSQL.App.UserControls
 
         public UCSettingsListViewViewModel (
             IEnumerable<ISettingProvider> settingManagers,
-            IEventAggregator eventAggregator,
-            UCSettingsContent uCSettingsContent)
+            IEventAggregator eventAggregator)
         {
             Settings = new ObservableCollection<ISettingProvider>(settingManagers);
             this.eventAggregator = eventAggregator;
-            this.uCSettingsContent = uCSettingsContent;
         }
     }
 }

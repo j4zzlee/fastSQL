@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Events\RefreshConnectionListEvent.cs" />
     <Compile Include="Events\SelectConnectionEvent.cs" />
     <Compile Include="Events\SelectSettingEvent.cs" />
     <Compile Include="Interfaces\BaseCommand.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="UserControls\Settings\UCSettingsListView.xaml.cs">
       <DependentUpon>UCSettingsListView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\ProviderViewModel.cs" />
     <Compile Include="WindsorInstaller.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -282,7 +284,7 @@
       <Name>FastSQL.Sync.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vendors\Magento1\FastSQL.Magento1\FastSQL.Magento1.csproj">
-      <Project>{849cd655-0e41-43ba-a261-5fca50c90473}</Project>
+      <Project>{a771f01b-69c2-4f4f-ac0c-50fa0d646662}</Project>
       <Name>FastSQL.Magento1</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vendors\Magento2\FastSQL.Magento2.Integration\FastSQL.Magento2.Integration.csproj">

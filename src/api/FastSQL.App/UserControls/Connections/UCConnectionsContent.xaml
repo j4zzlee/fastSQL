@@ -11,11 +11,52 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <ItemsControl ItemsSource="{Binding Path=Options}" Grid.Row="0" Grid.Column="0">
+        <Grid Grid.Row="0" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Name" Grid.Row="0"></TextBlock>
+            <TextBox Text="{Binding Name}" Grid.Row="1" Padding="5" Margin="0,0,0,10"></TextBox>
+        </Grid>
+        <Grid Grid.Row="1" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Description" Grid.Row="0"></TextBlock>
+            <TextBox Text="{Binding Description}" Grid.Row="1" Padding="5" Margin="0,0,0,10"></TextBox>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Provider" Grid.Row="0"></TextBlock>
+            <ComboBox ItemsSource="{Binding Providers}"
+                SelectedItem="{Binding SelectedProvider}"
+                DisplayMemberPath="DisplayName"
+                IsSynchronizedWithCurrentItem="True"
+                Grid.Row="1"
+                Padding="5" Margin="0,0,0,10"></ComboBox>
+        </Grid>
+        <ItemsControl ItemsSource="{Binding Path=Options}" Grid.Row="3" Grid.Column="0">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <local1:UCOptionItem DataContext="{Binding}"></local1:UCOptionItem>
@@ -27,7 +68,7 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-        <ItemsControl ItemsSource="{Binding Path=Commands}" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Padding="10" HorizontalAlignment="Center">
+        <ItemsControl ItemsSource="{Binding Path=Commands}" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Padding="10" HorizontalAlignment="Center">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Button 

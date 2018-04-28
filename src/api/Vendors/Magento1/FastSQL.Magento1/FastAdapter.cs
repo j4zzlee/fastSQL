@@ -6,20 +6,15 @@ namespace FastSQL.Magento1
 {
     public class FastAdapter : BaseAdapter
     {
-        //protected FastAdapter(IRichProvider provider) : base(provider)
-        //{
-        //}
+        private readonly SoapM1 api;
 
-        private readonly Magento1Soap api;
-
-        public FastAdapter(FastProvider provider, Magento1Soap api) : base(provider)
+        public FastAdapter(FastProvider provider, SoapM1 api) : base(provider)
         {
             this.api = api;
         }
 
         public override bool TryConnect(out string message)
         {
-            IDbConnection conn = null;
             try
             {
                 message = "Connected.";
@@ -34,7 +29,8 @@ namespace FastSQL.Magento1
             }
             finally
             {
-                conn?.Dispose();
+                api.End();
+                api.Dispose();
             }
         }
     }

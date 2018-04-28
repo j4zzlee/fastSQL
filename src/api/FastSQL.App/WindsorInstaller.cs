@@ -15,7 +15,9 @@ using Newtonsoft.Json.Serialization;
 using Prism.Events;
 using st2forget.migrations;
 using st2forget.utils.commands;
+using st2forget.utils.sql;
 using System;
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Windows;
@@ -28,18 +30,24 @@ namespace FastSQL.App
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             var descriptor = container.Resolve<FromAssemblyDescriptor>();
-            container.Register(Component.For<DbConnection>().UsingFactoryMethod((p) => {
+            container.Register(Component.For(typeof(DbConnection), typeof(IDbConnection)).UsingFactoryMethod((p) => {
                 var conf = p.Resolve<IConfiguration>();
                 var connectionString = conf.GetConnectionString("__MigrationDatabase");
                 var conn = new SqlConnection(connectionString);
                 conn.Open();
                 return conn;
-            }).LifestyleCustom<ScopedLifestyleManager>());
+            }).LifestyleTransient());
             container.Register(Component.For<DbTransaction>().UsingFactoryMethod((c) => {
                 var conn = c.Resolve<DbConnection>();
                 return conn.BeginTransaction();
             }).LifestyleCustom<ScopedLifestyleManager>());
-            // Providers & adapters
+            container.Register(Component.For<ResolverFactory>().ImplementedBy<ResolverFactory>().LifestyleSingleton());
+            container.Register(descriptor
+                .BasedOn<IDbTransactionFactory>()
+                .WithService.Select(new Type[] { typeof(IDbTransactionFactory) })
+                .WithServiceAllInterfaces()
+                .WithServiceSelf()
+                .Configure(x => x.LifeStyle.Is(LifestyleType.Singleton)));
             container.Register(descriptor
                 .BasedOn<IRichProvider>()
                 .WithService.Select(new Type[] { typeof(IRichProvider) })

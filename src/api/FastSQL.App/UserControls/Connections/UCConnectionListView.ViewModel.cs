@@ -17,18 +17,11 @@ namespace FastSQL.App.UserControls.Connections
     {
         private readonly ConnectionRepository connectionRepository;
         private readonly IEventAggregator eventAggregator;
-        private readonly UCConnectionsContent uCConnectionsContent;
         private ConnectionModel _selectedConnection;
         private ObservableCollection<ConnectionModel> _connections;
 
         public BaseCommand SelectItemCommand => new BaseCommand(o => true, o => {
             var id = o.ToString();
-            // A selected setting has been changed
-            eventAggregator.GetEvent<AddPageEvent>().Publish(new AddPageEventArgument
-            {
-                PageDefinition = uCConnectionsContent
-            });
-
             eventAggregator.GetEvent<SelectConnectionEvent>().Publish(new SelectConnectionEventArgument
             {
                 ConnectionId = id
@@ -61,14 +54,38 @@ namespace FastSQL.App.UserControls.Connections
 
         public UCConnectionListViewViewModel(
             ConnectionRepository connectionRepository,
-            IEventAggregator eventAggregator,
-            UCConnectionsContent uCConnectionsContent)
+            IEventAggregator eventAggregator)
         {
             this.connectionRepository = connectionRepository;
             this.eventAggregator = eventAggregator;
-            this.uCConnectionsContent = uCConnectionsContent;
-
             Connections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+            eventAggregator.GetEvent<RefreshConnectionListEvent>().Subscribe(OnRefreshConnections);
+            var firstConection = Connections.FirstOrDefault();
+            if (firstConection != null)
+            {
+                eventAggregator.GetEvent<SelectConnectionEvent>().Publish(new SelectConnectionEventArgument
+                {
+                    ConnectionId = firstConection.Id.ToString()
+                });
+            }
+        }
+
+        private void OnRefreshConnections(RefreshConnectionListEventArgument obj)
+        {
+            Connections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+            var selectedId = obj.SelectedConnectionId;
+            if (string.IsNullOrWhiteSpace(obj.SelectedConnectionId))
+            {
+                var firstConnection = Connections.FirstOrDefault();
+                selectedId = firstConnection?.Id.ToString();
+            }
+            if (!string.IsNullOrWhiteSpace(selectedId))
+            {
+                eventAggregator.GetEvent<SelectConnectionEvent>().Publish(new SelectConnectionEventArgument
+                {
+                    ConnectionId = selectedId
+                });
+            }
         }
     }
 }

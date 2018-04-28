@@ -25,11 +25,11 @@ namespace FastSQL.API
                 var conn = new SqlConnection(connectionString);
                 conn.Open();
                 return conn;
-            }).LifestyleCustom<ScopedLifestyleManager>());
-            container.Register(Component.For<DbTransaction>().UsingFactoryMethod((c) => {
-                var conn = c.Resolve<DbConnection>();
-                return conn.BeginTransaction();
-            }).LifestyleCustom<ScopedLifestyleManager>());
+            }).LifestyleTransient());
+            //container.Register(Component.For<DbTransaction>().UsingFactoryMethod((c) => {
+            //    var conn = c.Resolve<DbConnection>();
+            //    return conn.BeginTransaction();
+            //}).LifestyleCustom<ScopedLifestyleManager>());
             // Providers & adapters
             container.Register(descriptor
                 .BasedOn<IRichProvider>()

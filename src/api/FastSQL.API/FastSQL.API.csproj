@@ -27,7 +27,6 @@
   <ItemGroup>
     <ProjectReference Include="..\FastSQL.Core\FastSQL.Core.csproj" />
     <ProjectReference Include="..\Sync\FastSQL.Sync.Core\FastSQL.Sync.Core.csproj" />
-    <ProjectReference Include="..\Vendors\Magento1\FastSQL.Magento1\FastSQL.Magento1.csproj" />
     <ProjectReference Include="..\Vendors\Magento2\FastSQL.Magento2.Integration\FastSQL.Magento2.Integration.csproj" />
     <ProjectReference Include="..\Vendors\Magento2\FastSQL.Magento2\FastSQL.Magento2.csproj" />
     <ProjectReference Include="..\Vendors\MsAccess\FastSQL.MsAccess\FastSQL.MsAccess.csproj" />

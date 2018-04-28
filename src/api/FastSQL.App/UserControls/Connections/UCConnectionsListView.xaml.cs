@@ -42,6 +42,7 @@ namespace FastSQL.App.UserControls.Connections
 
         public object Control => this;
 
-        public string ControlName => "Connections";
+        public string ControlName => "connections";
+        public string ControlHeader => "Connections";
     }
 }

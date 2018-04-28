@@ -3,7 +3,9 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
+using FastSQL.Sync.Core.Settings.Events;
 using Microsoft.Extensions.Configuration;
+using Prism.Events;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -11,6 +13,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +29,8 @@ namespace FastSQL.App
     {
         private IWindsorContainer _container;
         private IDisposable _scope;
+        private IEventAggregator _eventAggregate;
+        private MainWindow _mainWindow;
 
         public App()
         {
@@ -36,7 +41,7 @@ namespace FastSQL.App
 
         private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            MessageBox.Show(
+            MessageBox.Show(Current.MainWindow,
                 e.Exception?.InnerException?.ToString() ?? e.Exception?.ToString(),
                 "An error has occurred!!!");
 
@@ -91,13 +96,31 @@ namespace FastSQL.App
                 return log;
             }).Named("ErrorLog").LifestyleSingleton());
             _container.Install(FromAssembly.InDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory)));
-
             _scope = _container.BeginScope();
-            var mainWindow = _container.Resolve<MainWindow>();
+            _eventAggregate = _container.Resolve<IEventAggregator>();
+            _eventAggregate.GetEvent<ApplicationRestartEvent>().Subscribe(OnApplicationRestart);
+            _mainWindow = _container.Resolve<MainWindow>();
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-            Current.MainWindow = mainWindow;
-            mainWindow.Show();
+            Current.MainWindow = _mainWindow;
+            _mainWindow.Show();
         }
+        
+        private void OnApplicationRestart(ApplicationRestartEventArgument obj)
+        {
+            _mainWindow.Dispatcher.Invoke(new Action(delegate ()
+            {
+                var oldScope = _scope;
+                _scope = _container.BeginScope();
+                var newWindow = _container.Resolve<MainWindow>();
+                Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+                Current.MainWindow = newWindow;
+                newWindow.Show();
+                _mainWindow.Close();
+                oldScope?.Dispose();
+                _mainWindow = newWindow;
+            }));
+        }
+
         private void Application_Exit(object sender, ExitEventArgs e)
         {
             _scope?.Dispose();

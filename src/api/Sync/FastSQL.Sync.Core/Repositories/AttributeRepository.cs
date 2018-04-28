@@ -1,4 +1,5 @@
 ﻿using FastSQL.Sync.Core.Models;
+using st2forget.utils.sql;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -8,7 +9,7 @@ namespace FastSQL.Sync.Core.Repositories
 {
     public class AttributeRepository : BaseGenericRepository<AttributeModel>
     {
-        public AttributeRepository(DbConnection connection, DbTransaction transaction) : base(connection, transaction)
+        public AttributeRepository(DbConnection connection) : base(connection)
         {
         }
     }

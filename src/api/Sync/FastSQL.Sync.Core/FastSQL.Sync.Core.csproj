@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\migrations\st2forget.utils.sql\st2forget.utils.sql.csproj" />
     <ProjectReference Include="..\..\FastSQL.Core\FastSQL.Core.csproj" />
   </ItemGroup>
 

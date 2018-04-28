@@ -15,7 +15,6 @@ namespace FastSQL.Magento2
 
         public override bool TryConnect(out string message)
         {
-            IDbConnection conn = null;
             try
             {
                 message = "Connected.";
@@ -28,10 +27,6 @@ namespace FastSQL.Magento2
             {
                 message = ex.ToString();
                 return false;
-            }
-            finally
-            {
-                conn?.Dispose();
             }
         }
     }

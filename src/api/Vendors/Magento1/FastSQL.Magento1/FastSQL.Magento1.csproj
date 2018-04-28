@@ -1,27 +1,260 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFrameworks>net471</TargetFrameworks>
-    <PackageVersion>1.0.0</PackageVersion>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A771F01B-69C2-4F4F-AC0C-50FA0D646662}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FastSQL.Magento1</RootNamespace>
+    <AssemblyName>FastSQL.Magento1</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Castle.Windsor" Version="4.1.0" />
-    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.1" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="4.4.2" />
-    <PackageReference Include="System.ServiceModel.Http" Version="4.4.2" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.2" />
-    <PackageReference Include="System.ServiceModel.Primitives" Version="4.4.2" />
-    <PackageReference Include="System.ServiceModel.Security" Version="4.4.2" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\..\..\FastSQL.Core\FastSQL.Core.csproj" />
+    <Compile Include="Connected Services\Magento1Soap\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="FastAdapter.cs" />
+    <Compile Include="FastProvider.cs" />
+    <Compile Include="SoapM1.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProviderOptionManager.cs" />
+    <Compile Include="WindsorInstaller.cs" />
   </ItemGroup>
-
   <ItemGroup>
-    <WCFMetadata Include="Connected Services" />
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.apiEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.associativeEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogAssignedProduct.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogAttributeEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogAttributeOptionEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogCategoryAttributeCurrentStoreResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogCategoryCurrentStoreResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogCategoryEntityNoChildren.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogCategoryInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogCategoryTree.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogInventoryStockItemEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductAttributeCurrentStoreResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductAttributeEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductAttributeMediaCurrentStoreResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductAttributeMediaTypeEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductAttributeSetEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductCurrentStoreResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductCustomOptionInfoEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductCustomOptionListEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductCustomOptionTypesEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductCustomOptionValueInfoEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductCustomOptionValueListEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductDownloadableLinkInfoEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductImageEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductLinkAttributeEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductLinkEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductListResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductReturnEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductSpecialPriceReturnEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductTagInfoEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductTagListEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductTierPriceEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.catalogProductTypeEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.customerAddressEntityItem.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.customerCustomerEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.customerGroupEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.directoryCountryEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.directoryRegionEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.existsFaltureEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.giftMessageResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.magentoInfoEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.salesOrderCreditmemoEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.salesOrderEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.salesOrderInvoiceEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.salesOrderListEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.salesOrderShipmentAddCommentResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.salesOrderShipmentEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.shoppingCartInfoEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.shoppingCartLicenseEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.shoppingCartPaymentMethodResponseEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.shoppingCartShippingMethodEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.shoppingCartTotalsEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\FastSQL.Magento1.Magento1Soap.storeEntity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Magento1Soap\item.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\Magento1Soap\Magento.wsdl" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Castle.Windsor">
+      <Version>4.1.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\FastSQL.Core\FastSQL.Core.csproj">
+      <Project>{b3b25279-44c1-4818-a57f-07e29f30e1be}</Project>
+      <Name>FastSQL.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Sync\FastSQL.Sync.Core\FastSQL.Sync.Core.csproj">
+      <Project>{582cb864-2fc8-40ce-9bd5-3d1470274352}</Project>
+      <Name>FastSQL.Sync.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Connected Services\Magento1Soap\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\Magento1Soap\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\Magento1Soap\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\Magento1Soap\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

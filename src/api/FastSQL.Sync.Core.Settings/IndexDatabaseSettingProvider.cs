@@ -6,9 +6,11 @@ using System.Security.Permissions;
 using System.Text;
 using FastSQL.Core;
 using FastSQL.MsSql;
+using FastSQL.Sync.Core.Settings.Events;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Prism.Events;
 using st2forget.migrations;
 
 namespace FastSQL.Sync.Core.Settings
@@ -21,6 +23,7 @@ namespace FastSQL.Sync.Core.Settings
         private readonly DropDatabaseCommand dropDatabaseCommand;
         private readonly MigrateUpCommand migrateUpCommand;
         private readonly MigrateDownCommand migrateDownCommand;
+        private readonly IEventAggregator eventAggregator;
 
         public override string Id => "wif@34offie#$jkfjie+_3i22425";
 
@@ -45,7 +48,8 @@ namespace FastSQL.Sync.Core.Settings
             CreateDatabaseCommand createDatabaseCommand,
             DropDatabaseCommand dropDatabaseCommand,
             MigrateUpCommand migrateUpCommand,
-            MigrateDownCommand migrateDownCommand) : base(optionManager)
+            MigrateDownCommand migrateDownCommand,
+            IEventAggregator eventAggregator) : base(optionManager)
         {
             this.adapter = adapter;
             this.builder = builder;
@@ -53,6 +57,7 @@ namespace FastSQL.Sync.Core.Settings
             this.dropDatabaseCommand = dropDatabaseCommand;
             this.migrateUpCommand = migrateUpCommand;
             this.migrateDownCommand = migrateDownCommand;
+            this.eventAggregator = eventAggregator;
             this.LoadOptions();
         }
 
@@ -115,6 +120,7 @@ namespace FastSQL.Sync.Core.Settings
             }
             var result = jSetting.ToString();
             File.WriteAllText(SettingFile, result);
+            eventAggregator.GetEvent<ApplicationRestartEvent>().Publish(new ApplicationRestartEventArgument());
             return this;
         }
 

@@ -4,8 +4,10 @@ using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.ExtensionMethods;
 using FastSQL.Sync.Core.Models;
 using Newtonsoft.Json.Linq;
+using st2forget.utils.sql;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 
@@ -14,12 +16,30 @@ namespace FastSQL.Sync.Core.Repositories
     public abstract class BaseRepository
     {
         protected DbConnection _connection;
-        private readonly DbTransaction _transaction;
+        private DbTransaction _transaction;
 
-        protected BaseRepository(DbConnection connection, DbTransaction transaction)
+        protected BaseRepository(DbConnection connection)
         {
             _connection = connection;
-            _transaction = transaction;
+        }
+
+        public virtual void BeginTransaction()
+        {
+            _transaction = _connection?.BeginTransaction();
+        }
+
+        public virtual void Commit()
+        {
+            _transaction?.Commit();
+            _transaction?.Dispose();
+            _transaction = null;
+        }
+
+        public virtual void RollBack()
+        {
+            _transaction?.Rollback();
+            _transaction?.Dispose();
+            _transaction = null;
         }
 
         public virtual void LinkOptions(Guid id, EntityType entityType, IEnumerable<OptionItem> options)
@@ -42,7 +62,10 @@ WHEN NOT MATCHED THEN
     INSERT ([EntityId], [EntityType], [Key], [Value])
     VALUES([Source].[EntityId], [Source].[EntityType], [Source].[Key], [Source].[Value]);
 ";
-            _connection.Execute(updateOptionsSql, param: optionParams, transaction: _transaction);
+            _connection.Execute(
+                updateOptionsSql,
+                param: optionParams,
+                transaction: _transaction);
 
             // Option Groups
             var optionGroupParams = options.Where(o => o.OptionGroupNames?.Count > 0).SelectMany(o => o.OptionGroupNames.Select(g => new
@@ -65,7 +88,10 @@ WHEN NOT MATCHED THEN
     INSERT ([GroupName], [OptionId])
     VALUES([Source].[GroupName], [Source].[OptionId]);
 ";
-            _connection.Execute(updateOptionGroupsSql, param: optionGroupParams, transaction: _transaction);
+            _connection.Execute(
+                updateOptionGroupsSql,
+                param: optionGroupParams,
+                transaction: _transaction);
         }
 
         public virtual void UnlinkOptions(Guid id, EntityType entityType, IEnumerable<string> optionGroups = null)
@@ -91,13 +117,16 @@ DELETE o FROM [core_options] o
 INNER JOIN #TEMP t ON t.OptionId = o.Id;
 ";
             }
-            _connection.Execute(unlinkSql, param: new {
-                EntityId = id,
-                EntityType = entityType,
-                GroupNames = optionGroups
-            }, transaction: _transaction);
+            _connection.Execute(
+                unlinkSql, param: new
+                {
+                    EntityId = id,
+                    EntityType = entityType,
+                    GroupNames = optionGroups
+                },
+                transaction: _transaction);
         }
-        
+
         public virtual IEnumerable<OptionModel> LoadOptions(Guid entityId, EntityType entityType, IEnumerable<string> optionGroups = null)
         {
             var optionsSql = $@"SELECT *
@@ -135,7 +164,8 @@ WHERE EntityId IN @EntityIds AND EntityType = @EntityType";
             }
             return _connection.Query<OptionModel>(
                 optionsSql,
-                param: new {
+                param: new
+                {
                     EntityType = entityType,
                     EntityIds = entityIds
                 },
@@ -152,7 +182,7 @@ WHERE EntityId IN @EntityIds AND EntityType = @EntityType";
                 transaction: _transaction);
             return items.FirstOrDefault();
         }
-        
+
         public virtual IEnumerable<T> GetByIds<T>(IEnumerable<string> ids) where T : class, new()
         {
             return GetByIds<T>(ids.ToArray());
@@ -178,9 +208,11 @@ WHERE EntityId IN @EntityIds AND EntityType = @EntityType";
                 conditions.Add($"[{keyColumnName}] = @{paramKey}");
             }
             var items = _connection
-                .Query<T>($@"SELECT * FROM [{tableName}] WHERE {string.Join(" OR ", conditions)}",
-                param: @params,
-                transaction: _transaction);
+                .Query<T>(
+                    $@"SELECT * FROM [{tableName}] WHERE {string.Join(" OR ", conditions)}",
+                    param: @params,
+                    transaction: _transaction
+                );
             return items;
         }
 
@@ -205,7 +237,10 @@ FETCH NEXT {limit} ROWS ONLY;";
             var tableName = typeof(T).GetTableName();
             var keyColumnName = typeof(T).GetKeyColumnName();
             var sql = $@"DELETE FROM [{tableName}] WHERE [{keyColumnName}] = @Id";
-            return _connection.Execute(sql, param: new { Id = id }, transaction: _transaction);
+            return _connection.Execute(
+                sql,
+                param: new { Id = id },
+                transaction: _transaction);
         }
 
         public virtual string Create<T>(object @params)
@@ -245,7 +280,10 @@ SELECT [{keyColumnName}] FROM @InsertedRows";
             var updateSql = string.Join(", ", dParams.ParameterNames.Select(p => $@"[{p}] = @{p}"));
             var sql = $@"UPDATE [{tableName}] SET {updateSql} WHERE [{keyColumnName}] = @Id";
             dParams.Add("Id", id); // Add param Id
-            return _connection.Execute(sql, param: dParams, transaction: _transaction);
+            return _connection.Execute(
+                sql,
+                param: dParams,
+                transaction: _transaction);
         }
 
         public abstract void LinkOptions(Guid id, IEnumerable<OptionItem> options);
