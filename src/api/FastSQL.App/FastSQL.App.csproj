@@ -64,9 +64,23 @@
     <Compile Include="MainWindow.ViewModel.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Managers\AttributePageManager.cs" />
+    <Compile Include="Managers\EntityPageManager.cs" />
     <Compile Include="Managers\SettingManager.cs" />
     <Compile Include="Managers\ConnectionPageManager.cs" />
     <Compile Include="Managers\SettingPageManager.cs" />
+    <Compile Include="UserControls\Attributes\AttributeContent.ViewModel.cs">
+      <DependentUpon>UCAttributeContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Attributes\AttributesListView.ViewModel.cs">
+      <DependentUpon>UCAttributesListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Attributes\UCAttributeContent.xaml.cs">
+      <DependentUpon>UCAttributeContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Attributes\UCAttributesListView.xaml.cs">
+      <DependentUpon>UCAttributesListView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\Connections\UCConnectionListView.ViewModel.cs">
       <DependentUpon>UCConnectionsListView.xaml</DependentUpon>
     </Compile>
@@ -78,6 +92,18 @@
     </Compile>
     <Compile Include="UserControls\Connections\UCConnectionsListView.xaml.cs">
       <DependentUpon>UCConnectionsListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Entities\EntitiesListView.ViewModel.cs">
+      <DependentUpon>UCEntitiesListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Entities\EntityContent.ViewModel.cs">
+      <DependentUpon>UCEntityContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Entities\UCEntitiesListView.xaml.cs">
+      <DependentUpon>UCEntitiesListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Entities\UCEntityContent.xaml.cs">
+      <DependentUpon>UCEntityContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\OptionItems\UCOpenFileDialog.xaml.cs">
       <DependentUpon>UCOpenFileDialog.xaml</DependentUpon>
@@ -114,11 +140,27 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UserControls\Attributes\UCAttributeContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Attributes\UCAttributesListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\Connections\UCConnectionsContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\Connections\UCConnectionsListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Entities\UCEntitiesListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Entities\UCEntityContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -283,6 +325,10 @@
       <Project>{582cb864-2fc8-40ce-9bd5-3d1470274352}</Project>
       <Name>FastSQL.Sync.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Vendors\Magento1\FastSQL.Magento1.Integration\FastSQL.Magento1.Integration.csproj">
+      <Project>{4c2d1d9b-dbfc-4412-b756-7e823ea50102}</Project>
+      <Name>FastSQL.Magento1.Integration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Vendors\Magento1\FastSQL.Magento1\FastSQL.Magento1.csproj">
       <Project>{a771f01b-69c2-4f4f-ac0c-50fa0d646662}</Project>
       <Name>FastSQL.Magento1</Name>
@@ -306,6 +352,10 @@
     <ProjectReference Include="..\Vendors\MsSql\FastSQL.MsSql\FastSQL.MsSql.csproj">
       <Project>{0c45c49c-718f-4e3a-8e95-43dbceb68eaa}</Project>
       <Name>FastSQL.MsSql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vendors\MySQL\FastSQL.MySQL.Integration\FastSQL.MySQL.Integration.csproj">
+      <Project>{22f46899-3fba-4dca-8747-893e0288cb5e}</Project>
+      <Name>FastSQL.MySQL.Integration</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vendors\MySQL\FastSQL.MySQL\FastSQL.MySQL.csproj">
       <Project>{6c9be860-dc6c-4330-906f-d07d12cc650c}</Project>
@@ -332,5 +382,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

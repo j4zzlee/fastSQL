@@ -33,9 +33,7 @@ namespace FastSQL.App.UserControls
         public string ActivatedById => string.Empty;
 
         public int DefaultState => (int)DockState.Dock;
-
-        public int DefaultPosition => (int)DockAbility.Left;
-
+        
         public object Control => this;
 
         public string ControlName => "application_settings_listview";

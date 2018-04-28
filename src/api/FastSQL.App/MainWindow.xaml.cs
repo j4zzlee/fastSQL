@@ -40,7 +40,8 @@ namespace FastSQL.App
 
         private void OnActivateControl(ActivateControlEventArgument obj)
         {
-            var exists = controlDefs.FirstOrDefault(d => {
+            var exists = controlDefs.FirstOrDefault(d =>
+            {
                 var cc = d.Content as IControlDefinition;
                 if (cc == null)
                 {
@@ -56,7 +57,8 @@ namespace FastSQL.App
             var def = args.PageDefinition;
             var dockManager = dmMainDock;
 
-            var exists = controlDefs.FirstOrDefault(d => {
+            var exists = controlDefs.FirstOrDefault(d =>
+            {
                 var cc = d.Content as IControlDefinition;
                 if (cc == null)
                 {
@@ -64,63 +66,89 @@ namespace FastSQL.App
                 }
                 return cc.Id == def.Id;
             });
+
             if (exists == null)
             {
-                var contentControl = new ContentControl
+                exists = AddControl(def);
+            }
+
+            ArrangeControl(exists);
+
+            dmMainDock.ActivateWindow(exists.Name);
+        }
+
+        private ContentControl AddControl(IControlDefinition def)
+        {
+            var contentControl = new ContentControl
+            {
+                Content = (def.Control as UserControl),
+                Name = def.ControlName
+            };
+            controlDefs.Add(contentControl);
+            DockingManager.SetHeader(contentControl, def.ControlHeader);
+            
+            dmMainDock.Children.Add(contentControl);
+            contentControl.GotFocus += ContentControl_GotFocus;
+
+            DockingManager.SetState(contentControl, (DockState)def.DefaultState);
+            DockingManager.SetDockAbility(contentControl, DockAbility.All);
+            if (def.DefaultState == (int)DockState.Dock)
+            {
+                DockingManager.SetDesiredWidthInDockedMode(contentControl, 400);
+                DockingManager.SetDesiredHeightInDockedMode(contentControl, 300);
+                DockingManager.SetSideInDockedMode(contentControl, DockSide.Tabbed);
+            }
+            return contentControl;
+        }
+
+        private void ArrangeControl(ContentControl c)
+        {
+            var existsState = DockingManager.GetState(c);
+            if (existsState == DockState.Dock)
+            {
+                var existsSide = DockingManager.GetDockAbility(c);
+                var sames = controlDefs.Where(d =>
                 {
-                    Content = (def.Control as UserControl),
-                    Name = def.ControlName
-                };
-                controlDefs.Add(contentControl);
-                DockingManager.SetHeader(contentControl, def.ControlHeader);
-                
-                exists = contentControl;
-                dmMainDock.Children.Add(exists);
-                controlDefs.Add(exists);
-                contentControl.GotFocus += (ss, ee) => {
-                    var match = controlDefs
-                        .Where(cc => {
+                    var currentState = DockingManager.GetState(d);
+                    var currentSide = DockingManager.GetDockAbility(d);
+                    return currentState == existsState && currentSide == existsSide && d.Name != c.Name;
+                }).ToList();
+                var targeting = sames.FirstOrDefault(d => !string.IsNullOrWhiteSpace(DockingManager.GetTargetName(d, existsState)));
+                if (targeting == null)
+                {
+                    var target = sames.FirstOrDefault();
+                    if (target != null)
+                    {
+                        DockingManager.SetTargetNameInDockedMode(c, target.Name);
+                    }
+                }
+                else
+                {
+                    DockingManager.SetTargetNameInDockedMode(c, DockingManager.GetTargetName(targeting, existsState));
+                }
+            }
+        }
+
+        private void ContentControl_GotFocus(object sender, RoutedEventArgs e)
+        {
+            var match = controlDefs
+                        .Where(cc =>
+                        {
                             var ccContent = cc.Content as IControlDefinition;
-                            var ssContent = (ss as ContentControl).Content as IControlDefinition;
+                            var ssContent = (sender as ContentControl).Content as IControlDefinition;
                             return ccContent?.ActivatedById == ssContent?.Id && DockingManager.GetState(cc) == DockState.Document;
                         })
-                        .FirstOrDefault()?.Name;
-                    if (!string.IsNullOrWhiteSpace(match))
-                    {
-                        dmMainDock.ActivateWindow(match);
-                        ee.Handled = true;
-                    }
-                };
-
-                DockingManager.SetState(exists, (DockState)def.DefaultState);
-                DockingManager.SetDockAbility(exists, DockAbility.All);
-                if (def.DefaultState == (int)DockState.Dock)
-                {
-                    DockingManager.SetDesiredWidthInDockedMode(exists, 400);
-                    DockingManager.SetDesiredHeightInDockedMode(exists, 300);
-                    DockingManager.SetSideInDockedMode(exists, DockSide.Tabbed);
-                }
-            }
-            if (DockingManager.GetState(exists) == DockState.Dock)
+                        .FirstOrDefault();
+            if (match != null)
             {
-                var existsSide = DockingManager.GetSideInDockedMode(exists);
-                foreach (var cc in controlDefs)
+                var isActivated = DockingManager.GetIsActiveWindow(match);
+                if (!isActivated)
                 {
-                    if (DockingManager.GetState(cc) != DockState.Dock || cc.Name == exists.Name)
-                    {
-                        continue;
-                    }
-                    var side = DockingManager.GetSideInDockedMode(cc);
-                    if (side != existsSide)
-                    {
-                        continue;
-                    }
-
-                    DockingManager.SetTargetNameInDockedMode(cc, exists.Name);
+                    dmMainDock.ActivateWindow(match.Name);
                 }
+
+                e.Handled = true;
             }
-            
-            dmMainDock.ActivateWindow(exists.Name);
         }
     }
 }

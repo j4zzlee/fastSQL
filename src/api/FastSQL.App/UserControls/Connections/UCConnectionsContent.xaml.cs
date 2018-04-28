@@ -27,9 +27,6 @@ namespace FastSQL.App.UserControls.Connections
     public partial class UCConnectionsContent : UserControl, IControlDefinition
     {
         private readonly UCConnectionsContentViewModel viewModel;
-        private readonly ConnectionRepository connectionRepository;
-        private readonly IEnumerable<IRichProvider> providers;
-        private string _currentConnectionId;
 
         public UCConnectionsContent(UCConnectionsContentViewModel viewModel)
         {

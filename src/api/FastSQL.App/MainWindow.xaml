@@ -18,8 +18,8 @@
                 </MenuItem>
                 <MenuItem Header="_Configurations">
                     <MenuItem Header="_Connections" Command="{Binding OpenPageCommand}" CommandParameter="LI5b8oVn@#$%@asdf#@$MUqTxSHIgNj6wQ"/>
-                    <MenuItem Header="_Entities" Command="{Binding OpenPageCommand}" CommandParameter="Entities"/>
-                    <MenuItem Header="_Attributes" Command="{Binding OpenPageCommand}" CommandParameter="Attributes"/>
+                    <MenuItem Header="_Entities" Command="{Binding OpenPageCommand}" CommandParameter="GqhQiy0iFUKkb1P2yVzshQ=="/>
+                    <MenuItem Header="_Attributes" Command="{Binding OpenPageCommand}" CommandParameter="cvQ6bdshV0OJM5QX7mr2KA=="/>
                 </MenuItem>
                 <MenuItem Header="_Schedulers" Command="{Binding OpenPageCommand}" CommandParameter="Schedulers"/>
                 <MenuItem Header="_Queues" Command="{Binding OpenPageCommand}" CommandParameter="Queues"/>

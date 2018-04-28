@@ -7,7 +7,7 @@ namespace FastSQL.Sync.Core
 {
     public interface IIndexer : IOptionManager
     {
-        void Persist(IEnumerable<object> data = null);
+        void Persist(IEnumerable<object> data = null, bool lastPage = false);
         bool Is(EntityType entityType);
     }
 

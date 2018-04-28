@@ -10,7 +10,6 @@ namespace FastSQL.Core.UI.Interfaces
         string ControlName { get; }
         string ControlHeader { get; }
         string Description { get; }
-        bool IsActive { get; set; }
         string ActivatedById { get; }
         int DefaultState { get; }
         object Control { get; }
