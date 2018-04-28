@@ -40,9 +40,9 @@ namespace FastSQL.App.UserControls.Connections
         
         public string Id => "NZWVJgnbIEOxA5)#$)*%#*%UU8r8tNA==";
 
-        public string ControlName => "settings";
-        public string ControlHeader => "Settings";
-        public string Description => "Settings Details";
+        public string ControlName => "connection_settings";
+        public string ControlHeader => "Connection Settings";
+        public string Description => "Connection Settings Details";
 
         public bool IsActive { get; set; }
 

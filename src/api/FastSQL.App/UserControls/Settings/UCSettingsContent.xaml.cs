@@ -51,10 +51,10 @@ namespace FastSQL.App.UserControls
 
         public string Id => "NZWVJgnbIEOxA5UU8r8tNA==";
 
-        public string ControlName => "connection_settings";
-        public string ControlHeader => "Connection Settings";
+        public string ControlName => "application_settings";
+        public string ControlHeader => "Application Settings";
 
-        public string Description => "Connection Setting Details";
+        public string Description => "Application Setting Details";
 
         public bool IsActive { get; set; }
 

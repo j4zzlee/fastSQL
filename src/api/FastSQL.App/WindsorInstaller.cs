@@ -43,12 +43,6 @@ namespace FastSQL.App
             }).LifestyleCustom<ScopedLifestyleManager>());
             container.Register(Component.For<ResolverFactory>().ImplementedBy<ResolverFactory>().LifestyleSingleton());
             container.Register(descriptor
-                .BasedOn<IDbTransactionFactory>()
-                .WithService.Select(new Type[] { typeof(IDbTransactionFactory) })
-                .WithServiceAllInterfaces()
-                .WithServiceSelf()
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Singleton)));
-            container.Register(descriptor
                 .BasedOn<IRichProvider>()
                 .WithService.Select(new Type[] { typeof(IRichProvider) })
                 .WithServiceAllInterfaces()

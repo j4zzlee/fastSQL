@@ -38,8 +38,8 @@ namespace FastSQL.App.UserControls
 
         public object Control => this;
 
-        public string ControlName => "application_settings";
-        public string ControlHeader => "Applicatioin Settings";
+        public string ControlName => "application_settings_listview";
+        public string ControlHeader => "Application Settings";
 
 
         public UCSettingsListView(UCSettingsListViewViewModel viewModel)

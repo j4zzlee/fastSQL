@@ -72,26 +72,54 @@ namespace FastSQL.App
                     Name = def.ControlName
                 };
                 controlDefs.Add(contentControl);
-                DockingManager.SetHeader(contentControl, def.ControlName);
+                DockingManager.SetHeader(contentControl, def.ControlHeader);
                 
                 exists = contentControl;
                 dmMainDock.Children.Add(exists);
                 controlDefs.Add(exists);
-            }
-           
-            DockingManager.SetState(exists, (DockState)def.DefaultState);
-            DockingManager.SetDockAbility(exists, (DockAbility)def.DefaultPosition);
-            if (def.DefaultState == (int)DockState.Dock)
-            {
-                if (def.DefaultPosition == (int)DockAbility.Left || def.DefaultPosition == (int)DockAbility.Right)
+                contentControl.GotFocus += (ss, ee) => {
+                    var match = controlDefs
+                        .Where(cc => {
+                            var ccContent = cc.Content as IControlDefinition;
+                            var ssContent = (ss as ContentControl).Content as IControlDefinition;
+                            return ccContent?.ActivatedById == ssContent?.Id && DockingManager.GetState(cc) == DockState.Document;
+                        })
+                        .FirstOrDefault()?.Name;
+                    if (!string.IsNullOrWhiteSpace(match))
+                    {
+                        dmMainDock.ActivateWindow(match);
+                        ee.Handled = true;
+                    }
+                };
+
+                DockingManager.SetState(exists, (DockState)def.DefaultState);
+                DockingManager.SetDockAbility(exists, DockAbility.All);
+                if (def.DefaultState == (int)DockState.Dock)
                 {
                     DockingManager.SetDesiredWidthInDockedMode(exists, 400);
-                }
-                else
-                {
-                    DockingManager.SetDesiredHeightInDockedMode(exists, 400);
+                    DockingManager.SetDesiredHeightInDockedMode(exists, 300);
+                    DockingManager.SetSideInDockedMode(exists, DockSide.Tabbed);
                 }
             }
+            if (DockingManager.GetState(exists) == DockState.Dock)
+            {
+                var existsSide = DockingManager.GetSideInDockedMode(exists);
+                foreach (var cc in controlDefs)
+                {
+                    if (DockingManager.GetState(cc) != DockState.Dock || cc.Name == exists.Name)
+                    {
+                        continue;
+                    }
+                    var side = DockingManager.GetSideInDockedMode(cc);
+                    if (side != existsSide)
+                    {
+                        continue;
+                    }
+
+                    DockingManager.SetTargetNameInDockedMode(cc, exists.Name);
+                }
+            }
+            
             dmMainDock.ActivateWindow(exists.Name);
         }
     }

@@ -13,7 +13,6 @@ namespace FastSQL.Core.UI.Interfaces
         bool IsActive { get; set; }
         string ActivatedById { get; }
         int DefaultState { get; }
-        int DefaultPosition { get; }
         object Control { get; }
     }
 }
