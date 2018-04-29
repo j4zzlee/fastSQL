@@ -16,7 +16,7 @@ namespace FastSQL.Sync.Core.Repositories
     public abstract class BaseRepository
     {
         protected DbConnection _connection;
-        private DbTransaction _transaction;
+        protected DbTransaction _transaction;
 
         protected BaseRepository(DbConnection connection)
         {

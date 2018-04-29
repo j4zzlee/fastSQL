@@ -32,14 +32,14 @@ namespace FastSQL.App.UserControls
             }
         }
 
-        public ISettingProvider SelectedSettiing
+        public ISettingProvider SelectedSetting
         {
             get { return _selectedSetting; }
             set
             {
                 _selectedSetting = value;
                 
-                OnPropertyChanged(nameof(SelectedSettiing));
+                OnPropertyChanged(nameof(SelectedSetting));
             }
         }
 

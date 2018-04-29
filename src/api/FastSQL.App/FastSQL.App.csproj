@@ -56,7 +56,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Events\RefreshConnectionListEvent.cs" />
+    <Compile Include="Events\RefreshAttributeListView.cs" />
+    <Compile Include="Events\RefreshEntityListEvent.cs" />
     <Compile Include="Events\SelectConnectionEvent.cs" />
+    <Compile Include="Events\SelectAttributeEvent.cs" />
+    <Compile Include="Events\SelectEntityEvent.cs" />
     <Compile Include="Events\SelectSettingEvent.cs" />
     <Compile Include="Interfaces\BaseCommand.cs" />
     <Compile Include="Interfaces\BaseViewModel.cs" />
@@ -93,6 +97,12 @@
     <Compile Include="UserControls\Connections\UCConnectionsListView.xaml.cs">
       <DependentUpon>UCConnectionsListView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\Dependencies\AttributeDependency.ViewModel.cs">
+      <DependentUpon>UCAttributeDependency.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Dependencies\UCAttributeDependency.xaml.cs">
+      <DependentUpon>UCAttributeDependency.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\Entities\EntitiesListView.ViewModel.cs">
       <DependentUpon>UCEntitiesListView.xaml</DependentUpon>
     </Compile>
@@ -104,6 +114,9 @@
     </Compile>
     <Compile Include="UserControls\Entities\UCEntityContent.xaml.cs">
       <DependentUpon>UCEntityContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Dependencies\EntityDependency.ViewModel.cs">
+      <DependentUpon>UCEntityDependency.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\OptionItems\UCOpenFileDialog.xaml.cs">
       <DependentUpon>UCOpenFileDialog.xaml</DependentUpon>
@@ -126,7 +139,10 @@
     <Compile Include="UserControls\Settings\UCSettingsListView.xaml.cs">
       <DependentUpon>UCSettingsListView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\ProviderViewModel.cs" />
+    <Compile Include="UserControls\Dependencies\UCEntityDependency.xaml.cs">
+      <DependentUpon>UCEntityDependency.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModels\DependencyItemViewModel.cs" />
     <Compile Include="WindsorInstaller.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -156,6 +172,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UserControls\Dependencies\UCAttributeDependency.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\Entities\UCEntitiesListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -177,6 +197,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\Settings\UCSettingsListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Dependencies\UCEntityDependency.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -364,6 +388,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Migrations\1.0.0\1523441581-InitDatabase.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1525009870-AddEntityColumnTransformation.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1525009845-AddEntityDependTable.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

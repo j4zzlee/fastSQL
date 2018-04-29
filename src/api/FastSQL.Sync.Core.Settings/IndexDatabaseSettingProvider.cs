@@ -23,11 +23,12 @@ namespace FastSQL.Sync.Core.Settings
         private readonly DropDatabaseCommand dropDatabaseCommand;
         private readonly MigrateUpCommand migrateUpCommand;
         private readonly MigrateDownCommand migrateDownCommand;
+        private readonly GenerateMigrationCommand generateMigrationCommand;
         private readonly IEventAggregator eventAggregator;
 
         public override string Id => "wif@34offie#$jkfjie+_3i22425";
 
-        public override string Name => "Index Datbase Settings";
+        public override string Name => "Index Database Settings";
 
         public override string Description => "This setting is required for connecting to Index Database";
 
@@ -39,7 +40,17 @@ namespace FastSQL.Sync.Core.Settings
 
         private string SettingFile => Path.Combine(BasePath, "appsettings.json");
 
-        public override IEnumerable<string> Commands => new List<string> { "Create Database", "Drop Database", "Run Migrations", "Undo Migrations" };
+        public override IEnumerable<string> Commands
+        {
+            get
+            {
+                var result = new List<string> { "Create Database", "Drop Database", "Run Migrations", "Undo Migrations" };
+#if DEBUG
+                result.Add("Generate Migration");
+#endif
+                return result;
+            }
+        }
 
         public IndexDatabaseSettingProvider(
             FastAdapter adapter,
@@ -49,6 +60,7 @@ namespace FastSQL.Sync.Core.Settings
             DropDatabaseCommand dropDatabaseCommand,
             MigrateUpCommand migrateUpCommand,
             MigrateDownCommand migrateDownCommand,
+            GenerateMigrationCommand generateMigrationCommand,
             IEventAggregator eventAggregator) : base(optionManager)
         {
             this.adapter = adapter;
@@ -57,6 +69,7 @@ namespace FastSQL.Sync.Core.Settings
             this.dropDatabaseCommand = dropDatabaseCommand;
             this.migrateUpCommand = migrateUpCommand;
             this.migrateDownCommand = migrateDownCommand;
+            this.generateMigrationCommand = generateMigrationCommand;
             this.eventAggregator = eventAggregator;
             this.LoadOptions();
         }
@@ -151,9 +164,25 @@ namespace FastSQL.Sync.Core.Settings
                     DropDatabase();
                     message = "Database has been dropped.";
                     return true;
+                case "generate migration":
+                    GenerateMigration();
+                    message = "Migration has been generated";
+                    return true;
             }
             message = "Command is not available.";
             return false;
+        }
+
+        [PrincipalPermission(SecurityAction.Demand, Role = @"BUILTIN\Administrators")]
+        private void GenerateMigration()
+        {
+            generateMigrationCommand.ReadArguments(new List<string> {
+                $"--application-path={BasePath}",
+                $"--migration-path={Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Migrations")}",
+                $"--version=1.0.0",
+                $"--ticket=example-{Guid.NewGuid()}"
+            });
+            generateMigrationCommand.Execute();
         }
 
         [PrincipalPermission(SecurityAction.Demand, Role = @"BUILTIN\Administrators")]

@@ -31,11 +31,18 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition/>
                                     <RowDefinition/>
-                                    <RowDefinition/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Text="{Binding Path=Name}" FontSize="14" Margin="3,6,3,3"></TextBlock>
-                                <TextBlock Grid.Row="1" Text="{Binding Path=Id}" FontSize="11" Margin="3,6,3,3" Foreground="Gray" Opacity=".7"></TextBlock>
-                                <TextBlock Grid.Row="2" Text="{Binding Path=Description}" FontSize="11" Margin="3,6,3,3" Foreground="Gray" Opacity=".7"></TextBlock>
+                                <TextBlock Grid.Row="0" Margin="3,6,3,3">
+                                    <Run Text="{Binding Name}" FontSize="14"></Run>
+                                    <Run FontSize="11" Foreground="Gray">
+                                        <Run.Text>
+                                            <MultiBinding StringFormat=" ({0})">
+                                                <Binding Path="Id"/>
+                                            </MultiBinding>
+                                        </Run.Text>
+                                    </Run>
+                                </TextBlock>
+                                <TextBlock Grid.Row="1" Text="{Binding Path=Description}" FontSize="11" Margin="3,6,3,3" Foreground="Gray"></TextBlock>
                             </Grid>
                         </Button>
                     </Grid>

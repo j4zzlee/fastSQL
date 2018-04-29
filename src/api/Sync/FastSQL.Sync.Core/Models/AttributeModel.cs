@@ -23,5 +23,26 @@ namespace FastSQL.Sync.Core.Models
 
         [NotMapped]
         public EntityType EntityType => EntityType.Attribute;
+
+
+        public void AddState(EntityState state)
+        {
+            State = State != 0 ? (State | state) : state;
+        }
+
+        public void RemoveState(EntityState state)
+        {
+            if (State == 0)
+            {
+                return;
+            }
+
+            State = (State | state) ^ state;
+        }
+
+        public bool HasState(EntityState state)
+        {
+            return (State & state) > 0;
+        }
     }
 }

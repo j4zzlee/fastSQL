@@ -1,6 +1,5 @@
 ﻿using FastSQL.App.Events;
 using FastSQL.App.Interfaces;
-using FastSQL.App.ViewModels;
 using FastSQL.Core;
 using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
@@ -22,12 +21,12 @@ namespace FastSQL.App.UserControls.Connections
         private readonly IEnumerable<IRichAdapter> adapters;
         private IEnumerable<IRichProvider> providers;
         private readonly IEventAggregator eventAggregator;
-        private readonly ConnectionRepository connectionRepository;
-        private readonly ResolverFactory resolverFactory;
-        private ConnectionModel _connection;
         private ObservableCollection<string> _commands;
         private ObservableCollection<OptionItemViewModel> _options;
         private IRichProvider _selectedProvider;
+
+        private ConnectionModel _connection;
+        private readonly ConnectionRepository connectionRepository;
 
         public string Name
         {
@@ -111,14 +110,14 @@ namespace FastSQL.App.UserControls.Connections
             IEnumerable<IRichAdapter> adapters,
             IEnumerable<IRichProvider> providers,
             IEventAggregator eventAggregator,
-            ConnectionRepository connectionRepository,
-            ResolverFactory resolverFactory)
+            ConnectionRepository connectionRepository)
         {
             this.adapters = adapters;
             this.providers = providers;
             this.eventAggregator = eventAggregator;
             this.connectionRepository = connectionRepository;
-            this.resolverFactory = resolverFactory;
+
+            Commands = new ObservableCollection<string>(new List<string> { "Try Connect", "Save", "New", "Delete" });
             eventAggregator.GetEvent<SelectConnectionEvent>().Subscribe(OnSelectConnection);
             Providers = new ObservableCollection<IRichProvider>(providers);
         }
@@ -130,8 +129,6 @@ namespace FastSQL.App.UserControls.Connections
             SetConnection(connection);
 
             SelectedProvider = Providers?.FirstOrDefault(p => p.Id == connection.ProviderId);
-
-            SetCommands(new List<string> { "Try Connect", "Save", "New", "Delete" });
         }
 
         public void SetOptions(IEnumerable<OptionItem> options)
@@ -143,12 +140,7 @@ namespace FastSQL.App.UserControls.Connections
                 return result;
             }));
         }
-
-        public void SetCommands(List<string> commands)
-        {
-            Commands = new ObservableCollection<string>(commands);
-        }
-
+        
         private bool TryConnect(out string message)
         {
             var adapter = adapters.FirstOrDefault(p => p.IsProvider(SelectedProvider?.Id));
