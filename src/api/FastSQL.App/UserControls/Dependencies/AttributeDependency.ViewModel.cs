@@ -1,9 +1,11 @@
-﻿using FastSQL.App.Interfaces;
+﻿using FastSQL.App.Events;
+using FastSQL.App.Interfaces;
 using FastSQL.App.ViewModels;
 using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using Newtonsoft.Json.Linq;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,7 +22,7 @@ namespace FastSQL.App.UserControls.Dependencies
         private ObservableCollection<string> _stepsToExecute;
         private ObservableCollection<DependencyItemViewModel> _dependencies;
         private ObservableCollection<AttributeModel> _attributes;
-
+        private readonly EntityRepository entityRepository;
         private readonly AttributeRepository attributeRepository;
 
         private AttributeModel _selectedTargetAttribute;
@@ -96,7 +98,7 @@ namespace FastSQL.App.UserControls.Dependencies
             set
             {
                 _attributes = value;
-                OnPropertyChanged(nameof(Entities));
+                OnPropertyChanged(nameof(TargetAttributes));
             }
         }
 
@@ -144,25 +146,59 @@ namespace FastSQL.App.UserControls.Dependencies
             Dependencies.Remove((DependencyItemViewModel)obj);
         }
 
-        public AttributeDependencyViewModel(AttributeRepository attributeRepository)
+        public AttributeDependencyViewModel(
+            EntityRepository entityRepository,
+            AttributeRepository attributeRepository,
+            IEventAggregator eventAggregator)
         {
+            this.entityRepository = entityRepository;
             this.attributeRepository = attributeRepository;
             DependOnSteps = new ObservableCollection<string>(Enum.GetNames(typeof(IntegrationStep)));
             StepsToExecute = new ObservableCollection<string>(Enum.GetNames(typeof(IntegrationStep)));
             TargetAttributes = new ObservableCollection<AttributeModel>(attributeRepository.GetAll());
             Dependencies = new ObservableCollection<DependencyItemViewModel>();
+            eventAggregator.GetEvent<RefreshAttributeListEvent>().Subscribe(OnRefreshAttribute);
+        }
+
+        private void OnRefreshAttribute(RefreshAttributeListEventArgument obj)
+        {
+            TargetAttributes = new ObservableCollection<AttributeModel>(attributeRepository.GetAll());
         }
 
         public void SetEntity(object entity)
         {
             _entity = entity;
-            //Dependencies = new ObservableCollection<DependencyItemViewModel> {
-            //    new DependencyItemViewModel
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        DependOn = "Product",
-            //    }
-            //};
+            if (entity != null)
+            {
+                var jEntity = JObject.FromObject(entity);
+                var entityId = Guid.Parse(jEntity.GetValue("Id").ToString());
+                var entityType = (EntityType)Enum.Parse(typeof(EntityType), jEntity.GetValue("EntityType").ToString());
+                IEnumerable<DependencyItemModel> dependencies = new List<DependencyItemModel>();
+                switch (entityType)
+                {
+                    case EntityType.Entity:
+                        dependencies = entityRepository.GetDependencies(entityId, EntityType.Attribute);
+                        break;
+                    case EntityType.Attribute:
+                        dependencies = attributeRepository.GetDependencies(entityId, EntityType.Attribute);
+                        break;
+                }
+
+                Dependencies = new ObservableCollection<DependencyItemViewModel>(
+                            dependencies
+                            .Select(d => new DependencyItemViewModel
+                             {
+                                 Id = d.Id,
+                                 DependOn = TargetAttributes.FirstOrDefault(e => e.Id == d.TargetEntityId)?.Name,
+                                 DependOnStep = d.DependOnStep,
+                                 EntityId = entityId,
+                                 EntityType = entityType,
+                                 ExecuteImmediately = d.ExecuteImmediately,
+                                 StepToExecute = d.StepToExecute,
+                                 TargetEntityId = d.TargetEntityId,
+                                 TargetEntityType = d.TargetEntityType
+                             }));
+            }
         }
     }
 }

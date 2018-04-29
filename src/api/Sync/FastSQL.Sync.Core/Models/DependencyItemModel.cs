@@ -8,7 +8,7 @@ using System.Text;
 namespace FastSQL.Sync.Core.Models
 {
     [Table("core_entity_dependency")]
-    public class EntityDependencyModel
+    public class DependencyItemModel
     {
         [Key]
         public Guid Id { get; set; }

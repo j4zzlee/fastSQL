@@ -384,32 +384,73 @@ namespace FastSQL.App.UserControls.Entities
 
         private bool Save(out string message)
         {
-            //if (_entity == null)
-            //{
-            //    message = "No item to save";
-            //    return true;
-            //}
+            if (_entity == null)
+            {
+                message = "No item to save";
+                return true;
+            }
 
-            //try
-            //{
-            //    entityRepository.BeginTransaction();
-            //    var result = entityRepository.Update(_entity.Id.ToString(), new
-            //    {
-            //        Name,
-            //        Description,
-            //        ProviderId = SelectedProvider.Id
-            //    });
+            try
+            {
+                entityRepository.BeginTransaction();
+                var result = entityRepository.Update(_entity.Id.ToString(), new
+                {
+                    Name,
+                    Description,
+                    _entity.State,
+                    SourceConnectionId = SelectedSourceConnection.Id,
+                    DestinationConnectionId = SelectedDestinationConnection.Id,
+                    SourceProcessorId = SelectedSourceProcessor.Id,
+                    DestinationProcessorId = SelectedDestinationProcessor.Id,
+                });
+                var options = new List<OptionItem>();
+                options.AddRange(PullerOptions.Select(o => new OptionItem {
+                    Name = o.Name,
+                    Value = o.Value,
+                    OptionGroupNames = o.OptionGroupNames
+                } ));
+                options.AddRange(IndexerOptions.Select(o => new OptionItem
+                {
+                    Name = o.Name,
+                    Value = o.Value,
+                    OptionGroupNames = o.OptionGroupNames
+                }));
+                options.AddRange(PusherOptions.Select(o => new OptionItem
+                {
+                    Name = o.Name,
+                    Value = o.Value,
+                    OptionGroupNames = o.OptionGroupNames
+                }));
+                entityRepository.LinkOptions(_entity.Id, options);
 
-            //    SelectedProvider.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
+                var dependencies = new List<DependencyItemModel>();
+                dependencies.AddRange(EntityDependencyViewModel.Dependencies.Select(d => new DependencyItemModel {
+                    EntityId = _entity.Id,
+                    EntityType = EntityType.Entity,
+                    DependOnStep = d.DependOnStep,
+                    ExecuteImmediately = d.ExecuteImmediately,
+                    StepToExecute = d.StepToExecute,
+                    TargetEntityId = d.TargetEntityId,
+                    TargetEntityType = d.TargetEntityType
+                }));
+                dependencies.AddRange(AttributeDependencyViewModel.Dependencies.Select(d => new DependencyItemModel {
+                    EntityId = _entity.Id,
+                    EntityType = EntityType.Entity,
+                    DependOnStep = d.DependOnStep,
+                    ExecuteImmediately = d.ExecuteImmediately,
+                    StepToExecute = d.StepToExecute,
+                    TargetEntityId = d.TargetEntityId,
+                    TargetEntityType = d.TargetEntityType
+                }));
 
-            //    entityRepository.LinkOptions(_entity.Id, SelectedProvider.Options);
-            //    entityRepository.Commit();
-            //}
-            //catch
-            //{
-            //    entityRepository.RollBack();
-            //    throw;
-            //}
+                entityRepository.SetDependencies(_entity.Id, dependencies);
+                entityRepository.Commit();
+            }
+            catch
+            {
+                entityRepository.RollBack();
+                throw;
+            }
 
             message = "Success";
             return true;
@@ -417,31 +458,76 @@ namespace FastSQL.App.UserControls.Entities
 
         private bool New(out string message)
         {
-            //try
-            //{
-            //    entityRepository.BeginTransaction();
-            //    var result = entityRepository.Create(new
-            //    {
-            //        Name,
-            //        Description,
-            //        ProviderId = SelectedProvider.Id
-            //    });
+            try
+            {
+                entityRepository.BeginTransaction();
+                var entityId = entityRepository.Create(new
+                {
+                    Name,
+                    Description,
+                    State = 0,
+                    SourceConnectionId = SelectedSourceConnection.Id,
+                    DestinationConnectionId = SelectedDestinationConnection.Id,
+                    SourceProcessorId = SelectedSourceProcessor.Id,
+                    DestinationProcessorId = SelectedDestinationProcessor.Id,
+                });
+                var entityIdGuid = Guid.Parse(entityId);
+                var options = new List<OptionItem>();
+                options.AddRange(PullerOptions.Select(o => new OptionItem
+                {
+                    Name = o.Name,
+                    Value = o.Value,
+                    OptionGroupNames = o.OptionGroupNames
+                }));
+                options.AddRange(IndexerOptions.Select(o => new OptionItem
+                {
+                    Name = o.Name,
+                    Value = o.Value,
+                    OptionGroupNames = o.OptionGroupNames
+                }));
+                options.AddRange(PusherOptions.Select(o => new OptionItem
+                {
+                    Name = o.Name,
+                    Value = o.Value,
+                    OptionGroupNames = o.OptionGroupNames
+                }));
+                entityRepository.LinkOptions(entityIdGuid, options);
 
-            //    SelectedProvider.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
+                var dependencies = new List<DependencyItemModel>();
+                dependencies.AddRange(EntityDependencyViewModel.Dependencies.Select(d => new DependencyItemModel
+                {
+                    EntityId = entityIdGuid,
+                    EntityType = EntityType.Entity,
+                    DependOnStep = d.DependOnStep,
+                    ExecuteImmediately = d.ExecuteImmediately,
+                    StepToExecute = d.StepToExecute,
+                    TargetEntityId = d.TargetEntityId,
+                    TargetEntityType = d.TargetEntityType
+                }));
+                dependencies.AddRange(AttributeDependencyViewModel.Dependencies.Select(d => new DependencyItemModel
+                {
+                    EntityId = entityIdGuid,
+                    EntityType = EntityType.Entity,
+                    DependOnStep = d.DependOnStep,
+                    ExecuteImmediately = d.ExecuteImmediately,
+                    StepToExecute = d.StepToExecute,
+                    TargetEntityId = d.TargetEntityId,
+                    TargetEntityType = d.TargetEntityType
+                }));
+                
+                entityRepository.SetDependencies(entityIdGuid, dependencies);
+                entityRepository.Commit();
 
-            //    entityRepository.LinkOptions(Guid.Parse(result), SelectedProvider.Options);
-            //    entityRepository.Commit();
-
-            //    eventAggregator.GetEvent<RefreshEntityListEvent>().Publish(new RefreshEntityListEventArgument
-            //    {
-            //        SelectedEntityId = result
-            //    });
-            //}
-            //catch
-            //{
-            //    entityRepository.RollBack();
-            //    throw;
-            //}
+                eventAggregator.GetEvent<RefreshEntityListEvent>().Publish(new RefreshEntityListEventArgument
+                {
+                    SelectedEntityId = entityId
+                });
+            }
+            catch
+            {
+                entityRepository.RollBack();
+                throw;
+            }
 
             message = "Success";
             return true;
@@ -459,6 +545,7 @@ namespace FastSQL.App.UserControls.Entities
                 entityRepository.BeginTransaction();
                 entityRepository.DeleteById(_entity.Id.ToString());
                 entityRepository.UnlinkOptions(_entity.Id);
+                entityRepository.RemoveDependencies(_entity.Id);
                 entityRepository.Commit();
 
                 eventAggregator.GetEvent<RefreshEntityListEvent>().Publish(new RefreshEntityListEventArgument

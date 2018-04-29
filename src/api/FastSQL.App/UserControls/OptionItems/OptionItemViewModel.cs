@@ -22,6 +22,7 @@ namespace FastSQL.App.UserControls
             this.Description = item.Description;
             this.Value = item.Value;
             this.Source = item.Source != null ? new ObservableCollection<string>(item.Source) : new ObservableCollection<string>();
+            this.OptionGroupNames = item.OptionGroupNames;
         }
 
         public string Name
@@ -89,5 +90,7 @@ namespace FastSQL.App.UserControls
                 OnPropertyChanged(nameof(Source));
             }
         }
+
+        public List<string> OptionGroupNames { get; private set; }
     }
 }
