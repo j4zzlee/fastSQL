@@ -68,5 +68,30 @@ VALUES (
 dependencies,
 transaction: _transaction);
         }
+
+        public void SetTransformations(Guid id, IEnumerable<ColumnTransformationModel> transformations)
+        {
+            foreach (var t in transformations)
+            {
+                t.TargetEntityId = id;
+                t.TargetEntityType = EntityType.Entity;
+            }
+            _connection.Execute($@"DELETE FROM [core_entity_column_transformation] 
+WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType",
+new { EntityId = id, EntityType = EntityType.Entity },
+transaction: _transaction);
+            _connection.Execute($@"INSERT INTO [core_entity_column_transformation](
+[{nameof(ColumnTransformationModel.TargetEntityId)}],
+[{nameof(ColumnTransformationModel.TargetEntityType)}],
+[{nameof(ColumnTransformationModel.ColumnName)}],
+[{nameof(ColumnTransformationModel.TransformerId)}])
+VALUES (
+@{nameof(ColumnTransformationModel.TargetEntityId)},
+@{nameof(ColumnTransformationModel.TargetEntityType)},
+@{nameof(ColumnTransformationModel.ColumnName)},
+@{nameof(ColumnTransformationModel.TransformerId)})",
+transformations,
+transaction: _transaction);
+        }
     }
 }

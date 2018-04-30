@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:FastSQL.App.UserControls.Entities"
              xmlns:local1="clr-namespace:FastSQL.App.UserControls"
              xmlns:dependencies="clr-namespace:FastSQL.App.UserControls.Dependencies"
+             xmlns:transformers="clr-namespace:FastSQL.App.UserControls.Transformers"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid DataContext="{Binding}" Name="grdContainer">
@@ -194,6 +195,7 @@
                 </TabItem>
                 <TabItem Header="Column Transformantions">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                        <transformers:UCTransformationConfigure DataContext="{Binding TransformationConfigureViewModel}"></transformers:UCTransformationConfigure>
                     </ScrollViewer>
                 </TabItem>
             </TabControl>

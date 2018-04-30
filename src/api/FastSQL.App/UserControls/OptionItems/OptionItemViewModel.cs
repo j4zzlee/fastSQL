@@ -25,6 +25,15 @@ namespace FastSQL.App.UserControls
             this.OptionGroupNames = item.OptionGroupNames;
         }
 
+        public OptionItem GetModel()
+        {
+            return new OptionItem
+            {
+                Name = Name,
+                Value = Value
+            };
+        }
+
         public string Name
         {
             get => item.Name;

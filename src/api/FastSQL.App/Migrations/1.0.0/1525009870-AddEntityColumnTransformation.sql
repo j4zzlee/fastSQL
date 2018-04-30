@@ -9,7 +9,7 @@ CREATE TABLE core_entity_column_transformation (
 	[Id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
 	[EntityId] UNIQUEIDENTIFIER NOT NULL,
 	[EntityType] INT NOT NULL,
-	[ColumnName] UNIQUEIDENTIFIER NOT NULL,
+	[ColumnName] NVARCHAR(255) NOT NULL,
 	[SourceTransformationId] NVARCHAR(255) NOT NULL,
 	[DestinationTransformationId] NVARCHAR(255) NOT NULL,
 	[SourceTransformationFormat] NVARCHAR(255) NULL,

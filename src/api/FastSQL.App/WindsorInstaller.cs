@@ -123,6 +123,13 @@ namespace FastSQL.App
                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
             container.Register(descriptor
+               .BasedOn<ITransformer>()
+               .WithService.Select(new Type[] { typeof(ITransformer) })
+               .WithServiceSelf()
+               .WithServiceAllInterfaces()
+               .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
+            container.Register(descriptor
                .BasedOn<IMigrationExecuter>()
                .WithService.Select(new Type[] { typeof(IMigrationExecuter) })
                .WithServiceSelf()

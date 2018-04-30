@@ -142,7 +142,14 @@
     <Compile Include="UserControls\Dependencies\UCEntityDependency.xaml.cs">
       <DependentUpon>UCEntityDependency.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\Transformers\UCTransformationConfigure.ViewModel.cs">
+      <DependentUpon>UCTransformationConfigure.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Transformers\UCTransformationConfigure.xaml.cs">
+      <DependentUpon>UCTransformationConfigure.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\DependencyItemViewModel.cs" />
+    <Compile Include="ViewModels\TransformationItemViewModel.cs" />
     <Compile Include="WindsorInstaller.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -201,6 +208,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\Dependencies\UCEntityDependency.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Transformers\UCTransformationConfigure.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -388,6 +399,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Migrations\1.0.0\1523441581-InitDatabase.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1525009970-AddTransformOptionRelationship.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Migrations\1.0.0\1525009870-AddEntityColumnTransformation.sql">

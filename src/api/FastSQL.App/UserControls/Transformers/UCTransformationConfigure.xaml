@@ -1,0 +1,130 @@
+﻿<UserControl x:Class="FastSQL.App.UserControls.Transformers.UCTransformationConfigure"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FastSQL.App.UserControls.Transformers"
+             xmlns:usercontrols="clr-namespace:FastSQL.App.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Name="grdTransformationConfigure">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Column Name" Grid.Row="0"></TextBlock>
+                <TextBox Text="{Binding ColumnName}" Grid.Row="1" Padding="5" Margin="0,0,0,10"></TextBox>
+                <TextBlock Text="Transformer" Grid.Row="2"></TextBlock>
+                <ComboBox ItemsSource="{Binding Transformers, Mode=OneWay}"
+                        SelectedItem="{Binding SelectedTransfomer}"
+                        DisplayMemberPath="Name"
+                        IsSynchronizedWithCurrentItem="True"
+                        Grid.Row="3"
+                        Padding="5" Margin="0,0,0,10">
+                </ComboBox>
+                <ItemsControl ItemsSource="{Binding Path=Options}" Grid.Row="4">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <usercontrols:UCOptionItem DataContext="{Binding}"></usercontrols:UCOptionItem>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
+            <Grid Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                <Button Command="{Binding AddTransformerCommand}" Margin="10" Padding="5">
+                    <TextBlock Text="Add"></TextBlock>
+                </Button>
+            </Grid>
+        </Grid>
+        <GroupBox Padding="10" Margin="0,10,0,0" Grid.Row="1">
+            <GroupBox.Header>
+                <TextBlock Text="Transformers" FontStyle="Italic" FontWeight="Bold"></TextBlock>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Padding="5" Text="Column Name" FontWeight="Bold">
+                    </TextBlock>
+                    <TextBlock Grid.Column="1" Padding="5" Text="Transformer" FontWeight="Bold">
+                    </TextBlock>
+                    <TextBlock Grid.Column="2" Padding="5" Text="Options" FontWeight="Bold">
+                    </TextBlock>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <ItemsControl ItemsSource="{Binding Path=Transformations}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid VerticalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="200"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding ColumnName, Mode=OneWay}" Grid.Column="0" Padding="5">
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding TransformerName, Mode=OneWay}" Grid.Column="1" Padding="5">
+                                    </TextBlock>
+                                    <ItemsControl ItemsSource="{Binding Options, Mode=OneWay}" Grid.Column="2">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <Run Text="{Binding DisplayName}" FontStyle="Italic" FontWeight="Bold"></Run>
+                                                    <Run Text=": "></Run>
+                                                    <Run Text="{Binding Value}" FontSize="11"></Run>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Vertical"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                    <Button Command="{Binding ElementName=grdTransformationConfigure, Path=DataContext.RemoveTransformerCommand}"
+                                    CommandParameter="{Binding}"
+                                    Padding="5"
+                                    Grid.Column="3">
+                                        <TextBlock Text="Remove"></TextBlock>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </Grid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

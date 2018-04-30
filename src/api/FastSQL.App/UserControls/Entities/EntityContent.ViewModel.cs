@@ -1,6 +1,7 @@
 ﻿using FastSQL.App.Events;
 using FastSQL.App.Interfaces;
 using FastSQL.App.UserControls.Dependencies;
+using FastSQL.App.UserControls.Transformers;
 using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Enums;
@@ -25,9 +26,11 @@ namespace FastSQL.App.UserControls.Entities
         private EntityModel _entity;
         private readonly EntityRepository entityRepository;
         private readonly ConnectionRepository connectionRepository;
+        private readonly TransformerRepository transformerRepository;
         private readonly IEnumerable<IEntityPuller> pullers;
         private readonly IEntityIndexer indexer;
         private readonly IEnumerable<IEntityPusher> pushers;
+        private readonly IEnumerable<ITransformer> transformers;
         private ConnectionModel _sourceConnection;
         private ConnectionModel _destinationConnection;
         private IProcessor _sourceProcessor;
@@ -42,6 +45,7 @@ namespace FastSQL.App.UserControls.Entities
         private ObservableCollection<IProcessor> _destinationProcessors;
         private EntityDependencyViewModel _entityDependencyViewModel;
         private AttributeDependencyViewModel _attributeDependencyViewModel;
+        private UCTransformationConfigureViewModel _transformationConfigureViewModel;
 
         public BaseCommand ApplyCommand => new BaseCommand(o => true, OnApplyCommand);
 
@@ -116,10 +120,10 @@ namespace FastSQL.App.UserControls.Entities
         private void LoadOptions()
         {
             var puller = pullers.FirstOrDefault(p =>
-                !string.IsNullOrWhiteSpace(SelectedSourceProcessor?.Id) 
+                !string.IsNullOrWhiteSpace(SelectedSourceProcessor?.Id)
                 && !string.IsNullOrWhiteSpace(SelectedSourceConnection?.Id.ToString())
                 && p.IsImplemented(SelectedSourceProcessor.Id, SelectedSourceConnection.ProviderId));
-            var pusher = pushers.FirstOrDefault(p => 
+            var pusher = pushers.FirstOrDefault(p =>
                 !string.IsNullOrWhiteSpace(SelectedDestinationProcessor?.Id)
                 && !string.IsNullOrWhiteSpace(SelectedDestinationConnection?.Id.ToString())
                 && p.IsImplemented(SelectedDestinationProcessor.Id, SelectedDestinationConnection.ProviderId));
@@ -135,19 +139,22 @@ namespace FastSQL.App.UserControls.Entities
             indexer?.SetOptions(optionItems);
             pusher?.SetOptions(optionItems);
 
-            PullerOptions = new ObservableCollection<OptionItemViewModel>(puller?.Options.Select(o => {
+            PullerOptions = new ObservableCollection<OptionItemViewModel>(puller?.Options.Select(o =>
+            {
                 var result = new OptionItemViewModel();
                 result.SetOption(o);
                 return result;
             }) ?? new List<OptionItemViewModel>());
 
-            IndexerOptions = new ObservableCollection<OptionItemViewModel>(indexer?.Options.Select(o => {
+            IndexerOptions = new ObservableCollection<OptionItemViewModel>(indexer?.Options.Select(o =>
+            {
                 var result = new OptionItemViewModel();
                 result.SetOption(o);
                 return result;
             }) ?? new List<OptionItemViewModel>());
 
-            PusherOptions = new ObservableCollection<OptionItemViewModel>(pusher?.Options.Select(o => {
+            PusherOptions = new ObservableCollection<OptionItemViewModel>(pusher?.Options.Select(o =>
+            {
                 var result = new OptionItemViewModel();
                 result.SetOption(o);
                 return result;
@@ -297,27 +304,43 @@ namespace FastSQL.App.UserControls.Entities
             }
         }
 
+        public UCTransformationConfigureViewModel TransformationConfigureViewModel
+        {
+            get => _transformationConfigureViewModel;
+            set
+            {
+                _transformationConfigureViewModel = value;
+                OnPropertyChanged(nameof(TransformationConfigureViewModel));
+            }
+        }
+
         public EntityContentViewModel(
             IEventAggregator eventAggregator,
-            EntityRepository entityRepository,
-            ConnectionRepository connectionRepository,
             IEnumerable<IProcessor> processors,
             IEnumerable<IEntityPuller> pullers,
             IEntityIndexer indexer,
             IEnumerable<IEntityPusher> pushers,
+            IEnumerable<ITransformer> transformers,
+            EntityRepository entityRepository,
+            ConnectionRepository connectionRepository,
+            TransformerRepository transformerRepository,
+            
             EntityDependencyViewModel entityDependencyViewModel,
-            AttributeDependencyViewModel attributeDependencyViewModel)
+            AttributeDependencyViewModel attributeDependencyViewModel,
+            UCTransformationConfigureViewModel transformationConfigureViewModel)
         {
             this.eventAggregator = eventAggregator;
             this.entityRepository = entityRepository;
             this.connectionRepository = connectionRepository;
+            this.transformerRepository = transformerRepository;
+
             this.pullers = pullers;
             this.indexer = indexer;
             this.pushers = pushers;
-
+            this.transformers = transformers;
             EntityDependencyViewModel = entityDependencyViewModel;
             AttributeDependencyViewModel = attributeDependencyViewModel;
-
+            TransformationConfigureViewModel = transformationConfigureViewModel;
             // Need to duplication code here, weird behavior of WPF
             SourceProcessors = new ObservableCollection<IProcessor>(processors.Where(p => p.Type == ProcessorType.Entity));
             SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
@@ -335,7 +358,7 @@ namespace FastSQL.App.UserControls.Entities
         {
             var entity = entityRepository.GetById(obj.EntityId);
             _entity = entity;
-            
+
             Name = entity.Name;
             Description = entity.Description;
             Enabled = !entity.HasState(EntityState.Disabled);
@@ -348,6 +371,7 @@ namespace FastSQL.App.UserControls.Entities
 
             EntityDependencyViewModel.SetEntity(entity);
             AttributeDependencyViewModel.SetEntity(entity);
+            TransformationConfigureViewModel.SetEntity(entity);
         }
 
         private void OnApplyCommand(object obj)
@@ -382,6 +406,56 @@ namespace FastSQL.App.UserControls.Entities
 
         }
 
+        private IEnumerable<OptionItem> GetOptionItems()
+        {
+            var options = new List<OptionItem>();
+            options.AddRange(PullerOptions.Select(o => new OptionItem
+            {
+                Name = o.Name,
+                Value = o.Value,
+                OptionGroupNames = o.OptionGroupNames
+            }));
+            options.AddRange(IndexerOptions.Select(o => new OptionItem
+            {
+                Name = o.Name,
+                Value = o.Value,
+                OptionGroupNames = o.OptionGroupNames
+            }));
+            options.AddRange(PusherOptions.Select(o => new OptionItem
+            {
+                Name = o.Name,
+                Value = o.Value,
+                OptionGroupNames = o.OptionGroupNames
+            }));
+            return options;
+        }
+
+        private IEnumerable<DependencyItemModel> GetDependencies(Guid entityId)
+        {
+            var dependencies = new List<DependencyItemModel>();
+            dependencies.AddRange(EntityDependencyViewModel.Dependencies.Select(d => new DependencyItemModel
+            {
+                EntityId = entityId,
+                EntityType = EntityType.Entity,
+                DependOnStep = d.DependOnStep,
+                ExecuteImmediately = d.ExecuteImmediately,
+                StepToExecute = d.StepToExecute,
+                TargetEntityId = d.TargetEntityId,
+                TargetEntityType = d.TargetEntityType
+            }));
+            dependencies.AddRange(AttributeDependencyViewModel.Dependencies.Select(d => new DependencyItemModel
+            {
+                EntityId = entityId,
+                EntityType = EntityType.Entity,
+                DependOnStep = d.DependOnStep,
+                ExecuteImmediately = d.ExecuteImmediately,
+                StepToExecute = d.StepToExecute,
+                TargetEntityId = d.TargetEntityId,
+                TargetEntityType = d.TargetEntityType
+            }));
+            return dependencies;
+        }
+
         private bool Save(out string message)
         {
             if (_entity == null)
@@ -403,47 +477,14 @@ namespace FastSQL.App.UserControls.Entities
                     SourceProcessorId = SelectedSourceProcessor.Id,
                     DestinationProcessorId = SelectedDestinationProcessor.Id,
                 });
-                var options = new List<OptionItem>();
-                options.AddRange(PullerOptions.Select(o => new OptionItem {
-                    Name = o.Name,
-                    Value = o.Value,
-                    OptionGroupNames = o.OptionGroupNames
-                } ));
-                options.AddRange(IndexerOptions.Select(o => new OptionItem
-                {
-                    Name = o.Name,
-                    Value = o.Value,
-                    OptionGroupNames = o.OptionGroupNames
-                }));
-                options.AddRange(PusherOptions.Select(o => new OptionItem
-                {
-                    Name = o.Name,
-                    Value = o.Value,
-                    OptionGroupNames = o.OptionGroupNames
-                }));
-                entityRepository.LinkOptions(_entity.Id, options);
 
-                var dependencies = new List<DependencyItemModel>();
-                dependencies.AddRange(EntityDependencyViewModel.Dependencies.Select(d => new DependencyItemModel {
-                    EntityId = _entity.Id,
-                    EntityType = EntityType.Entity,
-                    DependOnStep = d.DependOnStep,
-                    ExecuteImmediately = d.ExecuteImmediately,
-                    StepToExecute = d.StepToExecute,
-                    TargetEntityId = d.TargetEntityId,
-                    TargetEntityType = d.TargetEntityType
-                }));
-                dependencies.AddRange(AttributeDependencyViewModel.Dependencies.Select(d => new DependencyItemModel {
-                    EntityId = _entity.Id,
-                    EntityType = EntityType.Entity,
-                    DependOnStep = d.DependOnStep,
-                    ExecuteImmediately = d.ExecuteImmediately,
-                    StepToExecute = d.StepToExecute,
-                    TargetEntityId = d.TargetEntityId,
-                    TargetEntityType = d.TargetEntityType
-                }));
+                entityRepository.LinkOptions(_entity.Id, GetOptionItems());
 
-                entityRepository.SetDependencies(_entity.Id, dependencies);
+                entityRepository.SetDependencies(_entity.Id, GetDependencies(_entity.Id));
+
+                entityRepository.SetTransformations(_entity.Id, GetTransformations(_entity.Id));
+                entityRepository.LinkOptions(_entity.Id, GetTransformationOptions(_entity.Id));
+
                 entityRepository.Commit();
             }
             catch
@@ -454,6 +495,34 @@ namespace FastSQL.App.UserControls.Entities
 
             message = "Success";
             return true;
+        }
+
+        private IEnumerable<OptionItem> GetTransformationOptions(Guid id)
+        {
+            var transfomations = TransformationConfigureViewModel.Transformations;
+            return transfomations.SelectMany(t =>
+            {
+                var options = t.Options;
+                var transformer = transformers.FirstOrDefault(f => f.Id == t.TransformerId);
+                transformer.SetOptions(options.Select(o =>
+                {
+                    var optionItem = o.GetModel();
+                    return optionItem;
+                }));
+                return transformer.Options;
+            });
+        }
+
+        private IEnumerable<ColumnTransformationModel> GetTransformations(Guid id)
+        {
+            var transfomations = TransformationConfigureViewModel.Transformations;
+            return transfomations.Select(t =>
+            {
+                var r = t.GetModel();
+                t.TargetEntityId = id;
+                t.TargetEntityType = EntityType.Entity;
+                return r;
+            });
         }
 
         private bool New(out string message)
@@ -472,50 +541,11 @@ namespace FastSQL.App.UserControls.Entities
                     DestinationProcessorId = SelectedDestinationProcessor.Id,
                 });
                 var entityIdGuid = Guid.Parse(entityId);
-                var options = new List<OptionItem>();
-                options.AddRange(PullerOptions.Select(o => new OptionItem
-                {
-                    Name = o.Name,
-                    Value = o.Value,
-                    OptionGroupNames = o.OptionGroupNames
-                }));
-                options.AddRange(IndexerOptions.Select(o => new OptionItem
-                {
-                    Name = o.Name,
-                    Value = o.Value,
-                    OptionGroupNames = o.OptionGroupNames
-                }));
-                options.AddRange(PusherOptions.Select(o => new OptionItem
-                {
-                    Name = o.Name,
-                    Value = o.Value,
-                    OptionGroupNames = o.OptionGroupNames
-                }));
-                entityRepository.LinkOptions(entityIdGuid, options);
 
-                var dependencies = new List<DependencyItemModel>();
-                dependencies.AddRange(EntityDependencyViewModel.Dependencies.Select(d => new DependencyItemModel
-                {
-                    EntityId = entityIdGuid,
-                    EntityType = EntityType.Entity,
-                    DependOnStep = d.DependOnStep,
-                    ExecuteImmediately = d.ExecuteImmediately,
-                    StepToExecute = d.StepToExecute,
-                    TargetEntityId = d.TargetEntityId,
-                    TargetEntityType = d.TargetEntityType
-                }));
-                dependencies.AddRange(AttributeDependencyViewModel.Dependencies.Select(d => new DependencyItemModel
-                {
-                    EntityId = entityIdGuid,
-                    EntityType = EntityType.Entity,
-                    DependOnStep = d.DependOnStep,
-                    ExecuteImmediately = d.ExecuteImmediately,
-                    StepToExecute = d.StepToExecute,
-                    TargetEntityId = d.TargetEntityId,
-                    TargetEntityType = d.TargetEntityType
-                }));
-                
-                entityRepository.SetDependencies(entityIdGuid, dependencies);
+                entityRepository.LinkOptions(entityIdGuid, GetOptionItems());
+                entityRepository.SetDependencies(entityIdGuid, GetDependencies(entityIdGuid));
+                entityRepository.SetTransformations(entityIdGuid, GetTransformations(entityIdGuid));
+                transformerRepository.LinkOptions(entityIdGuid, GetTransformationOptions(entityIdGuid));
                 entityRepository.Commit();
 
                 eventAggregator.GetEvent<RefreshEntityListEvent>().Publish(new RefreshEntityListEventArgument
@@ -561,7 +591,7 @@ namespace FastSQL.App.UserControls.Entities
                 throw;
             }
         }
-        
+
         private bool Manage(out string message)
         {
             message = "Method is not implemented";
