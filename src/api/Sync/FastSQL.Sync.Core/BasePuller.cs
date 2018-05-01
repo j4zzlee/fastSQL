@@ -29,7 +29,12 @@ namespace FastSQL.Sync.Core
         {
             return Provider;
         }
-        
+
+        public virtual PullResult Preview()
+        {
+            return PullNext();
+        }
+
         public abstract PullResult PullNext(object lastToken = null);
 
         public virtual IOptionManager SetOptions(IEnumerable<OptionItem> options)

@@ -55,7 +55,15 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Description" Grid.Row="0"></TextBlock>
-                                <TextBox Text="{Binding Description}" Grid.Row="1" Padding="5" Margin="0,0,0,10"></TextBox>
+                                <TextBox Text="{Binding Description}"
+                                        Grid.Row="1"
+                                        Padding="5"
+                                        Margin="0,0,0,10"
+                                        Height="200"
+                                        TextWrapping="Wrap"
+                                        AcceptsReturn="True"
+                                        HorizontalScrollBarVisibility="Auto"
+                                        VerticalScrollBarVisibility="Auto"></TextBox>
                             </Grid>
                             <Grid Grid.Row="2" >
                                 <Grid.RowDefinitions>

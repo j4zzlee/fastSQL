@@ -55,6 +55,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Events\AttributePreviewPageEvent.cs" />
+    <Compile Include="Events\EntityPreviewPageEvent.cs" />
+    <Compile Include="Events\OpenManageAttributePageEvent.cs" />
+    <Compile Include="Events\OpenManageEntityPageEvent.cs" />
     <Compile Include="Events\RefreshConnectionListEvent.cs" />
     <Compile Include="Events\RefreshAttributeListView.cs" />
     <Compile Include="Events\RefreshEntityListEvent.cs" />
@@ -79,11 +83,17 @@
     <Compile Include="UserControls\Attributes\AttributesListView.ViewModel.cs">
       <DependentUpon>UCAttributesListView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\Attributes\ManageAttribute.ViewModel.cs">
+      <DependentUpon>WManageAttribute.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\Attributes\UCAttributeContent.xaml.cs">
       <DependentUpon>UCAttributeContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\Attributes\UCAttributesListView.xaml.cs">
       <DependentUpon>UCAttributesListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Attributes\WManageAttribute.xaml.cs">
+      <DependentUpon>WManageAttribute.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\Connections\UCConnectionListView.ViewModel.cs">
       <DependentUpon>UCConnectionsListView.xaml</DependentUpon>
@@ -109,6 +119,9 @@
     <Compile Include="UserControls\Entities\EntityContent.ViewModel.cs">
       <DependentUpon>UCEntityContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\Entities\ManageEntity.ViewModel.cs">
+      <DependentUpon>WManageEntity.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\Entities\UCEntitiesListView.xaml.cs">
       <DependentUpon>UCEntitiesListView.xaml</DependentUpon>
     </Compile>
@@ -118,6 +131,9 @@
     <Compile Include="UserControls\Dependencies\EntityDependency.ViewModel.cs">
       <DependentUpon>UCEntityDependency.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\Entities\WManageEntity.xaml.cs">
+      <DependentUpon>WManageEntity.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\OptionItems\UCOpenFileDialog.xaml.cs">
       <DependentUpon>UCOpenFileDialog.xaml</DependentUpon>
     </Compile>
@@ -126,6 +142,12 @@
     </Compile>
     <Compile Include="UserControls\OptionItems\UCOptionItem.xaml.cs">
       <DependentUpon>UCOptionItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Previews\PreviewDataViewModel.cs">
+      <DependentUpon>WPreviewData.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Previews\WPreviewData.xaml.cs">
+      <DependentUpon>WPreviewData.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\Settings\UCSettingContent.ViewModel.cs">
       <DependentUpon>UCSettingsContent.xaml</DependentUpon>
@@ -171,6 +193,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UserControls\Attributes\WManageAttribute.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\Connections\UCConnectionsContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -191,11 +217,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UserControls\Entities\WManageEntity.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\OptionItems\UCOpenFileDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\OptionItems\UCOptionItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Previews\WPreviewData.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -376,6 +376,17 @@ namespace FastSQL.App.UserControls.Entities
         private void OnApplyCommand(object obj)
         {
             var commandText = obj.ToString();
+            if (commandText == "Manage")
+            {
+                Manage();
+                return;
+            }
+            
+            if (commandText == "Preview")
+            {
+                Preview();
+                return;
+            }
             var message = "Command not available";
             var success = false;
             switch (commandText)
@@ -389,12 +400,6 @@ namespace FastSQL.App.UserControls.Entities
                 case "Delete":
                     success = Delete(out message);
                     break;
-                case "Preview":
-                    success = Preview(out message);
-                    break;
-                case "Manage":
-                    success = Manage(out message);
-                    break;
             }
             MessageBox.Show(
                 Application.Current.MainWindow,
@@ -403,6 +408,40 @@ namespace FastSQL.App.UserControls.Entities
                 MessageBoxButton.OK,
                 success ? MessageBoxImage.Information : MessageBoxImage.Error);
 
+        }
+
+        private void Preview()
+        {
+            if (SelectedSourceConnection == null || SelectedSourceProcessor == null)
+            {
+                MessageBox.Show(
+                  Application.Current.MainWindow,
+                  $"Missing basic configuration for source",
+                  "Failed",
+                  MessageBoxButton.OK,
+                  MessageBoxImage.Error);
+                return;
+            }
+
+            var puller = pullers.FirstOrDefault(p => p.IsImplemented(SelectedSourceProcessor.Id, SelectedSourceConnection.ProviderId));
+            if (puller == null)
+            {
+                MessageBox.Show(
+                  Application.Current.MainWindow,
+                  $"Could not find any adapter that implements {SelectedSourceConnection.Name}/{SelectedSourceProcessor.Name}",
+                  "Failed",
+                  MessageBoxButton.OK,
+                  MessageBoxImage.Error);
+                return;
+            }
+
+            puller.SetOptions(PullerOptions.Select(o => new OptionItem { Name = o.Name, Value = o.Value }));
+            puller.SetEntity(_entity);
+            eventAggregator.GetEvent<EntityPreviewPageEvent>().Publish(new EntityPreviewPageEventArgument {
+                Puller = puller,
+                Entity = _entity
+            });
+            //var res = puller.Preview();
         }
 
         private IEnumerable<OptionItem> GetOptionItems()
@@ -562,16 +601,23 @@ namespace FastSQL.App.UserControls.Entities
             }
         }
 
-        private bool Manage(out string message)
+        private void Manage()
         {
-            message = "Method is not implemented";
-            return false;
-        }
-
-        private bool Preview(out string message)
-        {
-            message = "Method is not implemented";
-            return false;
+            if (_entity == null)
+            {
+                MessageBox.Show(
+                    Application.Current.MainWindow,
+                    "The entity should be created first.",
+                    "Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+            eventAggregator.GetEvent<OpenManageEntityPageEvent>()
+                .Publish(new OpenManageEntityPageEventArgument
+                {
+                    Entity = _entity
+                });
         }
     }
 }

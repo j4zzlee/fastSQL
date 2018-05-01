@@ -1,4 +1,6 @@
 ﻿using FastSQL.App.Events;
+using FastSQL.App.UserControls.Previews;
+using FastSQL.Core;
 using FastSQL.Core.UI.Interfaces;
 using Prism.Events;
 using Syncfusion.Windows.Tools.Controls;
@@ -25,13 +27,34 @@ namespace FastSQL.App.UserControls.Entities
     public partial class UCEntityContent : UserControl, IControlDefinition
     {
         private readonly EntityContentViewModel viewModel;
+        private readonly ResolverFactory resolverFactory;
 
-        public UCEntityContent(IEventAggregator eventAggregator, EntityContentViewModel viewModel)
+        public UCEntityContent(
+            IEventAggregator eventAggregator,
+            EntityContentViewModel viewModel,
+            ResolverFactory resolverFactory)
         {
             InitializeComponent();
             this.viewModel = viewModel;
+            this.resolverFactory = resolverFactory;
             this.DataContext = viewModel;
             eventAggregator.GetEvent<SelectEntityEvent>().Subscribe(OnEntitySelected);
+            eventAggregator.GetEvent<OpenManageEntityPageEvent>().Subscribe(OnManageEntity);
+            eventAggregator.GetEvent<EntityPreviewPageEvent>().Subscribe(OnPreviewEntity);
+        }
+
+        private void OnPreviewEntity(EntityPreviewPageEventArgument obj)
+        {
+            var window = resolverFactory.Resolve<WPreviewData>();
+            window.Owner = Application.Current.MainWindow;
+            window.ShowDialog();
+        }
+
+        private void OnManageEntity(OpenManageEntityPageEventArgument obj)
+        {
+            var window = resolverFactory.Resolve<WManageEntity>();
+            window.Owner = Application.Current.MainWindow;
+            window.ShowDialog();
         }
 
         private void OnEntitySelected(SelectEntityEventArgument obj)

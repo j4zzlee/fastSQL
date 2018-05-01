@@ -24,7 +24,7 @@ namespace FastSQL.Core
             return container.Resolve<T>(name);
         }
 
-        public IEnumerable<T> Resolve<T>(object alias = null)
+        public IEnumerable<T> ResolveAll<T>(object alias = null)
         {
             if (alias == null)
             {

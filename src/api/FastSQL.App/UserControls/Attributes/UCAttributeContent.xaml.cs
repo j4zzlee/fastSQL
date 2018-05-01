@@ -1,4 +1,6 @@
 ﻿using FastSQL.App.Events;
+using FastSQL.App.UserControls.Previews;
+using FastSQL.Core;
 using FastSQL.Core.UI.Interfaces;
 using Prism.Events;
 using Syncfusion.Windows.Tools.Controls;
@@ -25,13 +27,34 @@ namespace FastSQL.App.UserControls.Attributes
     public partial class UCAttributeContent : UserControl, IControlDefinition
     {
         private readonly AttributeContentViewModel viewModel;
+        private readonly ResolverFactory resolverFactory;
 
-        public UCAttributeContent(IEventAggregator eventAggregator, AttributeContentViewModel viewModel)
+        public UCAttributeContent(
+            IEventAggregator eventAggregator,
+            AttributeContentViewModel viewModel,
+            ResolverFactory resolverFactory)
         {
             InitializeComponent();
             this.viewModel = viewModel;
+            this.resolverFactory = resolverFactory;
             this.DataContext = viewModel;
             eventAggregator.GetEvent<SelectAttributeEvent>().Subscribe(OnAttributeSelected);
+            eventAggregator.GetEvent<OpenManageAttributePageEvent>().Subscribe(OnManageAttribute);
+            eventAggregator.GetEvent<AttributePreviewPageEvent>().Subscribe(OnPreviewAttribute);
+        }
+
+        private void OnPreviewAttribute(AttributePreviewPageEventArgument obj)
+        {
+            var window = resolverFactory.Resolve<WPreviewData>();
+            window.Owner = Application.Current.MainWindow;
+            window.ShowDialog();
+        }
+
+        private void OnManageAttribute(OpenManageAttributePageEventArgument obj)
+        {
+            var window = resolverFactory.Resolve<WManageAttribute>();
+            window.Owner = Application.Current.MainWindow;
+            window.ShowDialog();
         }
 
         private void OnAttributeSelected(SelectAttributeEventArgument obj)

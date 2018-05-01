@@ -18,7 +18,7 @@ using System.Windows;
 
 namespace FastSQL.App.UserControls.Attributes
 {
-    public class AttributeContentViewModel: BaseViewModel
+    public class AttributeContentViewModel : BaseViewModel
     {
         private readonly IEventAggregator eventAggregator;
         private readonly IEnumerable<IProcessor> processors;
@@ -26,7 +26,7 @@ namespace FastSQL.App.UserControls.Attributes
         private readonly IEnumerable<IAttributePuller> pullers;
         private readonly IEnumerable<IAttributePusher> pushers;
         private readonly IEnumerable<ITransformer> transformers;
-        
+
         private AttributeModel _attribute;
         private EntityModel _entity;
         private readonly AttributeRepository attributeRepository;
@@ -322,7 +322,7 @@ namespace FastSQL.App.UserControls.Attributes
             this.indexer = indexer;
             this.pushers = pushers;
             this.transformers = transformers;
-            
+
             EntityDependencyViewModel = entityDependencyViewModel;
             AttributeDependencyViewModel = attributeDependencyViewModel;
             TransformationConfigureViewModel = transformationConfigureViewModel;
@@ -359,7 +359,7 @@ namespace FastSQL.App.UserControls.Attributes
                     && !string.IsNullOrWhiteSpace(SelectedDestinationConnection?.Id.ToString())
                     && p.IsImplemented(SelectedDestinationProcessor.Id, entityDestinationProcessor.Id, SelectedDestinationConnection.ProviderId));
             }
-            
+
             IEnumerable<OptionModel> options = new List<OptionModel>();
             if (_attribute != null)
             {
@@ -464,7 +464,7 @@ namespace FastSQL.App.UserControls.Attributes
             }));
             return dependencies;
         }
-        
+
         private bool Save(out string message)
         {
             if (_attribute == null)
@@ -575,10 +575,21 @@ namespace FastSQL.App.UserControls.Attributes
                 throw;
             }
         }
-        
+
         private void OnApplyCommand(object obj)
         {
             var commandText = obj.ToString();
+            if (commandText == "Manage")
+            {
+                Manage();
+                return;
+            }
+
+            if (commandText == "Preview")
+            {
+                Preview();
+                return;
+            }
             var message = "Command not available";
             var success = false;
             switch (commandText)
@@ -592,12 +603,6 @@ namespace FastSQL.App.UserControls.Attributes
                 case "Delete":
                     success = Delete(out message);
                     break;
-                case "Preview":
-                    success = Preview(out message);
-                    break;
-                case "Manage":
-                    success = Manage(out message);
-                    break;
             }
             MessageBox.Show(
                 Application.Current.MainWindow,
@@ -608,16 +613,71 @@ namespace FastSQL.App.UserControls.Attributes
 
         }
 
-        private bool Manage(out string message)
+        private void Preview()
         {
-            message = "Method is not implemented";
-            return false;
+            if (SelectedSourceConnection == null || SelectedSourceProcessor == null)
+            {
+                MessageBox.Show(
+                  Application.Current.MainWindow,
+                  $"Missing basic configuration for source",
+                  "Failed",
+                  MessageBoxButton.OK,
+                  MessageBoxImage.Error);
+                return;
+            }
+
+            if (SelectedEntity == null)
+            {
+                MessageBox.Show(
+                  Application.Current.MainWindow,
+                  $"Missing basic configuration for entity",
+                  "Failed",
+                  MessageBoxButton.OK,
+                  MessageBoxImage.Error);
+                return;
+            }
+
+            var puller = pullers.FirstOrDefault(p => p.IsImplemented(SelectedSourceProcessor.Id, SelectedEntity.SourceProcessorId, SelectedSourceConnection.ProviderId));
+            if (puller == null)
+            {
+                MessageBox.Show(
+                  Application.Current.MainWindow,
+                  $"Could not find any adapter that implements {SelectedSourceConnection.Name}/{SelectedSourceProcessor.Name}",
+                  "Failed",
+                  MessageBoxButton.OK,
+                  MessageBoxImage.Error);
+                return;
+            }
+
+            puller.SetOptions(PullerOptions.Select(o => new OptionItem { Name = o.Name, Value = o.Value }));
+            puller.SetAttribute(_attribute, SelectedEntity);
+            eventAggregator.GetEvent<AttributePreviewPageEvent>().Publish(new AttributePreviewPageEventArgument
+            {
+                Puller = puller,
+                Entity = SelectedEntity,
+                Attribute = _attribute
+            });
+            //var res = puller.Preview();
         }
 
-        private bool Preview(out string message)
+        private void Manage()
         {
-            message = "Method is not implemented";
-            return false;
-        }        
+            if (_attribute == null)
+            {
+                MessageBox.Show(
+                    Application.Current.MainWindow,
+                    "The attribute should be created first.",
+                    "Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+            eventAggregator.GetEvent<OpenManageAttributePageEvent>()
+                .Publish(new OpenManageAttributePageEventArgument
+                {
+                    Attribute = _attribute,
+                    Entity = entityRepository.GetById(_attribute.EntityId.ToString())
+                });
+        }
     }
 }

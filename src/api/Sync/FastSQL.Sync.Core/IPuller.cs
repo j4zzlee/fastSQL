@@ -6,6 +6,7 @@ namespace FastSQL.Sync.Core
 {
     public interface IPuller : IOptionManager
     {
+        PullResult Preview();
         PullResult PullNext(object lastToken = null);
         IRichProvider GetProvider();
     }

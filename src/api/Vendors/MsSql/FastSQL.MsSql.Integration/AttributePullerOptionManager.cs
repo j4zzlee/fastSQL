@@ -43,6 +43,16 @@ SELECT Col1, Col2, ...
 FROM Results_CTE
 WHERE RowNum >= @Offset
 AND RowNum < @Offset + @Limit"
+                },
+                new OptionItem
+                {
+                    Name = "puller_page_limit",
+                    DisplayName= "@Limit",
+                    OptionGroupNames = new List<string>{ "Puller" },
+                    Type = OptionType.Sql,
+                    Description = @"A maximum limitation per page when pull data",
+                    Example = $@"100",
+                    Value = $@"100"
                 }
             };
         }

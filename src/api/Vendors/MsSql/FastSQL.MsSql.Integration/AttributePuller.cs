@@ -1,6 +1,7 @@
 ﻿using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Enums;
+using FastSQL.Sync.Core.ExtensionMethods;
 using FastSQL.Sync.Core.Processors;
 using FastSQL.Sync.Core.Repositories;
 using Newtonsoft.Json.Linq;
@@ -28,9 +29,9 @@ namespace FastSQL.MsSql.Integration
         public override PullResult PullNext(object lastToken = null)
         {
             var options = AttributeRepository.LoadOptions(AttributeModel.Id);
-            var sqlScript = options.FirstOrDefault(o => o.Key == "puller_sql_script").Value;
-            int limit = 100;
-            int offset = 0;
+            var sqlScript = options.GetValue("puller_sql_script");
+            var limit = options.GetValue("puller_page_limit", 100);
+            var offset = 0;
             if (lastToken != null)
             {
                 var jToken = JObject.FromObject(lastToken);
