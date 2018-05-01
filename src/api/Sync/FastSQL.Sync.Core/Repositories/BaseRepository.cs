@@ -286,6 +286,98 @@ SELECT [{keyColumnName}] FROM @InsertedRows";
                 transaction: _transaction);
         }
 
+        public virtual IEnumerable<ColumnTransformationModel> GetTransformations(Guid entityId, EntityType entityType)
+        {
+            return _connection.Query<ColumnTransformationModel>($@"SELECT * FROM [core_entity_column_transformation]
+WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType", new { EntityId = entityId, EntityType = entityType }, transaction: _transaction);
+        }
+
+        public virtual void SetTransformations(Guid id, EntityType entityType, IEnumerable<ColumnTransformationModel> transformations)
+        {
+            foreach (var t in transformations)
+            {
+                t.TargetEntityId = id;
+                t.TargetEntityType = entityType;
+            }
+            _connection.Execute($@"DELETE FROM [core_entity_column_transformation] 
+WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType",
+new { EntityId = id, EntityType = entityType },
+transaction: _transaction);
+            _connection.Execute($@"INSERT INTO [core_entity_column_transformation](
+[{nameof(ColumnTransformationModel.TargetEntityId)}],
+[{nameof(ColumnTransformationModel.TargetEntityType)}],
+[{nameof(ColumnTransformationModel.ColumnName)}],
+[{nameof(ColumnTransformationModel.TransformerId)}])
+VALUES (
+@{nameof(ColumnTransformationModel.TargetEntityId)},
+@{nameof(ColumnTransformationModel.TargetEntityType)},
+@{nameof(ColumnTransformationModel.ColumnName)},
+@{nameof(ColumnTransformationModel.TransformerId)})",
+transformations,
+transaction: _transaction);
+        }
+
+        public virtual IEnumerable<DependencyItemModel> GetDependencies(Guid id, EntityType entityType)
+        {
+            return _connection.Query<DependencyItemModel>($@"SELECT * FROM [core_entity_dependency] 
+WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType",
+new { EntityId = id, EntityType = entityType },
+transaction: _transaction);
+        }
+
+        public virtual IEnumerable<DependencyItemModel> GetDependencies(Guid id, EntityType entityType, EntityType targetEntityType)
+        {
+            return _connection.Query<DependencyItemModel>($@"SELECT * FROM [core_entity_dependency] 
+WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType AND [TargetEntityType] = @TargetEntityType",
+new { EntityId = id, EntityType = entityType, TargetEntityType = targetEntityType },
+transaction: _transaction);
+        }
+
+        public virtual void RemoveDependencies(Guid id, EntityType entityType)
+        {
+            _connection.Execute($@"DELETE FROM [core_entity_dependency] 
+WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType",
+new { EntityId = id, EntityType = entityType },
+transaction: _transaction);
+        }
+
+        public virtual void SetDependencies(Guid id, EntityType entityType, IEnumerable<DependencyItemModel> dependencies)
+        {
+            foreach (var dependency in dependencies)
+            {
+                dependency.EntityId = id;
+                dependency.EntityType = entityType;
+            }
+            _connection.Execute($@"DELETE FROM [core_entity_dependency] 
+WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType",
+new { EntityId = id, EntityType = entityType },
+transaction: _transaction);
+            _connection.Execute($@"INSERT INTO [core_entity_dependency](
+[{nameof(DependencyItemModel.EntityId)}],
+[{nameof(DependencyItemModel.EntityType)}],
+[{nameof(DependencyItemModel.TargetEntityId)}],
+[{nameof(DependencyItemModel.TargetEntityType)}],
+[{nameof(DependencyItemModel.StepToExecute)}],
+[{nameof(DependencyItemModel.DependOnStep)}],
+[{nameof(DependencyItemModel.ExecuteImmediately)}])
+VALUES (
+@{nameof(DependencyItemModel.EntityId)},
+@{nameof(DependencyItemModel.EntityType)},
+@{nameof(DependencyItemModel.TargetEntityId)},
+@{nameof(DependencyItemModel.TargetEntityType)},
+@{nameof(DependencyItemModel.StepToExecute)},
+@{nameof(DependencyItemModel.DependOnStep)},
+@{nameof(DependencyItemModel.ExecuteImmediately)})",
+dependencies,
+transaction: _transaction);
+        }
+
+        public void RemoveTransformations(Guid id, EntityType entityType)
+        {
+            _connection.Query<ColumnTransformationModel>($@"DELETE FROM [core_entity_column_transformation]
+WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType", new { EntityId = id, EntityType = entityType }, transaction: _transaction);
+        }
+
         public abstract void LinkOptions(Guid id, IEnumerable<OptionItem> options);
         public abstract void UnlinkOptions(Guid id, IEnumerable<string> optionGroups = null);
         public abstract IEnumerable<OptionModel> LoadOptions(Guid entityId, IEnumerable<string> optionGroups = null);

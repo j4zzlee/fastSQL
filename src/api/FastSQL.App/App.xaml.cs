@@ -41,13 +41,26 @@ namespace FastSQL.App
 
         private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            MessageBox.Show(Current.MainWindow,
-                e.Exception?.InnerException?.ToString() ?? e.Exception?.ToString(),
-                "An error has occurred!!!");
-
             var logger = _container.Resolve<ILogger>("ErrorLog");
             logger?.Error(e.Exception, "An error has occurred!!!");
-            
+
+            if (Current.MainWindow != null)
+            {
+                MessageBox.Show(
+                    Current.MainWindow,
+                    e.Exception?.InnerException?.Message ?? e.Exception?.Message,
+                    "An error has occurred!!!",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            else
+            {
+                MessageBox.Show(
+                    e.Exception?.InnerException?.Message ?? e.Exception?.Message,
+                    "An error has occurred!!!",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
             e.Handled = true;
         }
 
@@ -65,11 +78,13 @@ namespace FastSQL.App
             _container.Register(Component.For<FromAssemblyDescriptor>().UsingFactoryMethod(() => assemblyDescriptor).LifestyleSingleton());
             _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
             _container.Register(Component.For<IConfigurationBuilder>().UsingFactoryMethod(() => builder).LifestyleSingleton());
-            _container.Register(Component.For<IConfiguration>().UsingFactoryMethod((p) => {
+            _container.Register(Component.For<IConfiguration>().UsingFactoryMethod((p) =>
+            {
                 var b = p.Resolve<IConfigurationBuilder>();
                 return b.Build();
             }).LifestyleTransient());
-            _container.Register(Component.For<ILogger>().UsingFactoryMethod(p => {
+            _container.Register(Component.For<ILogger>().UsingFactoryMethod(p =>
+            {
                 var log = new LoggerConfiguration()
                     .WriteTo.Console()
                     .WriteTo.File(
@@ -82,7 +97,8 @@ namespace FastSQL.App
                     .CreateLogger();
                 return log;
             }).Named("ApplicationLog").LifestyleSingleton());
-            _container.Register(Component.For<ILogger>().UsingFactoryMethod(p => {
+            _container.Register(Component.For<ILogger>().UsingFactoryMethod(p =>
+            {
                 var log = new LoggerConfiguration()
                     .WriteTo.Console()
                     .WriteTo.File(
@@ -104,7 +120,7 @@ namespace FastSQL.App
             Current.MainWindow = _mainWindow;
             _mainWindow.Show();
         }
-        
+
         private void OnApplicationRestart(ApplicationRestartEventArgument obj)
         {
             _mainWindow.Dispatcher.Invoke(new Action(delegate ()

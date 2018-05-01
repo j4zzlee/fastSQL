@@ -18,7 +18,7 @@
             <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
-            <TabControl>
+            <TabControl Name="tbContainer">
                 <TabItem Header="General">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
                         <Grid>

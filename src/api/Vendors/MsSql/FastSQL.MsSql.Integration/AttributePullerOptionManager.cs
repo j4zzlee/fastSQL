@@ -43,23 +43,6 @@ SELECT Col1, Col2, ...
 FROM Results_CTE
 WHERE RowNum >= @Offset
 AND RowNum < @Offset + @Limit"
-                },
-                new OptionItem
-                {
-                    Name = "puller_id_column",
-                    DisplayName = "ID Column",
-                    Description = "ID Column name",
-                    Value = "ID",
-                    Example = "ID",
-                    OptionGroupNames = new List<string>{ "Puller" },
-                },
-                new OptionItem
-                {
-                    Name = "puller_lookup_columns",
-                    DisplayName = "Lookup Columns",
-                    Description = "A comma separated list of columns to lookup as values or primary keys",
-                    Example = "Value",
-                    OptionGroupNames = new List<string>{ "Puller" },
                 }
             };
         }

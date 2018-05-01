@@ -13,11 +13,20 @@ namespace FastSQL.Sync.Core.Indexer
             {
                 new OptionItem
                 {
-                    Name = "indexer_value_columns",
-                    DisplayName = "@Value Column",
-                    Description = "A name of a column which hold value of the attribute.",
+                    Name = "indexer_key_column",
+                    DisplayName = "@ID Column",
+                    Description = @"A column name that is marked as PRIMARY KEY",
                     Value = string.Empty,
-                    Example = "value",
+                    Example = "id:int",
+                    OptionGroupNames = new List<string>{ "Indexer" },
+                },
+                new OptionItem
+                {
+                    Name = "indexer_value_columns",
+                    DisplayName = "@Value Columns",
+                    Description = "A comma separated list of columns that are marked as [KEYS] and useful for system to track for changes.",
+                    Value = string.Empty,
+                    Example = "sku:nvarchar(max),name:text",
                     OptionGroupNames = new List<string>{ "Indexer" },
                 },
                 new OptionItem
@@ -36,15 +45,6 @@ namespace FastSQL.Sync.Core.Indexer
                     Description = "A spliter character between columns which might be useful when export to CSV, Excel file.",
                     Value = "|",
                     Example = "|",
-                    OptionGroupNames = new List<string>{ "Indexer" },
-                },
-                new OptionItem
-                {
-                    Name = "indexer_key_columns",
-                    DisplayName = "@Key Columns",
-                    Description = @"A comma separated list of columns that are marked as [KEY] and useful for system to track for changes including [@Value Column]",
-                    Value = string.Empty,
-                    Example = "sku,name",
                     OptionGroupNames = new List<string>{ "Indexer" },
                 }
             };

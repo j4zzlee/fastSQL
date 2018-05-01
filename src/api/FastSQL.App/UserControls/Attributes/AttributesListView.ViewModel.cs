@@ -59,6 +59,10 @@ namespace FastSQL.App.UserControls.Attributes
             this.eventAggregator = eventAggregator;
             Attributes = new ObservableCollection<AttributeModel>(entityRepository.GetAll());
             eventAggregator.GetEvent<RefreshAttributeListEvent>().Subscribe(OnRefreshAttributes);
+        }
+
+        public void Loaded()
+        {
             var first = Attributes.FirstOrDefault();
             if (first != null)
             {

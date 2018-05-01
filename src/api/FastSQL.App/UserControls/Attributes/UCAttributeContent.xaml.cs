@@ -1,4 +1,6 @@
-﻿using FastSQL.Core.UI.Interfaces;
+﻿using FastSQL.App.Events;
+using FastSQL.Core.UI.Interfaces;
+using Prism.Events;
 using Syncfusion.Windows.Tools.Controls;
 using System;
 using System.Collections.Generic;
@@ -24,11 +26,17 @@ namespace FastSQL.App.UserControls.Attributes
     {
         private readonly AttributeContentViewModel viewModel;
 
-        public UCAttributeContent(AttributeContentViewModel viewModel)
+        public UCAttributeContent(IEventAggregator eventAggregator, AttributeContentViewModel viewModel)
         {
             InitializeComponent();
             this.viewModel = viewModel;
             this.DataContext = viewModel;
+            eventAggregator.GetEvent<SelectAttributeEvent>().Subscribe(OnAttributeSelected);
+        }
+
+        private void OnAttributeSelected(SelectAttributeEventArgument obj)
+        {
+            tbContainer.SelectedIndex = 0;
         }
 
         public string Id => "EFp0ZhUYMkSo3SY5Y6y7AA==";

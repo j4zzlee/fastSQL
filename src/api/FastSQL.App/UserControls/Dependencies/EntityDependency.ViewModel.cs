@@ -129,12 +129,23 @@ namespace FastSQL.App.UserControls
                 entity = JObject.FromObject(_entity);
             }
 
+            var dependOnStep = string.IsNullOrWhiteSpace(SelectedDependOnStep) ? IntegrationStep.Push : (IntegrationStep)Enum.Parse(typeof(IntegrationStep), SelectedDependOnStep);
+            var stepToExecute = string.IsNullOrWhiteSpace(SelectedStepToExecute) ? IntegrationStep.Push : (IntegrationStep)Enum.Parse(typeof(IntegrationStep), SelectedStepToExecute);
+            var exists = Dependencies.FirstOrDefault(d => d.TargetEntityId == SelectedTargetEntity.Id
+                && d.TargetEntityType == SelectedTargetEntity.EntityType
+                && d.DependOnStep == dependOnStep
+                && d.StepToExecute == stepToExecute);
+            if (exists != null)
+            {
+                return;
+            }
+
             Dependencies.Add(new DependencyItemViewModel
             {
                 EntityId = _entity == null ? Guid.NewGuid() : Guid.Parse(entity.GetValue("Id").ToString()),
                 EntityType = _entity == null ? EntityType.Entity : (EntityType)Enum.Parse(typeof(EntityType), entity.GetValue("EntityType").ToString()),
-                DependOnStep = string.IsNullOrWhiteSpace(SelectedDependOnStep) ? IntegrationStep.Push : (IntegrationStep) Enum.Parse(typeof(IntegrationStep), SelectedDependOnStep),
-                StepToExecute = string.IsNullOrWhiteSpace(SelectedStepToExecute) ? IntegrationStep.Push : (IntegrationStep)Enum.Parse(typeof(IntegrationStep), SelectedStepToExecute),
+                DependOnStep = dependOnStep,
+                StepToExecute = stepToExecute,
                 ExecuteImmediately = ExecuteImmediately,
                 TargetEntityId = SelectedTargetEntity.Id,
                 TargetEntityType = SelectedTargetEntity.EntityType,

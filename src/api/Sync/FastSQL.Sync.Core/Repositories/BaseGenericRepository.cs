@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 using FastSQL.Core;
+using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.ExtensionMethods;
 using FastSQL.Sync.Core.Models;
 using st2forget.utils.sql;
@@ -60,7 +61,7 @@ namespace FastSQL.Sync.Core.Repositories
         {
             UnlinkOptions(id, typeof(TModel).GetEntityType(), optionGroups);
         }
-
+        
         public override IEnumerable<OptionModel> LoadOptions(Guid entityId, IEnumerable<string> optionGroups = null)
         {
             return LoadOptions(entityId, typeof(TModel).GetEntityType(), optionGroups);

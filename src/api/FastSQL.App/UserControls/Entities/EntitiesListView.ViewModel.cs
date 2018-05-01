@@ -55,6 +55,10 @@ namespace FastSQL.App.UserControls.Entities
             this.eventAggregator = eventAggregator;
             Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
             eventAggregator.GetEvent<RefreshEntityListEvent>().Subscribe(OnRefreshEntities);
+        }
+
+        public void Loaded()
+        {
             var first = Entities.FirstOrDefault();
             if (first != null)
             {

@@ -21,21 +21,20 @@ namespace FastSQL.App.UserControls.Entities
     public class EntityContentViewModel : BaseViewModel
     {
         private readonly IEventAggregator eventAggregator;
-        private ObservableCollection<string> _commands;
-
+        private readonly IEntityIndexer indexer;
+        private readonly IEnumerable<IEntityPuller> pullers;
+        private readonly IEnumerable<IEntityPusher> pushers;
+        private readonly IEnumerable<ITransformer> transformers;
+        
         private EntityModel _entity;
         private readonly EntityRepository entityRepository;
         private readonly ConnectionRepository connectionRepository;
-        private readonly TransformerRepository transformerRepository;
-        private readonly IEnumerable<IEntityPuller> pullers;
-        private readonly IEntityIndexer indexer;
-        private readonly IEnumerable<IEntityPusher> pushers;
-        private readonly IEnumerable<ITransformer> transformers;
         private ConnectionModel _sourceConnection;
         private ConnectionModel _destinationConnection;
         private IProcessor _sourceProcessor;
         private IProcessor _destinationProcessor;
 
+        private ObservableCollection<string> _commands;
         private ObservableCollection<OptionItemViewModel> _pullerOptions;
         private ObservableCollection<OptionItemViewModel> _indexerOptions;
         private ObservableCollection<OptionItemViewModel> _pusherOptions;
@@ -43,6 +42,7 @@ namespace FastSQL.App.UserControls.Entities
         private ObservableCollection<IProcessor> _sourceProcessors;
         private ObservableCollection<ConnectionModel> _destinationConnections;
         private ObservableCollection<IProcessor> _destinationProcessors;
+
         private EntityDependencyViewModel _entityDependencyViewModel;
         private AttributeDependencyViewModel _attributeDependencyViewModel;
         private UCTransformationConfigureViewModel _transformationConfigureViewModel;
@@ -116,51 +116,7 @@ namespace FastSQL.App.UserControls.Entities
                 OnPropertyChanged(nameof(SelectedDestinationConnection));
             }
         }
-
-        private void LoadOptions()
-        {
-            var puller = pullers.FirstOrDefault(p =>
-                !string.IsNullOrWhiteSpace(SelectedSourceProcessor?.Id)
-                && !string.IsNullOrWhiteSpace(SelectedSourceConnection?.Id.ToString())
-                && p.IsImplemented(SelectedSourceProcessor.Id, SelectedSourceConnection.ProviderId));
-            var pusher = pushers.FirstOrDefault(p =>
-                !string.IsNullOrWhiteSpace(SelectedDestinationProcessor?.Id)
-                && !string.IsNullOrWhiteSpace(SelectedDestinationConnection?.Id.ToString())
-                && p.IsImplemented(SelectedDestinationProcessor.Id, SelectedDestinationConnection.ProviderId));
-            IEnumerable<OptionModel> options = new List<OptionModel>();
-            if (_entity != null)
-            {
-                options = entityRepository.LoadOptions(_entity.Id) ?? new List<OptionModel>();
-            }
-            var optionItems = options.Select(o => new OptionItem { Name = o.Key, Value = o.Value });
-
-            // They will automatically filter their own options
-            puller?.SetOptions(optionItems);
-            indexer?.SetOptions(optionItems);
-            pusher?.SetOptions(optionItems);
-
-            PullerOptions = new ObservableCollection<OptionItemViewModel>(puller?.Options.Select(o =>
-            {
-                var result = new OptionItemViewModel();
-                result.SetOption(o);
-                return result;
-            }) ?? new List<OptionItemViewModel>());
-
-            IndexerOptions = new ObservableCollection<OptionItemViewModel>(indexer?.Options.Select(o =>
-            {
-                var result = new OptionItemViewModel();
-                result.SetOption(o);
-                return result;
-            }) ?? new List<OptionItemViewModel>());
-
-            PusherOptions = new ObservableCollection<OptionItemViewModel>(pusher?.Options.Select(o =>
-            {
-                var result = new OptionItemViewModel();
-                result.SetOption(o);
-                return result;
-            }) ?? new List<OptionItemViewModel>());
-        }
-
+        
         public IProcessor SelectedSourceProcessor
         {
             get => _sourceProcessor;
@@ -323,8 +279,6 @@ namespace FastSQL.App.UserControls.Entities
             IEnumerable<ITransformer> transformers,
             EntityRepository entityRepository,
             ConnectionRepository connectionRepository,
-            TransformerRepository transformerRepository,
-            
             EntityDependencyViewModel entityDependencyViewModel,
             AttributeDependencyViewModel attributeDependencyViewModel,
             UCTransformationConfigureViewModel transformationConfigureViewModel)
@@ -332,15 +286,16 @@ namespace FastSQL.App.UserControls.Entities
             this.eventAggregator = eventAggregator;
             this.entityRepository = entityRepository;
             this.connectionRepository = connectionRepository;
-            this.transformerRepository = transformerRepository;
 
             this.pullers = pullers;
             this.indexer = indexer;
             this.pushers = pushers;
             this.transformers = transformers;
+
             EntityDependencyViewModel = entityDependencyViewModel;
             AttributeDependencyViewModel = attributeDependencyViewModel;
             TransformationConfigureViewModel = transformationConfigureViewModel;
+
             // Need to duplication code here, weird behavior of WPF
             SourceProcessors = new ObservableCollection<IProcessor>(processors.Where(p => p.Type == ProcessorType.Entity));
             SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
@@ -352,6 +307,50 @@ namespace FastSQL.App.UserControls.Entities
 
             Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete", "Preview", "Manage" });
             eventAggregator.GetEvent<SelectEntityEvent>().Subscribe(OnSelectEntity);
+        }
+
+        private void LoadOptions()
+        {
+            var puller = pullers.FirstOrDefault(p =>
+                !string.IsNullOrWhiteSpace(SelectedSourceProcessor?.Id)
+                && !string.IsNullOrWhiteSpace(SelectedSourceConnection?.Id.ToString())
+                && p.IsImplemented(SelectedSourceProcessor.Id, SelectedSourceConnection.ProviderId));
+            var pusher = pushers.FirstOrDefault(p =>
+                !string.IsNullOrWhiteSpace(SelectedDestinationProcessor?.Id)
+                && !string.IsNullOrWhiteSpace(SelectedDestinationConnection?.Id.ToString())
+                && p.IsImplemented(SelectedDestinationProcessor.Id, SelectedDestinationConnection.ProviderId));
+            IEnumerable<OptionModel> options = new List<OptionModel>();
+            if (_entity != null)
+            {
+                options = entityRepository.LoadOptions(_entity.Id) ?? new List<OptionModel>();
+            }
+            var optionItems = options.Select(o => new OptionItem { Name = o.Key, Value = o.Value });
+
+            // They will automatically filter their own options
+            puller?.SetOptions(optionItems);
+            indexer?.SetOptions(optionItems);
+            pusher?.SetOptions(optionItems);
+
+            PullerOptions = new ObservableCollection<OptionItemViewModel>(puller?.Options.Select(o =>
+            {
+                var result = new OptionItemViewModel();
+                result.SetOption(o);
+                return result;
+            }) ?? new List<OptionItemViewModel>());
+
+            IndexerOptions = new ObservableCollection<OptionItemViewModel>(indexer?.Options.Select(o =>
+            {
+                var result = new OptionItemViewModel();
+                result.SetOption(o);
+                return result;
+            }) ?? new List<OptionItemViewModel>());
+
+            PusherOptions = new ObservableCollection<OptionItemViewModel>(pusher?.Options.Select(o =>
+            {
+                var result = new OptionItemViewModel();
+                result.SetOption(o);
+                return result;
+            }) ?? new List<OptionItemViewModel>());
         }
 
         private void OnSelectEntity(SelectEntityEventArgument obj)
@@ -479,11 +478,9 @@ namespace FastSQL.App.UserControls.Entities
                 });
 
                 entityRepository.LinkOptions(_entity.Id, GetOptionItems());
-
                 entityRepository.SetDependencies(_entity.Id, GetDependencies(_entity.Id));
-
-                entityRepository.SetTransformations(_entity.Id, GetTransformations(_entity.Id));
-                entityRepository.LinkOptions(_entity.Id, GetTransformationOptions(_entity.Id));
+                entityRepository.SetTransformations(_entity.Id, TransformationConfigureViewModel.Transformations.Select(t => t.GetModel()));
+                entityRepository.LinkOptions(_entity.Id, TransformationConfigureViewModel.GetTransformationOptions());
 
                 entityRepository.Commit();
             }
@@ -495,34 +492,6 @@ namespace FastSQL.App.UserControls.Entities
 
             message = "Success";
             return true;
-        }
-
-        private IEnumerable<OptionItem> GetTransformationOptions(Guid id)
-        {
-            var transfomations = TransformationConfigureViewModel.Transformations;
-            return transfomations.SelectMany(t =>
-            {
-                var options = t.Options;
-                var transformer = transformers.FirstOrDefault(f => f.Id == t.TransformerId);
-                transformer.SetOptions(options.Select(o =>
-                {
-                    var optionItem = o.GetModel();
-                    return optionItem;
-                }));
-                return transformer.Options;
-            });
-        }
-
-        private IEnumerable<ColumnTransformationModel> GetTransformations(Guid id)
-        {
-            var transfomations = TransformationConfigureViewModel.Transformations;
-            return transfomations.Select(t =>
-            {
-                var r = t.GetModel();
-                t.TargetEntityId = id;
-                t.TargetEntityType = EntityType.Entity;
-                return r;
-            });
         }
 
         private bool New(out string message)
@@ -544,8 +513,8 @@ namespace FastSQL.App.UserControls.Entities
 
                 entityRepository.LinkOptions(entityIdGuid, GetOptionItems());
                 entityRepository.SetDependencies(entityIdGuid, GetDependencies(entityIdGuid));
-                entityRepository.SetTransformations(entityIdGuid, GetTransformations(entityIdGuid));
-                transformerRepository.LinkOptions(entityIdGuid, GetTransformationOptions(entityIdGuid));
+                entityRepository.SetTransformations(entityIdGuid, TransformationConfigureViewModel.Transformations.Select(t => t.GetModel()));
+                entityRepository.LinkOptions(entityIdGuid, TransformationConfigureViewModel.GetTransformationOptions());
                 entityRepository.Commit();
 
                 eventAggregator.GetEvent<RefreshEntityListEvent>().Publish(new RefreshEntityListEventArgument
@@ -576,6 +545,7 @@ namespace FastSQL.App.UserControls.Entities
                 entityRepository.DeleteById(_entity.Id.ToString());
                 entityRepository.UnlinkOptions(_entity.Id);
                 entityRepository.RemoveDependencies(_entity.Id);
+                entityRepository.RemoveTransformations(_entity.Id);
                 entityRepository.Commit();
 
                 eventAggregator.GetEvent<RefreshEntityListEvent>().Publish(new RefreshEntityListEventArgument

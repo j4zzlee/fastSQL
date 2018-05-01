@@ -4,9 +4,238 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FastSQL.App.UserControls.Attributes"
+             xmlns:transformers="clr-namespace:FastSQL.App.UserControls.Transformers"
+             xmlns:dependencies="clr-namespace:FastSQL.App.UserControls.Dependencies"
+             xmlns:local1="clr-namespace:FastSQL.App.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+    <Grid DataContext="{Binding}" Name="grdContainer">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <TabControl Name="tbContainer">
+                <TabItem Header="General">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Row="0" >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Name" Grid.Row="0"></TextBlock>
+                                <TextBox Text="{Binding Name}" Grid.Row="1" Padding="5" Margin="0,0,0,10"></TextBox>
+                            </Grid>
+                            <Grid Grid.Row="1" >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Description" Grid.Row="0"></TextBlock>
+                                <TextBox Text="{Binding Description}" Grid.Row="1" Padding="5" Margin="0,0,0,10"></TextBox>
+                            </Grid>
+                            <Grid Grid.Row="2" >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Entity" Grid.Row="0"></TextBlock>
+                                <ComboBox ItemsSource="{Binding Entities}"
+                                SelectedItem="{Binding SelectedEntity}"
+                                DisplayMemberPath="Name"
+                                IsSynchronizedWithCurrentItem="True"
+                                Grid.Row="1"
+                                Padding="5" Margin="0,0,0,10"></ComboBox>
+                            </Grid>
+                            <Grid Grid.Row="3" >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Enabled" Grid.Column="0" Margin="0,0,10,10"></TextBlock>
+                                <CheckBox IsChecked="{Binding Enabled}" Grid.Column="1" Padding="5" Margin="0,0,0,10"></CheckBox>
+                            </Grid>
+                            <Grid Grid.Row="4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Source Connection" Grid.Row="0"></TextBlock>
+                                <ComboBox ItemsSource="{Binding SourceConnections}"
+                                SelectedItem="{Binding SelectedSourceConnection}"
+                                DisplayMemberPath="Name"
+                                IsSynchronizedWithCurrentItem="True"
+                                Grid.Row="1"
+                                Padding="5" Margin="0,0,0,10"></ComboBox>
+                            </Grid>
+                            <Grid Grid.Row="5">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Destination Connection" Grid.Row="0"></TextBlock>
+                                <ComboBox ItemsSource="{Binding DestinationConnections}"
+                                SelectedItem="{Binding SelectedDestinationConnection}"
+                                DisplayMemberPath="Name"
+                                IsSynchronizedWithCurrentItem="True"
+                                Grid.Row="1"
+                                Padding="5" Margin="0,0,0,10"></ComboBox>
+                            </Grid>
+                            <Grid Grid.Row="6">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Source Processor" Grid.Row="0"></TextBlock>
+                                <ComboBox ItemsSource="{Binding SourceProcessors}"
+                                SelectedItem="{Binding SelectedSourceProcessor}"
+                                DisplayMemberPath="Name"
+                                IsSynchronizedWithCurrentItem="True"
+                                Grid.Row="1"
+                                Padding="5" Margin="0,0,0,10"></ComboBox>
+                            </Grid>
+                            <Grid Grid.Row="7">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Destination Processor" Grid.Row="0"></TextBlock>
+                                <ComboBox ItemsSource="{Binding DestinationProcessors}"
+                                SelectedItem="{Binding SelectedDestinationProcessor}"
+                                DisplayMemberPath="Name"
+                                IsSynchronizedWithCurrentItem="True"
+                                Grid.Row="1"
+                                Padding="5" Margin="0,0,0,10"></ComboBox>
+                            </Grid>
+                        </Grid>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Puller Options" >
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                        <ItemsControl ItemsSource="{Binding Path=PullerOptions}" Grid.Row="7" Grid.Column="0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <local1:UCOptionItem DataContext="{Binding}"></local1:UCOptionItem>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Indexer Options" >
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                        <ItemsControl ItemsSource="{Binding Path=IndexerOptions}" Grid.Row="7" Grid.Column="0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <local1:UCOptionItem DataContext="{Binding}"></local1:UCOptionItem>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Pusher Options" >
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                        <ItemsControl ItemsSource="{Binding Path=PusherOptions}" Grid.Row="7" Grid.Column="0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <local1:UCOptionItem DataContext="{Binding}"></local1:UCOptionItem>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Entity Dependencies">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                        <local1:UCEntityDependency DataContext="{Binding EntityDependencyViewModel}"></local1:UCEntityDependency>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Attribute Dependencies">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                        <dependencies:UCAttributeDependency DataContext="{Binding AttributeDependencyViewModel}"></dependencies:UCAttributeDependency>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Column Transformantions">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                        <transformers:UCTransformationConfigure DataContext="{Binding TransformationConfigureViewModel}"></transformers:UCTransformationConfigure>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </Grid>
+        <Grid Grid.Column="1">
+            <ItemsControl ItemsSource="{Binding Path=Commands}" Grid.Row="7" Grid.Column="0" VerticalAlignment="Top" Padding="10" HorizontalAlignment="Stretch">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button 
+                        Command="{Binding ElementName=grdContainer, Path=DataContext.ApplyCommand}"
+                        CommandParameter="{Binding}"
+                        Padding="10"
+                        Margin="10">
+                            <TextBlock Text="{Binding}"></TextBlock>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Grid>
     </Grid>
 </UserControl>

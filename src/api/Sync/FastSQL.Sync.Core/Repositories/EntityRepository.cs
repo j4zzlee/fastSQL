@@ -16,82 +16,37 @@ namespace FastSQL.Sync.Core.Repositories
 
         public IEnumerable<DependencyItemModel> GetDependencies(Guid id)
         {
-            return _connection.Query<DependencyItemModel>($@"SELECT * FROM [core_entity_dependency] 
-WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType",
-new { EntityId = id, EntityType = EntityType.Entity },
-transaction: _transaction);
+            return base.GetDependencies(id, EntityType.Entity);
         }
 
-        public IEnumerable<DependencyItemModel> GetDependencies(Guid id, EntityType targetEntityType)
+        public override IEnumerable<DependencyItemModel> GetDependencies(Guid id, EntityType targetEntityType)
         {
-            return _connection.Query<DependencyItemModel>($@"SELECT * FROM [core_entity_dependency] 
-WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType AND [TargetEntityType] = @TargetEntityType",
-new { EntityId = id, EntityType = EntityType.Entity, TargetEntityType = targetEntityType },
-transaction: _transaction);
+            return base.GetDependencies(id, EntityType.Entity, targetEntityType);
         }
 
         public void RemoveDependencies(Guid id)
         {
-            _connection.Execute($@"DELETE FROM [core_entity_dependency] 
-WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType",
-new { EntityId = id, EntityType = EntityType.Entity },
-transaction: _transaction);
+            base.RemoveDependencies(id, EntityType.Entity);
         }
 
         public void SetDependencies(Guid id, IEnumerable<DependencyItemModel> dependencies)
         {
-            foreach (var dependency in dependencies)
-            {
-                dependency.EntityId = id;
-                dependency.EntityType = EntityType.Entity;
-            }
-            _connection.Execute($@"DELETE FROM [core_entity_dependency] 
-WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType", 
-new { EntityId = id, EntityType= EntityType.Entity }, 
-transaction: _transaction);
-            _connection.Execute($@"INSERT INTO [core_entity_dependency](
-[{nameof(DependencyItemModel.EntityId)}],
-[{nameof(DependencyItemModel.EntityType)}],
-[{nameof(DependencyItemModel.TargetEntityId)}],
-[{nameof(DependencyItemModel.TargetEntityType)}],
-[{nameof(DependencyItemModel.StepToExecute)}],
-[{nameof(DependencyItemModel.DependOnStep)}],
-[{nameof(DependencyItemModel.ExecuteImmediately)}])
-VALUES (
-@{nameof(DependencyItemModel.EntityId)},
-@{nameof(DependencyItemModel.EntityType)},
-@{nameof(DependencyItemModel.TargetEntityId)},
-@{nameof(DependencyItemModel.TargetEntityType)},
-@{nameof(DependencyItemModel.StepToExecute)},
-@{nameof(DependencyItemModel.DependOnStep)},
-@{nameof(DependencyItemModel.ExecuteImmediately)})",
-dependencies,
-transaction: _transaction);
+            base.SetDependencies(id, EntityType.Entity, dependencies);
+        }
+
+        public IEnumerable<ColumnTransformationModel> GetTransformations(Guid entityId)
+        {
+            return base.GetTransformations(entityId, EntityType.Entity);
         }
 
         public void SetTransformations(Guid id, IEnumerable<ColumnTransformationModel> transformations)
         {
-            foreach (var t in transformations)
-            {
-                t.TargetEntityId = id;
-                t.TargetEntityType = EntityType.Entity;
-            }
-            _connection.Execute($@"DELETE FROM [core_entity_column_transformation] 
-WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType",
-new { EntityId = id, EntityType = EntityType.Entity },
-transaction: _transaction);
-            _connection.Execute($@"INSERT INTO [core_entity_column_transformation](
-[{nameof(ColumnTransformationModel.TargetEntityId)}],
-[{nameof(ColumnTransformationModel.TargetEntityType)}],
-[{nameof(ColumnTransformationModel.ColumnName)}],
-[{nameof(ColumnTransformationModel.TransformerId)}])
-VALUES (
-@{nameof(ColumnTransformationModel.TargetEntityId)},
-@{nameof(ColumnTransformationModel.TargetEntityType)},
-@{nameof(ColumnTransformationModel.ColumnName)},
-@{nameof(ColumnTransformationModel.TransformerId)})",
-transformations,
-transaction: _transaction);
+            SetTransformations(id, EntityType.Entity, transformations);
+        }
+        
+        public void RemoveTransformations(Guid id)
+        {
+            base.RemoveTransformations(id, EntityType.Entity);
         }
     }
 }

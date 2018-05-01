@@ -44,6 +44,13 @@ namespace FastSQL.App.UserControls.Transformers
                 MessageBox.Show(Application.Current.MainWindow, "Please choose a transformer", "Error");
                 return;
             }
+
+            var exists = Transformations.FirstOrDefault(t => t.ColumnName == ColumnName && t.TransformerId == SelectedTransfomer.Id);
+            if (exists != null)
+            {
+                return;
+            }
+
             var newTransformation = new TransformationItemViewModel();
             SelectedTransfomer.SetOptions(Options.Select(o => new OptionItem { Name = o.Name, Value = o.Value }));
             newTransformation.SetTransformation(new ColumnTransformationModel {
@@ -149,5 +156,31 @@ namespace FastSQL.App.UserControls.Transformers
                     return r;
                 }));
         }
+
+        public IEnumerable<OptionItem> GetTransformationOptions()
+        {
+            return Transformations.SelectMany(t =>
+            {
+                var options = t.Options;
+                var transformer = transformers.FirstOrDefault(f => f.Id == t.TransformerId);
+                transformer.SetOptions(options.Select(o =>
+                {
+                    var optionItem = o.GetModel();
+                    return optionItem;
+                }));
+                return transformer.Options;
+            });
+        }
+
+        //public IEnumerable<ColumnTransformationModel> GetTransformations(Guid id)
+        //{
+        //    return Transformations.Select(t =>
+        //    {
+        //        var r = t.GetModel();
+        //        t.TargetEntityId = id;
+        //        t.TargetEntityType = EntityType.Attribute;
+        //        return r;
+        //    });
+        //}
     }
 }

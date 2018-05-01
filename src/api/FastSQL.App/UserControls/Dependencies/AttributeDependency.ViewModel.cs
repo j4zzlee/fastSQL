@@ -128,6 +128,18 @@ namespace FastSQL.App.UserControls.Dependencies
             {
                 entity = JObject.FromObject(_entity);
             }
+
+            var dependOnStep = string.IsNullOrWhiteSpace(SelectedDependOnStep) ? IntegrationStep.Push : (IntegrationStep)Enum.Parse(typeof(IntegrationStep), SelectedDependOnStep);
+            var stepToExecute = string.IsNullOrWhiteSpace(SelectedStepToExecute) ? IntegrationStep.Push : (IntegrationStep)Enum.Parse(typeof(IntegrationStep), SelectedStepToExecute);
+            var exists = Dependencies.FirstOrDefault(d => d.TargetEntityId == SelectedTargetAttribute.Id
+                && d.TargetEntityType == SelectedTargetAttribute.EntityType
+                && d.DependOnStep == dependOnStep
+                && d.StepToExecute == stepToExecute);
+            if (exists != null)
+            {
+                return;
+            }
+
             Dependencies.Add(new DependencyItemViewModel
             {
                 EntityId = _entity == null ? Guid.NewGuid() : Guid.Parse(entity.GetValue("Id").ToString()),

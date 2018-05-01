@@ -1,4 +1,6 @@
-﻿using FastSQL.Core.UI.Interfaces;
+﻿using FastSQL.App.Events;
+using FastSQL.Core.UI.Interfaces;
+using Prism.Events;
 using Syncfusion.Windows.Tools.Controls;
 using System;
 using System.Collections.Generic;
@@ -24,11 +26,17 @@ namespace FastSQL.App.UserControls.Entities
     {
         private readonly EntityContentViewModel viewModel;
 
-        public UCEntityContent(EntityContentViewModel viewModel)
+        public UCEntityContent(IEventAggregator eventAggregator, EntityContentViewModel viewModel)
         {
             InitializeComponent();
             this.viewModel = viewModel;
             this.DataContext = viewModel;
+            eventAggregator.GetEvent<SelectEntityEvent>().Subscribe(OnEntitySelected);
+        }
+
+        private void OnEntitySelected(SelectEntityEventArgument obj)
+        {
+            tbContainer.SelectedIndex = 0;
         }
 
         public string Id => "1JFIy8jqlU2LKbwoDkCc7g==";

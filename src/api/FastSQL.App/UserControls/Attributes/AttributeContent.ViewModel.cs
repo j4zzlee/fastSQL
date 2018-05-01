@@ -1,5 +1,7 @@
 ﻿using FastSQL.App.Events;
 using FastSQL.App.Interfaces;
+using FastSQL.App.UserControls.Dependencies;
+using FastSQL.App.UserControls.Transformers;
 using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Enums;
@@ -19,11 +21,15 @@ namespace FastSQL.App.UserControls.Attributes
     public class AttributeContentViewModel: BaseViewModel
     {
         private readonly IEventAggregator eventAggregator;
-        private readonly AttributeRepository attributeRepository;
-        private ObservableCollection<string> _commands;
-
+        private readonly IEnumerable<IProcessor> processors;
+        private readonly IAttributeIndexer indexer;
+        private readonly IEnumerable<IAttributePuller> pullers;
+        private readonly IEnumerable<IAttributePusher> pushers;
+        private readonly IEnumerable<ITransformer> transformers;
+        
         private AttributeModel _attribute;
         private EntityModel _entity;
+        private readonly AttributeRepository attributeRepository;
         private readonly EntityRepository entityRepository;
         private readonly ConnectionRepository connectionRepository;
         private ConnectionModel _sourceConnection;
@@ -34,9 +40,16 @@ namespace FastSQL.App.UserControls.Attributes
         private ObservableCollection<OptionItemViewModel> _pullerOptions;
         private ObservableCollection<OptionItemViewModel> _indexerOptions;
         private ObservableCollection<OptionItemViewModel> _pusherOptions;
-        private ObservableCollection<ConnectionModel> _connections;
-        private ObservableCollection<IProcessor> _processors;
+        private ObservableCollection<string> _commands;
+        private ObservableCollection<ConnectionModel> _sourceConnections;
+        private ObservableCollection<ConnectionModel> _destinationConnections;
+        private ObservableCollection<IProcessor> _sourceProcessors;
+        private ObservableCollection<IProcessor> _destinationProcessors;
         private ObservableCollection<EntityModel> _entities;
+
+        private EntityDependencyViewModel _entityDependencyViewModel;
+        private AttributeDependencyViewModel _attributeDependencyViewModel;
+        private UCTransformationConfigureViewModel _transformationConfigureViewModel;
 
         public BaseCommand ApplyCommand => new BaseCommand(o => true, OnApplyCommand);
 
@@ -92,6 +105,7 @@ namespace FastSQL.App.UserControls.Attributes
             set
             {
                 _sourceConnection = value;
+                LoadOptions();
                 OnPropertyChanged(nameof(SelectedSourceConnection));
             }
         }
@@ -102,6 +116,7 @@ namespace FastSQL.App.UserControls.Attributes
             set
             {
                 _destinationConnection = value;
+                LoadOptions();
                 OnPropertyChanged(nameof(SelectedDestinationConnection));
             }
         }
@@ -112,6 +127,7 @@ namespace FastSQL.App.UserControls.Attributes
             set
             {
                 _sourceProcessor = value;
+                LoadOptions();
                 OnPropertyChanged(nameof(SelectedSourceProcessor));
             }
         }
@@ -122,6 +138,7 @@ namespace FastSQL.App.UserControls.Attributes
             set
             {
                 _destinationProcessor = value;
+                LoadOptions();
                 OnPropertyChanged(nameof(SelectedDestinationProcessor));
             }
         }
@@ -132,6 +149,7 @@ namespace FastSQL.App.UserControls.Attributes
             set
             {
                 _entity = value;
+                LoadOptions();
                 OnPropertyChanged(nameof(SelectedEntity));
             }
         }
@@ -175,29 +193,55 @@ namespace FastSQL.App.UserControls.Attributes
             }
         }
 
-        public ObservableCollection<ConnectionModel> Connections
+        public ObservableCollection<ConnectionModel> SourceConnections
         {
             get
             {
-                return _connections;
+                return _sourceConnections;
             }
             set
             {
-                _connections = value;
-                OnPropertyChanged(nameof(Connections));
+                _sourceConnections = value;
+                OnPropertyChanged(nameof(SourceConnections));
             }
         }
 
-        public ObservableCollection<IProcessor> Processors
+        public ObservableCollection<IProcessor> SourceProcessors
         {
             get
             {
-                return _processors;
+                return _sourceProcessors;
             }
             set
             {
-                _processors = value;
-                OnPropertyChanged(nameof(Processors));
+                _sourceProcessors = value;
+                OnPropertyChanged(nameof(SourceProcessors));
+            }
+        }
+
+        public ObservableCollection<ConnectionModel> DestinationConnections
+        {
+            get
+            {
+                return _destinationConnections;
+            }
+            set
+            {
+                _destinationConnections = value;
+                OnPropertyChanged(nameof(DestinationConnections));
+            }
+        }
+
+        public ObservableCollection<IProcessor> DestinationProcessors
+        {
+            get
+            {
+                return _destinationProcessors;
+            }
+            set
+            {
+                _destinationProcessors = value;
+                OnPropertyChanged(nameof(DestinationProcessors));
             }
         }
 
@@ -224,82 +268,240 @@ namespace FastSQL.App.UserControls.Attributes
             }
         }
 
+        public EntityDependencyViewModel EntityDependencyViewModel
+        {
+            get => _entityDependencyViewModel;
+            set
+            {
+                _entityDependencyViewModel = value;
+                OnPropertyChanged(nameof(EntityDependencyViewModel));
+            }
+        }
+
+        public AttributeDependencyViewModel AttributeDependencyViewModel
+        {
+            get => _attributeDependencyViewModel;
+            set
+            {
+                _attributeDependencyViewModel = value;
+                OnPropertyChanged(nameof(AttributeDependencyViewModel));
+            }
+        }
+
+        public UCTransformationConfigureViewModel TransformationConfigureViewModel
+        {
+            get => _transformationConfigureViewModel;
+            set
+            {
+                _transformationConfigureViewModel = value;
+                OnPropertyChanged(nameof(TransformationConfigureViewModel));
+            }
+        }
+
         public AttributeContentViewModel(
             IEventAggregator eventAggregator,
-            AttributeRepository attributeRepository,
+            IEnumerable<IProcessor> processors,
+            IEnumerable<IAttributePuller> pullers,
+            IAttributeIndexer indexer,
+            IEnumerable<IAttributePusher> pushers,
+            IEnumerable<ITransformer> transformers,
             EntityRepository entityRepository,
+            AttributeRepository attributeRepository,
             ConnectionRepository connectionRepository,
-            IEnumerable<IProcessor> processors)
+            EntityDependencyViewModel entityDependencyViewModel,
+            AttributeDependencyViewModel attributeDependencyViewModel,
+            UCTransformationConfigureViewModel transformationConfigureViewModel)
         {
             this.eventAggregator = eventAggregator;
-            this.attributeRepository = attributeRepository;
+            this.processors = processors;
             this.entityRepository = entityRepository;
+            this.attributeRepository = attributeRepository;
             this.connectionRepository = connectionRepository;
-            Processors = new ObservableCollection<IProcessor>(processors.Where(p => p.Type == ProcessorType.Attribute));
-            Connections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+
+            this.pullers = pullers;
+            this.indexer = indexer;
+            this.pushers = pushers;
+            this.transformers = transformers;
+            
+            EntityDependencyViewModel = entityDependencyViewModel;
+            AttributeDependencyViewModel = attributeDependencyViewModel;
+            TransformationConfigureViewModel = transformationConfigureViewModel;
+
+            // Need to duplication code here, weird behavior of WPF
+            SourceProcessors = new ObservableCollection<IProcessor>(processors.Where(p => p.Type == ProcessorType.Attribute));
+            SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+
+            DestinationProcessors = new ObservableCollection<IProcessor>(processors.Where(p => p.Type == ProcessorType.Attribute));
+            DestinationConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+
             Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
+
+            LoadOptions();
+
             Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete", "Preview", "Manage" });
             eventAggregator.GetEvent<SelectAttributeEvent>().Subscribe(OnSelectAttribute);
+        }
+
+        private void LoadOptions()
+        {
+            IPuller puller = null;
+            IPusher pusher = null;
+            if (SelectedEntity != null)
+            {
+                var entitySourceProcessor = processors.FirstOrDefault(p => p.Id == SelectedEntity.SourceProcessorId);
+                var entityDestinationProcessor = processors.FirstOrDefault(p => p.Id == SelectedEntity.DestinationProcessorId);
+                puller = pullers.FirstOrDefault(p =>
+                !string.IsNullOrWhiteSpace(SelectedSourceProcessor?.Id)
+                && !string.IsNullOrWhiteSpace(SelectedSourceConnection?.Id.ToString())
+                && p.IsImplemented(SelectedSourceProcessor.Id, entitySourceProcessor.Id, SelectedSourceConnection.ProviderId));
+                pusher = pushers.FirstOrDefault(p =>
+                    !string.IsNullOrWhiteSpace(SelectedDestinationProcessor?.Id)
+                    && !string.IsNullOrWhiteSpace(SelectedDestinationConnection?.Id.ToString())
+                    && p.IsImplemented(SelectedDestinationProcessor.Id, entityDestinationProcessor.Id, SelectedDestinationConnection.ProviderId));
+            }
+            
+            IEnumerable<OptionModel> options = new List<OptionModel>();
+            if (_attribute != null)
+            {
+                options = attributeRepository.LoadOptions(_attribute.Id) ?? new List<OptionModel>();
+            }
+            var optionItems = options.Select(o => new OptionItem { Name = o.Key, Value = o.Value });
+
+            // They will automatically filter their own options
+            puller?.SetOptions(optionItems);
+            indexer?.SetOptions(optionItems);
+            pusher?.SetOptions(optionItems);
+
+            PullerOptions = new ObservableCollection<OptionItemViewModel>(puller?.Options.Select(o =>
+            {
+                var result = new OptionItemViewModel();
+                result.SetOption(o);
+                return result;
+            }) ?? new List<OptionItemViewModel>());
+
+            IndexerOptions = new ObservableCollection<OptionItemViewModel>(indexer?.Options.Select(o =>
+            {
+                var result = new OptionItemViewModel();
+                result.SetOption(o);
+                return result;
+            }) ?? new List<OptionItemViewModel>());
+
+            PusherOptions = new ObservableCollection<OptionItemViewModel>(pusher?.Options.Select(o =>
+            {
+                var result = new OptionItemViewModel();
+                result.SetOption(o);
+                return result;
+            }) ?? new List<OptionItemViewModel>());
         }
 
         private void OnSelectAttribute(SelectAttributeEventArgument obj)
         {
             var attr = attributeRepository.GetById(obj.AttributeId);
             _attribute = attr;
+            SelectedEntity = Entities.FirstOrDefault(e => e.Id == attr.EntityId);
+
             Name = attr.Name;
             Description = attr.Description;
             Enabled = !attr.HasState(EntityState.Disabled);
 
-            SelectedSourceConnection = Connections.FirstOrDefault(c => c.Id == attr.SourceConnectionId);
-            SelectedDestinationConnection = Connections.FirstOrDefault(c => c.Id == attr.DestinationConnectionId);
+            SelectedSourceConnection = SourceConnections.FirstOrDefault(c => c.Id == attr.SourceConnectionId);
+            SelectedDestinationConnection = DestinationConnections.FirstOrDefault(c => c.Id == attr.DestinationConnectionId);
 
-            SelectedSourceProcessor = Processors.FirstOrDefault(p => p.Id == attr.SourceProcessorId);
-            SelectedDestinationProcessor = Processors.FirstOrDefault(p => p.Id == attr.DestinationProcessorId);
+            SelectedSourceProcessor = SourceProcessors.FirstOrDefault(p => p.Id == attr.SourceProcessorId);
+            SelectedDestinationProcessor = DestinationProcessors.FirstOrDefault(p => p.Id == attr.DestinationProcessorId);
+
+            EntityDependencyViewModel.SetEntity(attr);
+            AttributeDependencyViewModel.SetEntity(attr);
+            TransformationConfigureViewModel.SetEntity(attr);
         }
 
-        public void SetOptions(IEnumerable<OptionItem> pullerOptions)
+        private IEnumerable<OptionItem> GetOptionItems()
         {
-            PullerOptions = new ObservableCollection<OptionItemViewModel>(pullerOptions.Select(o =>
+            var options = new List<OptionItem>();
+            options.AddRange(PullerOptions.Select(o => new OptionItem
             {
-                var result = new OptionItemViewModel();
-                result.SetOption(o);
-                return result;
+                Name = o.Name,
+                Value = o.Value,
+                OptionGroupNames = o.OptionGroupNames
             }));
+            options.AddRange(IndexerOptions.Select(o => new OptionItem
+            {
+                Name = o.Name,
+                Value = o.Value,
+                OptionGroupNames = o.OptionGroupNames
+            }));
+            options.AddRange(PusherOptions.Select(o => new OptionItem
+            {
+                Name = o.Name,
+                Value = o.Value,
+                OptionGroupNames = o.OptionGroupNames
+            }));
+            return options;
         }
 
-        public void SetCommands(List<string> commands)
+        private IEnumerable<DependencyItemModel> GetDependencies(Guid attributeId)
         {
-            
+            var dependencies = new List<DependencyItemModel>();
+            dependencies.AddRange(EntityDependencyViewModel.Dependencies.Select(d => new DependencyItemModel
+            {
+                EntityId = attributeId,
+                EntityType = EntityType.Attribute,
+                DependOnStep = d.DependOnStep,
+                ExecuteImmediately = d.ExecuteImmediately,
+                StepToExecute = d.StepToExecute,
+                TargetEntityId = d.TargetEntityId,
+                TargetEntityType = d.TargetEntityType
+            }));
+            dependencies.AddRange(AttributeDependencyViewModel.Dependencies.Select(d => new DependencyItemModel
+            {
+                EntityId = attributeId,
+                EntityType = EntityType.Attribute,
+                DependOnStep = d.DependOnStep,
+                ExecuteImmediately = d.ExecuteImmediately,
+                StepToExecute = d.StepToExecute,
+                TargetEntityId = d.TargetEntityId,
+                TargetEntityType = d.TargetEntityType
+            }));
+            return dependencies;
         }
-
+        
         private bool Save(out string message)
         {
-            //if (_entity == null)
-            //{
-            //    message = "No item to save";
-            //    return true;
-            //}
+            if (_attribute == null)
+            {
+                message = "No item to save";
+                return true;
+            }
 
-            //try
-            //{
-            //    entityRepository.BeginTransaction();
-            //    var result = entityRepository.Update(_entity.Id.ToString(), new
-            //    {
-            //        Name,
-            //        Description,
-            //        ProviderId = SelectedProvider.Id
-            //    });
+            try
+            {
+                attributeRepository.BeginTransaction();
+                var result = attributeRepository.Update(_attribute.Id.ToString(), new
+                {
+                    Name,
+                    Description,
+                    _attribute.State,
+                    EntityId = _entity?.Id,
+                    SourceConnectionId = SelectedSourceConnection.Id,
+                    DestinationConnectionId = SelectedDestinationConnection.Id,
+                    SourceProcessorId = SelectedSourceProcessor.Id,
+                    DestinationProcessorId = SelectedDestinationProcessor.Id,
+                });
 
-            //    SelectedProvider.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
+                attributeRepository.LinkOptions(_attribute.Id, GetOptionItems());
 
-            //    entityRepository.LinkOptions(_entity.Id, SelectedProvider.Options);
-            //    entityRepository.Commit();
-            //}
-            //catch
-            //{
-            //    entityRepository.RollBack();
-            //    throw;
-            //}
+                attributeRepository.SetDependencies(_attribute.Id, GetDependencies(_attribute.Id));
+
+                attributeRepository.SetTransformations(_attribute.Id, TransformationConfigureViewModel.Transformations.Select(t => t.GetModel()));
+                attributeRepository.LinkOptions(_attribute.Id, TransformationConfigureViewModel.GetTransformationOptions());
+
+                attributeRepository.Commit();
+            }
+            catch
+            {
+                attributeRepository.RollBack();
+                throw;
+            }
 
             message = "Success";
             return true;
@@ -307,31 +509,38 @@ namespace FastSQL.App.UserControls.Attributes
 
         private bool New(out string message)
         {
-            //try
-            //{
-            //    entityRepository.BeginTransaction();
-            //    var result = entityRepository.Create(new
-            //    {
-            //        Name,
-            //        Description,
-            //        ProviderId = SelectedProvider.Id
-            //    });
+            try
+            {
+                attributeRepository.BeginTransaction();
+                var attrId = attributeRepository.Create(new
+                {
+                    Name,
+                    Description,
+                    State = 0,
+                    EntityId = SelectedEntity.Id,
+                    SourceConnectionId = SelectedSourceConnection.Id,
+                    DestinationConnectionId = SelectedDestinationConnection.Id,
+                    SourceProcessorId = SelectedSourceProcessor.Id,
+                    DestinationProcessorId = SelectedDestinationProcessor.Id,
+                });
+                var attrGuidId = Guid.Parse(attrId);
 
-            //    SelectedProvider.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
+                attributeRepository.LinkOptions(attrGuidId, GetOptionItems());
+                attributeRepository.SetDependencies(attrGuidId, GetDependencies(attrGuidId));
+                attributeRepository.SetTransformations(attrGuidId, TransformationConfigureViewModel.Transformations.Select(t => t.GetModel()));
+                attributeRepository.LinkOptions(attrGuidId, TransformationConfigureViewModel.GetTransformationOptions());
+                attributeRepository.Commit();
 
-            //    entityRepository.LinkOptions(Guid.Parse(result), SelectedProvider.Options);
-            //    entityRepository.Commit();
-
-            //    eventAggregator.GetEvent<RefreshEntityListEvent>().Publish(new RefreshEntityListEventArgument
-            //    {
-            //        SelectedEntityId = result
-            //    });
-            //}
-            //catch
-            //{
-            //    entityRepository.RollBack();
-            //    throw;
-            //}
+                eventAggregator.GetEvent<RefreshAttributeListEvent>().Publish(new RefreshAttributeListEventArgument
+                {
+                    SelectedAttributeId = attrId
+                });
+            }
+            catch
+            {
+                attributeRepository.RollBack();
+                throw;
+            }
 
             message = "Success";
             return true;
@@ -349,6 +558,8 @@ namespace FastSQL.App.UserControls.Attributes
                 attributeRepository.BeginTransaction();
                 attributeRepository.DeleteById(_attribute.Id.ToString());
                 attributeRepository.UnlinkOptions(_attribute.Id);
+                attributeRepository.RemoveDependencies(_attribute.Id);
+                attributeRepository.RemoveTransformations(_attribute.Id);
                 attributeRepository.Commit();
 
                 eventAggregator.GetEvent<RefreshAttributeListEvent>().Publish(new RefreshAttributeListEventArgument
@@ -360,7 +571,7 @@ namespace FastSQL.App.UserControls.Attributes
             }
             catch
             {
-                entityRepository.RollBack();
+                attributeRepository.RollBack();
                 throw;
             }
         }
@@ -407,6 +618,6 @@ namespace FastSQL.App.UserControls.Attributes
         {
             message = "Method is not implemented";
             return false;
-        }
+        }        
     }
 }

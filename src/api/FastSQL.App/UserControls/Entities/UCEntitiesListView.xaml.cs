@@ -29,6 +29,7 @@ namespace FastSQL.App.UserControls.Entities
             InitializeComponent();
             this.viewModel = viewModel;
             this.DataContext = viewModel;
+            Loaded += (s, e) => viewModel.Loaded();
         }
 
         public string Id => "lS2j9IRSTE+c8TFL7LFgZA==";
