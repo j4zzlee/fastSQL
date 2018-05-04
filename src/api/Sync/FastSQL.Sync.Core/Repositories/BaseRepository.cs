@@ -42,7 +42,7 @@ namespace FastSQL.Sync.Core.Repositories
             _transaction = null;
         }
 
-        public virtual void LinkOptions(Guid id, EntityType entityType, IEnumerable<OptionItem> options)
+        public virtual void LinkOptions(string id, EntityType entityType, IEnumerable<OptionItem> options)
         {
             // Options
             var optionParams = options.Select(o => new
@@ -94,7 +94,7 @@ WHEN NOT MATCHED THEN
                 transaction: _transaction);
         }
 
-        public virtual void UnlinkOptions(Guid id, EntityType entityType, IEnumerable<string> optionGroups = null)
+        public virtual void UnlinkOptions(string id, EntityType entityType, IEnumerable<string> optionGroups = null)
         {
             var unlinkSql = $@"
 DELETE og FROM [core_rel_option_option_group] og
@@ -127,7 +127,7 @@ INNER JOIN #TEMP t ON t.OptionId = o.Id;
                 transaction: _transaction);
         }
 
-        public virtual IEnumerable<OptionModel> LoadOptions(Guid entityId, EntityType entityType, IEnumerable<string> optionGroups = null)
+        public virtual IEnumerable<OptionModel> LoadOptions(string entityId, EntityType entityType, IEnumerable<string> optionGroups = null)
         {
             var optionsSql = $@"SELECT *
 FROM [core_options]
@@ -150,7 +150,7 @@ WHERE EntityId = @EntityId AND EntityType = @EntityType";
                 transaction: _transaction);
         }
 
-        public virtual IEnumerable<OptionModel> LoadOptions(IEnumerable<Guid> entityIds, EntityType entityType, IEnumerable<string> optionGroups = null)
+        public virtual IEnumerable<OptionModel> LoadOptions(IEnumerable<string> entityIds, EntityType entityType, IEnumerable<string> optionGroups = null)
         {
             var optionsSql = $@"SELECT *
 FROM [core_options]
@@ -378,9 +378,9 @@ transaction: _transaction);
 WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType", new { EntityId = id, EntityType = entityType }, transaction: _transaction);
         }
 
-        public abstract void LinkOptions(Guid id, IEnumerable<OptionItem> options);
-        public abstract void UnlinkOptions(Guid id, IEnumerable<string> optionGroups = null);
-        public abstract IEnumerable<OptionModel> LoadOptions(Guid entityId, IEnumerable<string> optionGroups = null);
-        public abstract IEnumerable<OptionModel> LoadOptions(IEnumerable<Guid> entityIds, IEnumerable<string> optionGroups = null);
+        public abstract void LinkOptions(string id, IEnumerable<OptionItem> options);
+        public abstract void UnlinkOptions(string id, IEnumerable<string> optionGroups = null);
+        public abstract IEnumerable<OptionModel> LoadOptions(string entityId, IEnumerable<string> optionGroups = null);
+        public abstract IEnumerable<OptionModel> LoadOptions(IEnumerable<string> entityIds, IEnumerable<string> optionGroups = null);
     }
 }

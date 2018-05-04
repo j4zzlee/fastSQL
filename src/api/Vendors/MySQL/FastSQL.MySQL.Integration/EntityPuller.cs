@@ -25,7 +25,7 @@ namespace FastSQL.MySQL.Integration
 
         public override PullResult PullNext(object lastToken = null)
         {
-            var options = EntityRepository.LoadOptions(EntityModel.Id);
+            var options = EntityRepository.LoadOptions(EntityModel.Id.ToString());
             var sqlScript = options.FirstOrDefault(o => o.Key == "puller_sql_script").Value;
             int limit = 100;
             int offset = 0;

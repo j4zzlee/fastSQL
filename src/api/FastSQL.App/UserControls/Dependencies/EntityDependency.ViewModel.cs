@@ -177,7 +177,7 @@ namespace FastSQL.App.UserControls
             TargetEntities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
         }
 
-        public void SetEntity(object entity)
+        public void SetIndex(object entity)
         {
             _entity = entity;
             if (entity != null)

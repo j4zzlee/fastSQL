@@ -322,7 +322,7 @@ namespace FastSQL.App.UserControls.Entities
             IEnumerable<OptionModel> options = new List<OptionModel>();
             if (_entity != null)
             {
-                options = entityRepository.LoadOptions(_entity.Id) ?? new List<OptionModel>();
+                options = entityRepository.LoadOptions(_entity.Id.ToString()) ?? new List<OptionModel>();
             }
             var optionItems = options.Select(o => new OptionItem { Name = o.Key, Value = o.Value });
 
@@ -368,8 +368,8 @@ namespace FastSQL.App.UserControls.Entities
             SelectedSourceProcessor = SourceProcessors.FirstOrDefault(p => p.Id == entity.SourceProcessorId);
             SelectedDestinationProcessor = DestinationProcessors.FirstOrDefault(p => p.Id == entity.DestinationProcessorId);
 
-            EntityDependencyViewModel.SetEntity(entity);
-            AttributeDependencyViewModel.SetEntity(entity);
+            EntityDependencyViewModel.SetIndex(entity);
+            AttributeDependencyViewModel.SetIndex(entity);
             TransformationConfigureViewModel.SetEntity(entity);
         }
 
@@ -516,10 +516,10 @@ namespace FastSQL.App.UserControls.Entities
                     DestinationProcessorId = SelectedDestinationProcessor.Id,
                 });
 
-                entityRepository.LinkOptions(_entity.Id, GetOptionItems());
+                entityRepository.LinkOptions(_entity.Id.ToString(), GetOptionItems());
                 entityRepository.SetDependencies(_entity.Id, GetDependencies(_entity.Id));
                 entityRepository.SetTransformations(_entity.Id, TransformationConfigureViewModel.Transformations.Select(t => t.GetModel()));
-                entityRepository.LinkOptions(_entity.Id, TransformationConfigureViewModel.GetTransformationOptions());
+                entityRepository.LinkOptions(_entity.Id.ToString(), TransformationConfigureViewModel.GetTransformationOptions());
 
                 entityRepository.Commit();
             }
@@ -550,10 +550,10 @@ namespace FastSQL.App.UserControls.Entities
                 });
                 var entityIdGuid = Guid.Parse(entityId);
 
-                entityRepository.LinkOptions(entityIdGuid, GetOptionItems());
+                entityRepository.LinkOptions(entityIdGuid.ToString(), GetOptionItems());
                 entityRepository.SetDependencies(entityIdGuid, GetDependencies(entityIdGuid));
                 entityRepository.SetTransformations(entityIdGuid, TransformationConfigureViewModel.Transformations.Select(t => t.GetModel()));
-                entityRepository.LinkOptions(entityIdGuid, TransformationConfigureViewModel.GetTransformationOptions());
+                entityRepository.LinkOptions(entityIdGuid.ToString(), TransformationConfigureViewModel.GetTransformationOptions());
                 entityRepository.Commit();
 
                 eventAggregator.GetEvent<RefreshEntityListEvent>().Publish(new RefreshEntityListEventArgument
@@ -582,7 +582,7 @@ namespace FastSQL.App.UserControls.Entities
             {
                 entityRepository.BeginTransaction();
                 entityRepository.DeleteById(_entity.Id.ToString());
-                entityRepository.UnlinkOptions(_entity.Id);
+                entityRepository.UnlinkOptions(_entity.Id.ToString());
                 entityRepository.RemoveDependencies(_entity.Id);
                 entityRepository.RemoveTransformations(_entity.Id);
                 entityRepository.Commit();

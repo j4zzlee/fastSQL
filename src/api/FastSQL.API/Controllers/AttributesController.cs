@@ -68,7 +68,7 @@ namespace FastSQL.API.Controllers
 
                 if (model.Options != null && model.Options.Count() > 0)
                 {
-                    attributeRepository.LinkOptions(Guid.Parse(result), model.Options);
+                    attributeRepository.LinkOptions(result, model.Options);
                 }
                
                 transaction.Commit();
@@ -88,7 +88,7 @@ namespace FastSQL.API.Controllers
             {
                 if (options != null && options.Count() > 0)
                 {
-                    attributeRepository.LinkOptions(Guid.Parse(id), options);
+                    attributeRepository.LinkOptions(id, options);
                 }
                 transaction.Commit();
                 return Ok(id);
@@ -129,7 +129,7 @@ namespace FastSQL.API.Controllers
 
                 if (model.Options != null && model.Options.Count() > 0)
                 {
-                    attributeRepository.LinkOptions(Guid.Parse(id), model.Options);
+                    attributeRepository.LinkOptions(id, model.Options);
                 }
 
                 transaction.Commit();
@@ -205,7 +205,7 @@ namespace FastSQL.API.Controllers
         {
             var attribute = attributeRepository.GetById(id.ToString());
             var entityModel = entityRepository.GetById(model.EntityId);
-            var options = attributeRepository.LoadOptions(id);
+            var options = attributeRepository.LoadOptions(id.ToString());
             var instanceOptions = options.Select(o => new OptionItem
             {
                 Name = o.Key,
@@ -246,7 +246,7 @@ namespace FastSQL.API.Controllers
         {
             var a = attributeRepository.GetById(id);
             var entity = entityRepository.GetById(a.EntityId.ToString());
-            var options = attributeRepository.LoadOptions(a.Id);
+            var options = attributeRepository.LoadOptions(a.Id.ToString());
             var jEntity = JObject.FromObject(a, serializer);
             var templateOpts = new List<OptionItem>();
             templateOpts.AddRange(GetPullerTemplateOptions(entity, a));
@@ -274,7 +274,7 @@ namespace FastSQL.API.Controllers
         {
             var attributes = attributeRepository.GetAll();
             var entities = entityRepository.GetByIds(attributes.Select(a => a.EntityId.ToString()));
-            var options = attributeRepository.LoadOptions(attributes.Select(c => c.Id));
+            var options = attributeRepository.LoadOptions(attributes.Select(c => c.Id.ToString()));
             return Ok(attributes.Select(a =>
             {
                 var jEntity = JObject.FromObject(a, serializer);

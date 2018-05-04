@@ -66,6 +66,7 @@
     <Compile Include="Events\SelectAttributeEvent.cs" />
     <Compile Include="Events\SelectEntityEvent.cs" />
     <Compile Include="Events\SelectSettingEvent.cs" />
+    <Compile Include="Extensions\ContextMenuServiceExtensions.cs" />
     <Compile Include="Interfaces\BaseCommand.cs" />
     <Compile Include="Interfaces\BaseViewModel.cs" />
     <Compile Include="Interfaces\IPageManager.cs" />
@@ -106,6 +107,12 @@
     </Compile>
     <Compile Include="UserControls\Connections\UCConnectionsListView.xaml.cs">
       <DependentUpon>UCConnectionsListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\DataGrid\DataGridViewModel.cs">
+      <DependentUpon>UCDataGrid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\DataGrid\UCDataGrid.xaml.cs">
+      <DependentUpon>UCDataGrid.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\Dependencies\AttributeDependency.ViewModel.cs">
       <DependentUpon>UCAttributeDependency.xaml</DependentUpon>
@@ -202,6 +209,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\Connections\UCConnectionsListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\DataGrid\UCDataGrid.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

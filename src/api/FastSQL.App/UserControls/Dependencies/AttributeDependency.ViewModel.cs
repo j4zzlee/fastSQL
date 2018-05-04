@@ -177,7 +177,7 @@ namespace FastSQL.App.UserControls.Dependencies
             TargetAttributes = new ObservableCollection<AttributeModel>(attributeRepository.GetAll());
         }
 
-        public void SetEntity(object entity)
+        public void SetIndex(object entity)
         {
             _entity = entity;
             if (entity != null)

@@ -149,7 +149,7 @@ namespace FastSQL.App.UserControls.Transformers
                 {
                     var r = new TransformationItemViewModel();
                     var transformer = transformers.FirstOrDefault(f => f.Id == t.TransformerId);
-                    transformer.SetOptions(transformerRepository.LoadOptions(t.Id).Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
+                    transformer.SetOptions(transformerRepository.LoadOptions(_entityId.ToString(), _entityType).Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
                     r.SetTransformation(t);
                     r.TransformerName = transformer.Name;
                     r.SetOptions(transformer.Options);

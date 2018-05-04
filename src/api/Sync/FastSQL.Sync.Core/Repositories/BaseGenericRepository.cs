@@ -52,22 +52,22 @@ namespace FastSQL.Sync.Core.Repositories
             return Update<TModel>(id, @params);
         }
 
-        public override void LinkOptions(Guid id, IEnumerable<OptionItem> options)
+        public override void LinkOptions(string id, IEnumerable<OptionItem> options)
         {
             LinkOptions(id, typeof(TModel).GetEntityType(), options);
         }
 
-        public override void UnlinkOptions(Guid id, IEnumerable<string> optionGroups = null)
+        public override void UnlinkOptions(string id, IEnumerable<string> optionGroups = null)
         {
             UnlinkOptions(id, typeof(TModel).GetEntityType(), optionGroups);
         }
         
-        public override IEnumerable<OptionModel> LoadOptions(Guid entityId, IEnumerable<string> optionGroups = null)
+        public override IEnumerable<OptionModel> LoadOptions(string entityId, IEnumerable<string> optionGroups = null)
         {
             return LoadOptions(entityId, typeof(TModel).GetEntityType(), optionGroups);
         }
 
-        public override IEnumerable<OptionModel> LoadOptions(IEnumerable<Guid> entityIds, IEnumerable<string> optionGroups = null)
+        public override IEnumerable<OptionModel> LoadOptions(IEnumerable<string> entityIds, IEnumerable<string> optionGroups = null)
         {
             return LoadOptions(entityIds, typeof(TModel).GetEntityType(), optionGroups);
         }

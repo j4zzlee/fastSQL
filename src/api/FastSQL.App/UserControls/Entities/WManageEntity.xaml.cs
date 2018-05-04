@@ -25,6 +25,21 @@ namespace FastSQL.App.UserControls.Entities
             DataContext = viewModel;
         }
 
+        private void btnForceChange_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
 
+            var mouseDownEvent =
+                new MouseButtonEventArgs(Mouse.PrimaryDevice,
+                    Environment.TickCount,
+                    MouseButton.Right)
+                {
+                    RoutedEvent = Mouse.MouseUpEvent,
+                    Source = this,
+                };
+
+
+            InputManager.Current.ProcessInput(mouseDownEvent);
+        }
     }
 }

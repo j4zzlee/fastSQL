@@ -91,7 +91,7 @@ namespace FastSQL.Sync.Core
         protected virtual IEntityPuller SpreadOptions()
         {
             ConnectionModel = ConnectionRepository.GetById(EntityModel.SourceConnectionId.ToString());
-            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id);
+            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
             var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
             Adapter.SetOptions(connectionOptionItems);
             Provider.SetOptions(connectionOptionItems);
@@ -163,7 +163,7 @@ namespace FastSQL.Sync.Core
         protected virtual IAttributePuller SpreadOptions()
         {
             ConnectionModel = ConnectionRepository.GetById(AttributeModel.SourceConnectionId.ToString());
-            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id);
+            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
             var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
             Adapter.SetOptions(connectionOptionItems);
             Provider.SetOptions(connectionOptionItems);

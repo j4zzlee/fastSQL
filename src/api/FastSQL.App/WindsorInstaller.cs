@@ -7,6 +7,7 @@ using FastSQL.App.Interfaces;
 using FastSQL.App.Managers;
 using FastSQL.Core;
 using FastSQL.Sync.Core;
+using FastSQL.Sync.Core.IndexExporters;
 using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Core.Settings;
 using Microsoft.Extensions.Configuration;
@@ -107,7 +108,12 @@ namespace FastSQL.App
                 .WithServiceSelf()
                 .WithServiceAllInterfaces()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-
+            container.Register(descriptor
+               .BasedOn<IIndexExporter>()
+               .WithService.Select(new Type[] { typeof(IIndexExporter) })
+               .WithServiceAllInterfaces()
+               .WithServiceSelf()
+               .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
             container.Register(descriptor
                 .BasedOn<IPageManager>()
                 .WithService.Select(new Type[] { typeof(IPageManager) })

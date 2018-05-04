@@ -112,7 +112,7 @@ namespace FastSQL.API.Controllers
             ConnectionModel source = null;
             ConnectionModel dest = null;
             var entity = entityRepository.GetById(id.ToString());
-            var options = entityRepository.LoadOptions(id);
+            var options = entityRepository.LoadOptions(id.ToString());
             var instanceOptions = options.Select(o => new OptionItem
             {
                 Name = o.Key,
@@ -148,7 +148,7 @@ namespace FastSQL.API.Controllers
         public IActionResult GetById(string id)
         {
             var entity = entityRepository.GetById(id);
-            var options = entityRepository.LoadOptions(entity.Id);
+            var options = entityRepository.LoadOptions(entity.Id.ToString());
             var jEntity = JObject.FromObject(entity, serializer);
             var templateOpts = new List<OptionItem>();
             templateOpts.AddRange(GetPullerTemplateOptions(entity));
@@ -175,7 +175,7 @@ namespace FastSQL.API.Controllers
         public IActionResult Get()
         {
             var entities = entityRepository.GetAll();
-            var options = entityRepository.LoadOptions(entities.Select(c => c.Id));
+            var options = entityRepository.LoadOptions(entities.Select(c => c.Id.ToString()));
             return Ok(entities.Select(c =>
             {
                 var jEntity = JObject.FromObject(c, serializer);
@@ -218,7 +218,7 @@ namespace FastSQL.API.Controllers
 
                 if (model.Options != null && model.Options.Count() > 0)
                 {
-                    entityRepository.LinkOptions(Guid.Parse(result), model.Options);
+                    entityRepository.LinkOptions(result, model.Options);
                 }
 
                 transaction.Commit();
@@ -238,7 +238,7 @@ namespace FastSQL.API.Controllers
             {
                 if (options != null && options.Count() > 0)
                 {
-                    entityRepository.LinkOptions(Guid.Parse(id), options);
+                    entityRepository.LinkOptions(id, options);
                 }
                 transaction.Commit();
                 return Ok(id);
@@ -279,7 +279,7 @@ namespace FastSQL.API.Controllers
 
                 if (model.Options != null && model.Options.Count() > 0)
                 {
-                    entityRepository.LinkOptions(Guid.Parse(id), model.Options);
+                    entityRepository.LinkOptions(id, model.Options);
                 }
 
                 transaction.Commit();

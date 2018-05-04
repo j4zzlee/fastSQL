@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FastSQL.App.UserControls.Previews"
+        xmlns:datagrid="clr-namespace:FastSQL.App.UserControls.DataGrid"
         mc:Ignorable="d"
         Title="WPreviewData" Height="450" Width="800"
         WindowStartupLocation="CenterOwner">
-    <Grid>
-        
+    <Grid VerticalAlignment="Stretch">
+        <datagrid:UCDataGrid DataContext="{Binding DataGridViewModel}" UseFilter="False" UsePaging="False"></datagrid:UCDataGrid>
     </Grid>
 </Window>

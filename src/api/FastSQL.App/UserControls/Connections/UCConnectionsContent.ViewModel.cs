@@ -96,7 +96,7 @@ namespace FastSQL.App.UserControls.Connections
                 IEnumerable<OptionModel> options = null;
                 if (_connection != null)
                 {
-                    options = connectionRepository.LoadOptions(_connection.Id);
+                    options = connectionRepository.LoadOptions(_connection.Id.ToString());
                 }
 
                 _selectedProvider.SetOptions(options?.Select(o => new OptionItem { Name = o.Key, Value = o.Value }) ?? new List<OptionItem>());
@@ -168,7 +168,7 @@ namespace FastSQL.App.UserControls.Connections
 
                 SelectedProvider.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
 
-                connectionRepository.LinkOptions(_connection.Id, SelectedProvider.Options);
+                connectionRepository.LinkOptions(_connection.Id.ToString(), SelectedProvider.Options);
                 connectionRepository.Commit();
             }
             catch
@@ -195,7 +195,7 @@ namespace FastSQL.App.UserControls.Connections
 
                 SelectedProvider.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
 
-                connectionRepository.LinkOptions(Guid.Parse(result), SelectedProvider.Options);
+                connectionRepository.LinkOptions(result, SelectedProvider.Options);
                 connectionRepository.Commit();
 
                 message = "Success";
@@ -223,7 +223,7 @@ namespace FastSQL.App.UserControls.Connections
             {
                 connectionRepository.BeginTransaction();
                 connectionRepository.DeleteById(_connection.Id.ToString());
-                connectionRepository.UnlinkOptions(_connection.Id);
+                connectionRepository.UnlinkOptions(_connection.Id.ToString());
                 connectionRepository.Commit();
 
                 eventAggregator.GetEvent<RefreshConnectionListEvent>().Publish(new RefreshConnectionListEventArgument

@@ -38,7 +38,7 @@ namespace FastSQL.API.Controllers
         public IActionResult GetAll()
         {
             var connections = _connectionRepository.GetAll<ConnectionModel>();
-            var options = _connectionRepository.LoadOptions(connections.Select(c => c.Id));
+            var options = _connectionRepository.LoadOptions(connections.Select(c => c.Id.ToString()));
             return Ok(connections.Select(c =>
             {
                 var jConnection = JObject.FromObject(c, serializer);
@@ -76,7 +76,7 @@ namespace FastSQL.API.Controllers
                     model.ProviderId
                 });
 
-                _connectionRepository.LinkOptions(Guid.Parse(result), model.Options);
+                _connectionRepository.LinkOptions(result, model.Options);
 
                 _transaction.Commit();
                 return Ok(result);
@@ -105,7 +105,7 @@ namespace FastSQL.API.Controllers
                     model.ProviderId
                 });
 
-                _connectionRepository.LinkOptions(Guid.Parse(connectionId), model.Options);
+                _connectionRepository.LinkOptions(connectionId, model.Options);
 
                 _transaction.Commit();
                 return Ok(result);
@@ -123,7 +123,7 @@ namespace FastSQL.API.Controllers
             try
             {
                 var result = _connectionRepository.DeleteById<ConnectionModel>(connectionId);
-                _connectionRepository.UnlinkOptions(Guid.Parse(connectionId), EntityType.Connection);
+                _connectionRepository.UnlinkOptions(connectionId, EntityType.Connection);
                 _transaction.Commit();
                 return Ok(result);
             }

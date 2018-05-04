@@ -4,10 +4,69 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FastSQL.App.UserControls.Entities"
+        xmlns:datagrid="clr-namespace:FastSQL.App.UserControls.DataGrid"
         mc:Ignorable="d"
-        Title="Manage Entity" Height="450" Width="800"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        Title="Manage Entity" Height="800" Width="1200"
         WindowStartupLocation="CenterOwner">
-    <Grid>
-        
-    </Grid>
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  VerticalContentAlignment="Stretch"
+                  HorizontalContentAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  HorizontalAlignment="Stretch"
+                  DataContext="{Binding}"
+                  Name="svContainer">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <datagrid:UCDataGrid Grid.Column="0" DataContext="{Binding DataGridViewModel}" UseFilter="True" UsePaging="True"></datagrid:UCDataGrid>
+            <Grid Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Button Grid.Row="0" Margin="5" Padding="5" Command="{Binding InitEntityCommand}">
+                    <TextBlock Text="Init"></TextBlock>
+                </Button>
+                <Button Grid.Row="1" Margin="5" Padding="5" Command="{Binding UpdateEntityCommand}">
+                    <TextBlock Text="Update Changes"></TextBlock>
+                </Button>
+                <Button Grid.Row="2" Margin="5" Padding="5"
+                        Command="{Binding ForceChangeBulkItemsCommand}"
+                        Name="btnForceChange" Content="Change">
+                </Button>
+                <Button Grid.Row="4" Margin="5" Padding="5" PreviewMouseLeftButtonUp="btnForceChange_MouseLeftButtonUp">
+                    <TextBlock Text="Export"></TextBlock>
+                    <Button.ContextMenu>
+                        <ContextMenu ItemsSource="{Binding Exporters}">
+                            <ContextMenu.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ContextMenu.ItemTemplate>
+                            <ContextMenu.ItemContainerStyle>
+                                <Style TargetType="MenuItem">
+                                    <Setter Property="Command" Value="{Binding ElementName=svContainer, Path=DataContext.ExportToFileCommand}"/>
+                                    <Setter Property="CommandParameter" Value="{Binding}"/>
+                                </Style>
+                            </ContextMenu.ItemContainerStyle>
+                        </ContextMenu>
+                        
+                    </Button.ContextMenu>
+                </Button>
+                <Button Grid.Row="5" Margin="5" Padding="5" Command="{Binding MapEntityCommand}">
+                    <TextBlock Text="Map"></TextBlock>
+                </Button>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
 </Window>

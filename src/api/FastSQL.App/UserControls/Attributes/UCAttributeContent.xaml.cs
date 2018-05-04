@@ -47,6 +47,9 @@ namespace FastSQL.App.UserControls.Attributes
         {
             var window = resolverFactory.Resolve<WPreviewData>();
             window.Owner = Application.Current.MainWindow;
+            window.SetPuller(obj.Puller);
+            window.SetEntity(obj.Entity);
+            window.SetAttribute(obj.Attribute);
             window.ShowDialog();
         }
 

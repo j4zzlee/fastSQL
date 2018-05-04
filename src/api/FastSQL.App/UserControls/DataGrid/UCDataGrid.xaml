@@ -1,0 +1,212 @@
+﻿<UserControl x:Class="FastSQL.App.UserControls.DataGrid.UCDataGrid"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FastSQL.App.UserControls.DataGrid"
+             xmlns:extensions="clr-namespace:FastSQL.App.Extensions"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    <Grid Name="grdContainer" DataContext="{Binding}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ItemsControl Name="icFilter"
+                      Visibility="{Binding Path=DataContext.UseFilter, 
+                       ElementName=grdContainer,
+                       Converter={StaticResource BooleanToVisibilityConverter}}"
+                      Grid.Row="0"
+                      Padding="10">
+            <TextBlock Text="Field: " Padding="5" Margin="5"></TextBlock>
+            <ComboBox Width="Auto" Margin="5" 
+                      Padding="5" 
+                      MinWidth="100"
+                      ItemsSource="{Binding FilterProperties}" 
+                      SelectedItem="{Binding FieldFilter}"></ComboBox>
+            <TextBlock Text="Operator: " Padding="5" Margin="5"></TextBlock>
+            <ComboBox Width="Auto" Margin="5" 
+                      Padding="5" 
+                      MinWidth="50"
+                      ItemsSource="{Binding FilterOperators}" 
+                      SelectedItem="{Binding OpFilter}"></ComboBox>
+            <TextBlock Text="Target Value: " Padding="5" Margin="5"></TextBlock>
+            <TextBox Width="150" Margin="5" Padding="5" Text="{Binding TargetFilter}"></TextBox>
+            <Button VerticalAlignment="Center" Padding="5" Margin="5" Command="{Binding ElementName=grdContainer, Path=DataContext.AddFilterCommand}">
+                <TextBlock Text="Add Filter"></TextBlock>
+            </Button>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=icParent, Path=ActualWidth}"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+        <ItemsControl Visibility="{Binding Path=DataContext.UseFilter, 
+                       ElementName=grdContainer,
+                       Converter={StaticResource BooleanToVisibilityConverter}}"
+            Grid.Row="1" 
+            VerticalContentAlignment="Center" 
+            VerticalAlignment="Center" 
+            Name="icParent">
+            <TextBlock Text="Filters" VerticalAlignment="Center" Margin="10,0,10,0"></TextBlock>
+            <ItemsControl Padding="5" ItemsSource="{Binding ElementName=grdContainer, Path=DataContext.Filters}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Padding="5" Margin="5" Command="{Binding ElementName=grdContainer, Path=DataContext.RemoveFilterCommand}"
+                                CommandParameter="{Binding}">
+                            <TextBlock>
+                                <Run Text="{Binding Field}"></Run>
+                                <Run Text=" "></Run>
+                                <Run Text="{Binding Op}"></Run>
+                                <Run Text=" "></Run>
+                                <Run Text="{Binding Target}"></Run>
+                                <Run Text=" "></Run>
+                                <Run Text="(X)" ToolTip="Click to remove the item"></Run>
+                            </TextBlock>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=icParent, Path=ActualWidth}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=grdContainer, Path=ActualWidth}"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+        <DataGrid Name="dgrData" ItemsSource="{Binding Data}"
+                  SelectedItem="{Binding SelectedItem}"
+                  Grid.Row="2"
+                  HorizontalContentAlignment="Stretch"
+                  AutoGenerateColumns="True"
+                  ScrollViewer.CanContentScroll="True" 
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  EnableColumnVirtualization="True"
+                  EnableRowVirtualization="True"
+                  BorderBrush="LightGray"
+                  BorderThickness="0.5"
+                  Margin="10"
+                  extensions:ContextMenuServiceExtensions.DataContext="{Binding ElementName=grdContainer}">
+            <DataGrid.ContextMenu>
+                <ContextMenu ItemsSource="{Binding GridContextMenus}">
+                    <ContextMenu.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}"/>
+                        </DataTemplate>
+                    </ContextMenu.ItemTemplate>
+                    <ContextMenu.ItemContainerStyle>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Header" Value="{Binding}"/>
+                            <Setter Property="Command" Value="{Binding ElementName=grdContainer, Path=DataContext.OnGridContextMenuCommand}"/>
+                            <Setter Property="CommandParameter" Value="{Binding}"/>
+                        </Style>
+                    </ContextMenu.ItemContainerStyle>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Width" Value="Auto"/>
+                    <Setter Property="VerticalAlignment" Value="Stretch"/>
+                    <Setter Property="Padding" Value="10"/>
+                    <Setter Property="BorderBrush" Value="LightGray"/>
+                    <Setter Property="BorderThickness" Value="0.5"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type DataGridCell}">
+                                <Border Padding="{TemplateBinding Padding}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                                    <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.CellStyle>
+        </DataGrid>
+        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="3" 
+              Margin="10"
+              Visibility="{Binding Path=DataContext.HasPaging, 
+                       ElementName=grdContainer,
+                       Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50"/>
+            </Grid.ColumnDefinitions>
+            <Button 
+                Command="{Binding ElementName=grdContainer, Path=DataContext.GoToFirstPageCommand}"
+                Visibility="{Binding Path=DataContext.HasFirstButton, 
+                       ElementName=grdContainer,
+                       Converter={StaticResource BooleanToVisibilityConverter}}"
+                Grid.Column="0" 
+                Padding="5" 
+                Margin="5" 
+                VerticalContentAlignment="Center" 
+                VerticalAlignment="Center">
+                <TextBlock Text="&lt;&lt;" VerticalAlignment="Center"></TextBlock>
+            </Button>
+            <Button 
+                Command="{Binding ElementName=grdContainer, Path=DataContext.GoToPreviousPageCommand}"
+                Visibility="{Binding Path=DataContext.HasPreviousButton, 
+                       ElementName=grdContainer,
+                       Converter={StaticResource BooleanToVisibilityConverter}}"
+                Grid.Column="1" 
+                Padding="5" 
+                Margin="5">
+                <TextBlock Text="&lt;" VerticalAlignment="Center"></TextBlock>
+            </Button>
+            <TextBlock Visibility="{Binding Path=DataContext.HasPreviousText, 
+                       ElementName=grdContainer,
+                       Converter={StaticResource BooleanToVisibilityConverter}}"
+                Text="..." VerticalAlignment="Center" Grid.Column="2"></TextBlock>
+            <TextBlock Grid.Column="3" Padding="5" Margin="5"
+                       Visibility="{Binding Path=DataContext.HasPaging, 
+                       ElementName=grdContainer,
+                       Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Run Text="Page: "></Run>
+                <Run Text="{Binding PageNumber}"></Run>
+                <Run Text="/"></Run>
+                <Run Text="{Binding TotalPages}"></Run>
+                <Run Text=" of "></Run>
+                <Run Text="{Binding TotalCount}"></Run>
+                <Run Text=" items"></Run>
+            </TextBlock>
+            <TextBlock Visibility="{Binding Path=DataContext.HasNextText, 
+                       ElementName=grdContainer,
+                       Converter={StaticResource BooleanToVisibilityConverter}}"
+                Text="..." VerticalAlignment="Center" Grid.Column="4"></TextBlock>
+            <Button Visibility="{Binding Path=DataContext.HasNextButton, 
+                       ElementName=grdContainer,
+                       Converter={StaticResource BooleanToVisibilityConverter}}"
+                Command="{Binding ElementName=grdContainer, Path=DataContext.GoToNextPageCommand}"
+                Padding="5" 
+                Margin="5" 
+                Grid.Column="5">
+                <TextBlock Text="&gt;" VerticalAlignment="Center"></TextBlock>
+            </Button>
+            <Button 
+                Command="{Binding ElementName=grdContainer, Path=DataContext.GoToLastPageCommand}"
+                Visibility="{Binding Path=DataContext.HasLastButton, 
+                       ElementName=grdContainer,
+                       Converter={StaticResource BooleanToVisibilityConverter}}"
+                Padding="5" 
+                Margin="5" 
+                Grid.Column="6">
+                <TextBlock Text="&gt;&gt;" VerticalAlignment="Center"></TextBlock>
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>

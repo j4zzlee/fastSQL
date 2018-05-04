@@ -28,7 +28,7 @@ namespace FastSQL.MsSql.Integration
 
         public override PullResult PullNext(object lastToken = null)
         {
-            var options = AttributeRepository.LoadOptions(AttributeModel.Id);
+            var options = AttributeRepository.LoadOptions(AttributeModel.Id.ToString());
             var sqlScript = options.GetValue("puller_sql_script");
             var limit = options.GetValue("puller_page_limit", 100);
             var offset = 0;
