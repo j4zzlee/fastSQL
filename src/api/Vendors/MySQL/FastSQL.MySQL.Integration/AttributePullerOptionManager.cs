@@ -28,20 +28,13 @@ LIMIT @Limit OFFSET @Offset"
                 },
                 new OptionItem
                 {
-                    Name = "puller_id_column",
-                    DisplayName = "ID Column",
-                    Description = "ID Column name",
-                    Value = "ID",
-                    Example = "ID",
+                    Name = "puller_page_limit",
+                    DisplayName= "@Limit",
                     OptionGroupNames = new List<string>{ "Puller" },
-                },
-                new OptionItem
-                {
-                    Name = "puller_lookup_columns",
-                    DisplayName = "Lookup Columns",
-                    Description = "A comma separated list of columns to lookup as values or primary keys",
-                    Example = "Value",
-                    OptionGroupNames = new List<string>{ "Puller" },
+                    Type = OptionType.Sql,
+                    Description = @"A maximum limitation per page when pull data",
+                    Example = $@"100",
+                    Value = $@"100"
                 }
             };
         }

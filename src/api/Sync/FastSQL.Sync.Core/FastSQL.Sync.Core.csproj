@@ -7,11 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ExtensionMethods\ScrollViewerExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
+    <PackageReference Include="Prism.Core" Version="7.0.0.396" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\migrations\st2forget.commons.datetime\st2forget.commons.datetime.csproj" />
     <ProjectReference Include="..\..\..\..\..\migrations\st2forget.utils.sql\st2forget.utils.sql.csproj" />
     <ProjectReference Include="..\..\FastSQL.Core\FastSQL.Core.csproj" />
   </ItemGroup>

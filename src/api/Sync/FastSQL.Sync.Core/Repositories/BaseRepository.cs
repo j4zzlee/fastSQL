@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace FastSQL.Sync.Core.Repositories
 {
@@ -92,6 +93,20 @@ WHEN NOT MATCHED THEN
                 updateOptionGroupsSql,
                 param: optionGroupParams,
                 transaction: _transaction);
+        }
+
+        public virtual void Truncate(string tableName)
+        {
+            var truncateSQL = $@"
+IF EXISTS (
+    SELECT * FROM sys.tables
+    WHERE name = N'{tableName}' AND type = 'U'
+)
+BEGIN
+    TRUNCATE TABLE [{tableName}];
+END;
+";
+            _connection.Execute(truncateSQL, transaction: _transaction);
         }
 
         public virtual void UnlinkOptions(string id, EntityType entityType, IEnumerable<string> optionGroups = null)
@@ -288,22 +303,17 @@ SELECT [{keyColumnName}] FROM @InsertedRows";
 
         public virtual IEnumerable<ColumnTransformationModel> GetTransformations(Guid entityId, EntityType entityType)
         {
-            return _connection.Query<ColumnTransformationModel>($@"SELECT * FROM [core_entity_column_transformation]
+            return _connection.Query<ColumnTransformationModel>($@"SELECT * FROM [core_index_column_transformation]
 WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType", new { EntityId = entityId, EntityType = entityType }, transaction: _transaction);
         }
 
         public virtual void SetTransformations(Guid id, EntityType entityType, IEnumerable<ColumnTransformationModel> transformations)
         {
-            foreach (var t in transformations)
-            {
-                t.TargetEntityId = id;
-                t.TargetEntityType = entityType;
-            }
-            _connection.Execute($@"DELETE FROM [core_entity_column_transformation] 
+            _connection.Execute($@"DELETE FROM [core_index_column_transformation] 
 WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType",
 new { EntityId = id, EntityType = entityType },
 transaction: _transaction);
-            _connection.Execute($@"INSERT INTO [core_entity_column_transformation](
+            _connection.Execute($@"INSERT INTO [core_index_column_transformation](
 [{nameof(ColumnTransformationModel.TargetEntityId)}],
 [{nameof(ColumnTransformationModel.TargetEntityType)}],
 [{nameof(ColumnTransformationModel.ColumnName)}],
@@ -313,13 +323,17 @@ VALUES (
 @{nameof(ColumnTransformationModel.TargetEntityType)},
 @{nameof(ColumnTransformationModel.ColumnName)},
 @{nameof(ColumnTransformationModel.TransformerId)})",
-transformations,
+transformations.Select(t => {
+    t.TargetEntityId = id;
+    t.TargetEntityType = entityType;
+    return t;
+}),
 transaction: _transaction);
         }
 
         public virtual IEnumerable<DependencyItemModel> GetDependencies(Guid id, EntityType entityType)
         {
-            return _connection.Query<DependencyItemModel>($@"SELECT * FROM [core_entity_dependency] 
+            return _connection.Query<DependencyItemModel>($@"SELECT * FROM [core_index_dependency] 
 WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType",
 new { EntityId = id, EntityType = entityType },
 transaction: _transaction);
@@ -327,7 +341,7 @@ transaction: _transaction);
 
         public virtual IEnumerable<DependencyItemModel> GetDependencies(Guid id, EntityType entityType, EntityType targetEntityType)
         {
-            return _connection.Query<DependencyItemModel>($@"SELECT * FROM [core_entity_dependency] 
+            return _connection.Query<DependencyItemModel>($@"SELECT * FROM [core_index_dependency] 
 WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType AND [TargetEntityType] = @TargetEntityType",
 new { EntityId = id, EntityType = entityType, TargetEntityType = targetEntityType },
 transaction: _transaction);
@@ -335,7 +349,7 @@ transaction: _transaction);
 
         public virtual void RemoveDependencies(Guid id, EntityType entityType)
         {
-            _connection.Execute($@"DELETE FROM [core_entity_dependency] 
+            _connection.Execute($@"DELETE FROM [core_index_dependency] 
 WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType",
 new { EntityId = id, EntityType = entityType },
 transaction: _transaction);
@@ -343,23 +357,21 @@ transaction: _transaction);
 
         public virtual void SetDependencies(Guid id, EntityType entityType, IEnumerable<DependencyItemModel> dependencies)
         {
-            foreach (var dependency in dependencies)
-            {
-                dependency.EntityId = id;
-                dependency.EntityType = entityType;
-            }
-            _connection.Execute($@"DELETE FROM [core_entity_dependency] 
+            _connection.Execute($@"DELETE FROM [core_index_dependency] 
 WHERE [EntityId] = @EntityId AND [EntityType] = @EntityType",
 new { EntityId = id, EntityType = entityType },
 transaction: _transaction);
-            _connection.Execute($@"INSERT INTO [core_entity_dependency](
+            _connection.Execute($@"INSERT INTO [core_index_dependency](
 [{nameof(DependencyItemModel.EntityId)}],
 [{nameof(DependencyItemModel.EntityType)}],
 [{nameof(DependencyItemModel.TargetEntityId)}],
 [{nameof(DependencyItemModel.TargetEntityType)}],
 [{nameof(DependencyItemModel.StepToExecute)}],
 [{nameof(DependencyItemModel.DependOnStep)}],
-[{nameof(DependencyItemModel.ExecuteImmediately)}])
+[{nameof(DependencyItemModel.ExecuteImmediately)}],
+[{nameof(DependencyItemModel.ForeignKeys)}],
+[{nameof(DependencyItemModel.ReferenceKeys)}]
+)
 VALUES (
 @{nameof(DependencyItemModel.EntityId)},
 @{nameof(DependencyItemModel.EntityType)},
@@ -367,20 +379,182 @@ VALUES (
 @{nameof(DependencyItemModel.TargetEntityType)},
 @{nameof(DependencyItemModel.StepToExecute)},
 @{nameof(DependencyItemModel.DependOnStep)},
-@{nameof(DependencyItemModel.ExecuteImmediately)})",
-dependencies,
+@{nameof(DependencyItemModel.ExecuteImmediately)},
+@{nameof(DependencyItemModel.ReferenceKeys)},
+@{nameof(DependencyItemModel.ForeignKeys)})",
+dependencies
+    .Select(d => {
+        d.EntityId = id;
+        d.EntityType = entityType;
+        return d;
+    }),
 transaction: _transaction);
         }
 
-        public void RemoveTransformations(Guid id, EntityType entityType)
+        public virtual void RemoveTransformations(Guid id, EntityType entityType)
         {
-            _connection.Query<ColumnTransformationModel>($@"DELETE FROM [core_entity_column_transformation]
+            _connection.Query<ColumnTransformationModel>($@"DELETE FROM [core_index_column_transformation]
 WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType", new { EntityId = id, EntityType = entityType }, transaction: _transaction);
         }
 
-        public abstract void LinkOptions(string id, IEnumerable<OptionItem> options);
-        public abstract void UnlinkOptions(string id, IEnumerable<string> optionGroups = null);
-        public abstract IEnumerable<OptionModel> LoadOptions(string entityId, IEnumerable<string> optionGroups = null);
-        public abstract IEnumerable<OptionModel> LoadOptions(IEnumerable<string> entityIds, IEnumerable<string> optionGroups = null);
+        public virtual void LinkOptions(string id, IEnumerable<OptionItem> options)
+        {
+            LinkOptions(id, EntityType, options);
+        }
+        public virtual void UnlinkOptions(string id, IEnumerable<string> optionGroups = null)
+        {
+            UnlinkOptions(id, EntityType, optionGroups);
+        }
+
+        public virtual IEnumerable<OptionModel> LoadOptions(string entityId, IEnumerable<string> optionGroups = null)
+        {
+            return LoadOptions(entityId, EntityType, optionGroups);
+        }
+        public virtual IEnumerable<OptionModel> LoadOptions(IEnumerable<string> entityIds, IEnumerable<string> optionGroups = null)
+        {
+            return LoadOptions(entityIds, EntityType, optionGroups);
+        }
+
+        public virtual void Init(IIndexModel entity)
+        {
+            var options = LoadOptions(entity.Id.ToString(), entity.EntityType);
+            var checkTables = new List<string> { entity.ValueTableName, entity.NewValueTableName, entity.OldValueTableName };
+            foreach (var table in checkTables)
+            {
+                var truncateSQL = $@"
+IF EXISTS (
+    SELECT * FROM sys.tables
+    WHERE name = N'{table}' AND type = 'U'
+)
+BEGIN
+    DROP TABLE [{table}];
+END;
+";
+                _connection.Execute(truncateSQL, transaction: _transaction);
+            }
+            var idColumn = options.GetValue("indexer_key_column");
+            var idColumnWithType = idColumn.Split(':');
+            var idColumnType = "NVARCHAR(MAX)";
+            var idColumnName = idColumn.Trim();
+            if (idColumnWithType.Length > 1)
+            {
+                if (!string.IsNullOrWhiteSpace(idColumnWithType[1]))
+                {
+                    idColumnType = idColumnWithType[1].ToUpper().Trim();
+                }
+                idColumnName = idColumnWithType[0].Trim(); // TODO: THINK OF A WAY TO USE IT
+            }
+            var primaryColumns = options.GetValue("indexer_primary_key_columns");
+            var valueColumns = options.GetValue("indexer_value_columns");
+            var allColumns = new List<string>(); // without ID Column
+            allColumns.AddRange(Regex.Split(primaryColumns, "[|;,]"));
+            allColumns.AddRange(Regex.Split(valueColumns, "[|;,]"));
+            var sqlColumns = allColumns.Where(c => !string.IsNullOrWhiteSpace(c)).Select(c =>
+            {
+                var result = c;
+                var columnWithType = c.Split(':'); // ID:int
+                if (columnWithType.Length > 1)
+                {
+                    if (!string.IsNullOrWhiteSpace(columnWithType[1]))
+                    {
+                        result = $"{columnWithType[0].Trim()} {columnWithType[1].ToUpper().Trim()}";
+                    }
+                    else
+                    {
+                        result = columnWithType[0].Trim();
+                    }
+                }
+                return result;
+            });
+            CreateValueTable(entity, idColumnType, sqlColumns);
+            CreateOldValueTable(entity, idColumnType, sqlColumns);
+            CreateNewValueTable(entity, idColumnType, sqlColumns);
+        }
+
+        private void CreateNewValueTable(IIndexModel model, string sourceColumnType, IEnumerable<string> columns)
+        {
+            var createTableSQL = $@"
+CREATE TABLE {model.NewValueTableName} (
+	[Id] {sourceColumnType} NOT NULL PRIMARY KEY,
+    {string.Join(",\n\t", columns)}
+)
+";
+            _connection.Execute(createTableSQL, transaction: _transaction);
+        }
+
+        private void CreateOldValueTable(IIndexModel model, string sourceColumnType, IEnumerable<string> columns)
+        {
+            var createTableSQL = $@"
+CREATE TABLE {model.OldValueTableName} (
+	[Id] {sourceColumnType} NOT NULL PRIMARY KEY,
+    {string.Join(",\n\t", columns)}
+)
+";
+            _connection.Execute(createTableSQL, transaction: _transaction);
+        }
+
+        private void CreateValueTable(IIndexModel model, string sourceColumnType, IEnumerable<string> columns)
+        {
+            var createValueTableSQL = $@"
+CREATE TABLE {model.ValueTableName} (
+	[Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    [SourceId] {sourceColumnType} NOT NULL,
+    [DestinationId] NVARCHAR(MAX),
+    [State] INT NULL,
+    [LastUpdated] INT NOT NULL,
+    {string.Join(",\n\t", columns)}
+)
+";
+            _connection.Execute(createValueTableSQL, transaction: _transaction);
+        }
+
+        public bool Initialized(IIndexModel model)
+        {
+            var checkTables = new List<string> { model.ValueTableName, model.NewValueTableName, model.OldValueTableName };
+            var exists = true;
+            foreach (var table in checkTables)
+            {
+                var existsSQL = $@"
+SELECT * FROM sys.tables
+WHERE [name] = N'{table}' AND [type] = 'U'
+";
+                var existsObj = _connection.Query<object>(existsSQL, transaction: _transaction).FirstOrDefault();
+                exists = exists && (existsObj != null);
+            }
+
+            return exists;
+        }
+        
+        public IEnumerable<DependencyItemModel> GetDependencies(Guid id)
+        {
+            return GetDependencies(id, EntityType);
+        }
+        
+        public void RemoveDependencies(Guid id)
+        {
+            RemoveDependencies(id, EntityType);
+        }
+
+        public void SetDependencies(Guid id, IEnumerable<DependencyItemModel> dependencies)
+        {
+            SetDependencies(id, EntityType, dependencies);
+        }
+
+        public IEnumerable<ColumnTransformationModel> GetTransformations(Guid entityId)
+        {
+            return GetTransformations(entityId, EntityType);
+        }
+
+        public void SetTransformations(Guid id, IEnumerable<ColumnTransformationModel> transformations)
+        {
+            SetTransformations(id, EntityType, transformations);
+        }
+
+        public void RemoveTransformations(Guid id)
+        {
+            RemoveTransformations(id, EntityType);
+        }
+
+        protected abstract EntityType EntityType { get; }
     }
 }

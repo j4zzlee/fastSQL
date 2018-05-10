@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
 using st2forget.utils.sql;
 
@@ -9,5 +10,7 @@ namespace FastSQL.Sync.Core.Repositories
         public ConnectionRepository(DbConnection connection) : base(connection)
         {
         }
+
+        protected override EntityType EntityType => EntityType.Connection;
     }
 }

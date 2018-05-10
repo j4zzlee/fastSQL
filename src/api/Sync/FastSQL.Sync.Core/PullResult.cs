@@ -11,7 +11,7 @@ namespace FastSQL.Sync.Core
 
         public bool IsValid()
         {
-            return (Status & SyncState.Invalid) > 0;
+            return (Status & SyncState.Invalid) == 0;
         }
 
         public PullResult AddState(SyncState state)

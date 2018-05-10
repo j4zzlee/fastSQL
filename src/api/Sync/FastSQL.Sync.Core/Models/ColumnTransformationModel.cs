@@ -8,7 +8,7 @@ using System.Text;
 
 namespace FastSQL.Sync.Core.Models
 {
-    [Table("core_entity_column_transformation")]
+    [Table("core_index_column_transformation")]
     [EntityType(EntityType.Attribute)]
     public class ColumnTransformationModel
     {

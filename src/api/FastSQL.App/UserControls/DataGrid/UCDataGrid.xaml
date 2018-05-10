@@ -6,9 +6,12 @@
              xmlns:local="clr-namespace:FastSQL.App.UserControls.DataGrid"
              xmlns:extensions="clr-namespace:FastSQL.App.Extensions"
              mc:Ignorable="d" 
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Platform"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <extensions:BindingProxy x:Key="Proxy" Data="{Binding}" />
     </UserControl.Resources>
     <Grid Name="grdContainer" DataContext="{Binding}">
         <Grid.RowDefinitions>
@@ -53,8 +56,8 @@
             VerticalContentAlignment="Center" 
             VerticalAlignment="Center" 
             Name="icParent">
-            <TextBlock Text="Filters" VerticalAlignment="Center" Margin="10,0,10,0"></TextBlock>
-            <ItemsControl Padding="5" ItemsSource="{Binding ElementName=grdContainer, Path=DataContext.Filters}">
+            <TextBlock Text="Filters" VerticalAlignment="Center" Margin="20,0,10,0"></TextBlock>
+            <ItemsControl Padding="5" Margin="10,0,5,10" ItemsSource="{Binding ElementName=grdContainer, Path=DataContext.Filters}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Padding="5" Margin="5" Command="{Binding ElementName=grdContainer, Path=DataContext.RemoveFilterCommand}"
@@ -83,10 +86,10 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-        <DataGrid Name="dgrData" ItemsSource="{Binding Data}"
+        <DataGrid Name="dgrData" 
+                  ItemsSource="{Binding Data}"
                   SelectedItem="{Binding SelectedItem}"
                   Grid.Row="2"
-                  HorizontalContentAlignment="Stretch"
                   AutoGenerateColumns="True"
                   ScrollViewer.CanContentScroll="True" 
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -95,10 +98,17 @@
                   EnableRowVirtualization="True"
                   BorderBrush="LightGray"
                   BorderThickness="0.5"
-                  Margin="10"
-                  extensions:ContextMenuServiceExtensions.DataContext="{Binding ElementName=grdContainer}">
+                  Margin="10">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <cmd:EventToCommand Command="{Binding SelectionChangedCommand}" CommandParameter="{Binding ElementName=dgrData, Path=SelectedItems}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
             <DataGrid.ContextMenu>
-                <ContextMenu ItemsSource="{Binding GridContextMenus}">
+                <ContextMenu 
+                    Loaded="ContextMenu_Loaded"
+                    ItemsSource="{Binding GridContextMenus}"
+                    Visibility="{Binding Path=HasGridContextMenu, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <ContextMenu.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding}"/>
@@ -106,8 +116,8 @@
                     </ContextMenu.ItemTemplate>
                     <ContextMenu.ItemContainerStyle>
                         <Style TargetType="MenuItem">
-                            <Setter Property="Header" Value="{Binding}"/>
-                            <Setter Property="Command" Value="{Binding ElementName=grdContainer, Path=DataContext.OnGridContextMenuCommand}"/>
+                            <Setter Property="Command" 
+                                    Value="{Binding Source={StaticResource Proxy}, Path=Data.OnGridContextMenuCommand}"/>
                             <Setter Property="CommandParameter" Value="{Binding}"/>
                         </Style>
                     </ContextMenu.ItemContainerStyle>
@@ -141,7 +151,7 @@
                 <ColumnDefinition Width="50"/>
                 <ColumnDefinition Width="50"/>
                 <ColumnDefinition Width="50"/>
-                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="50"/>
                 <ColumnDefinition Width="50"/>
                 <ColumnDefinition Width="50"/>
@@ -168,26 +178,18 @@
                 Margin="5">
                 <TextBlock Text="&lt;" VerticalAlignment="Center"></TextBlock>
             </Button>
-            <TextBlock Visibility="{Binding Path=DataContext.HasPreviousText, 
-                       ElementName=grdContainer,
-                       Converter={StaticResource BooleanToVisibilityConverter}}"
-                Text="..." VerticalAlignment="Center" Grid.Column="2"></TextBlock>
             <TextBlock Grid.Column="3" Padding="5" Margin="5"
                        Visibility="{Binding Path=DataContext.HasPaging, 
                        ElementName=grdContainer,
                        Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Run Text="Page: "></Run>
-                <Run Text="{Binding PageNumber}"></Run>
+                <Run Text="{Binding ElementName=grdContainer, Path=DataContext.PageNumber, Mode=TwoWay}"></Run>
                 <Run Text="/"></Run>
-                <Run Text="{Binding TotalPages}"></Run>
+                <Run Text="{Binding ElementName=grdContainer, Path=DataContext.TotalPages, Mode=TwoWay}"></Run>
                 <Run Text=" of "></Run>
-                <Run Text="{Binding TotalCount}"></Run>
+                <Run Text="{Binding ElementName=grdContainer, Path=DataContext.TotalCount, Mode=TwoWay}"></Run>
                 <Run Text=" items"></Run>
             </TextBlock>
-            <TextBlock Visibility="{Binding Path=DataContext.HasNextText, 
-                       ElementName=grdContainer,
-                       Converter={StaticResource BooleanToVisibilityConverter}}"
-                Text="..." VerticalAlignment="Center" Grid.Column="4"></TextBlock>
             <Button Visibility="{Binding Path=DataContext.HasNextButton, 
                        ElementName=grdContainer,
                        Converter={StaticResource BooleanToVisibilityConverter}}"

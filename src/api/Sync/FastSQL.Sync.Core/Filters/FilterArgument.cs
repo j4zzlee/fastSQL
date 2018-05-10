@@ -73,5 +73,8 @@ namespace FastSQL.Sync.Core.Filters
     public class FilterArguments
     {
         public IEnumerable<FilterArgument> Filters { get; set; }
+        public IDictionary<string, string> Orders { get; set; }
+        public int Limit { get; set; }
+        public int Offset { get; set; }
     }
 }

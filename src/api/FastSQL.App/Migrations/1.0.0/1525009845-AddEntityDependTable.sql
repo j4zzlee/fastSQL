@@ -5,7 +5,7 @@
 ----------------------------
 -- Migration up goes here.
 ----------------------------
-CREATE TABLE core_entity_dependency (
+CREATE TABLE core_index_dependency (
 	[Id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
 	[EntityId] UNIQUEIDENTIFIER NOT NULL,
 	[EntityType] INT NOT NULL,
@@ -19,4 +19,4 @@ CREATE TABLE core_entity_dependency (
 ----------------------------
 -- Migration down goes here.
 ----------------------------
-DROP TABLE core_entity_dependency;
+DROP TABLE core_index_dependency;

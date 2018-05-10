@@ -1,0 +1,133 @@
+﻿<Window x:Class="FastSQL.App.UserControls.WManageIndex"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:local="clr-namespace:FastSQL.App.UserControls"
+        xmlns:datagrid="clr-namespace:FastSQL.App.UserControls.DataGrid"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf" 
+        xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+        xmlns:outputview="clr-namespace:FastSQL.App.UserControls.OutputView"
+        mc:Ignorable="d"
+        Title="{Binding ModelName}" Height="800" Width="1200"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <Storyboard x:Key="WaitStoryboard">
+            <DoubleAnimation
+            Storyboard.TargetName="Waiter"
+            Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+            From="0"
+            To="360"
+            Duration="0:0:2"
+            RepeatBehavior="Forever" />
+        </Storyboard>
+    </Window.Resources>
+    <Grid Name="grdContainer" DataContext="{Binding}">
+        <syncfusion:DockingManager x:Name="SyncDockingManager" UseDocumentContainer="True">
+            <ContentControl x:Name="Output" syncfusion:DockingManager.Header="Output"
+                            syncfusion:DockingManager.State="Dock"
+                            syncfusion:DockingManager.SideInDockedMode="Bottom"
+                            syncfusion:DockingManager.DockAbility="Bottom"
+                            syncfusion:DockingManager.DesiredMinHeightInDockedMode="200"
+                            syncfusion:DockingManager.CanClose="False">
+                <outputview:UCOutputView DataContext="{Binding OutputViewViewModel}"></outputview:UCOutputView>
+            </ContentControl>
+            <ContentControl
+                x:Name="Content"
+                syncfusion:DockingManager.Header="Content"
+                syncfusion:DockingManager.State="Document"
+                syncfusion:DockingManager.NoHeader="True"
+                syncfusion:DockingManager.CollapseDefaultContextMenuItemsInDock="True"
+                syncfusion:DockingManager.ShowAutoHiddenMenuItem="False"
+                syncfusion:DockingManager.ShowCloseAllButThisMenuItem="False"
+                syncfusion:DockingManager.ShowDockableMenuItem="False"
+                syncfusion:DockingManager.ShowFloatingMenuItem="False"
+                syncfusion:DockingManager.ShowCloseAllMenuItem="False"
+                syncfusion:DockingManager.ShowDocumentMenuItem="False"
+                syncfusion:DockingManager.ShowTabbedMenuItem="False"
+                syncfusion:DockingManager.ShowTopmostMenuItem="False"
+                syncfusion:DockingManager.ShowCloseMenuItem="False"
+                syncfusion:DockingManager.ShowHiddenMenuItem="False"
+                syncfusion:DockingManager.ShowHorizontalTabGroupMenuItem="False"
+                syncfusion:DockingManager.ShowVerticalTabGroupMenuItem="False"
+                syncfusion:DockingManager.CanAutoHide="False"
+                syncfusion:DockingManager.CanClose="False">
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <datagrid:UCDataGrid Grid.Column="0" DataContext="{Binding DataGridViewModel}" UseFilter="True" UsePaging="True"></datagrid:UCDataGrid>
+                    <Grid Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Button Grid.Row="0" Margin="5" Padding="5" Command="{Binding InitIndexCommand}">
+                            <TextBlock Text="Init Index"></TextBlock>
+                        </Button>
+                        <Button Grid.Row="1" Margin="5" Padding="5" Command="{Binding UpdateIndexCommand}">
+                            <TextBlock Text="Update Index"></TextBlock>
+                        </Button>
+                        <Button Grid.Row="2" Margin="5" Padding="5" PreviewMouseLeftButtonUp="btnForceChange_MouseLeftButtonUp">
+                            <TextBlock Text="Export"></TextBlock>
+                            <Button.ContextMenu>
+                                <ContextMenu ItemsSource="{Binding Exporters}">
+                                    <ContextMenu.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </DataTemplate>
+                                    </ContextMenu.ItemTemplate>
+                                    <ContextMenu.ItemContainerStyle>
+                                        <Style TargetType="MenuItem">
+                                            <Setter Property="Command" Value="{Binding ElementName=grdContainer, Path=DataContext.ExportToFileCommand}"/>
+                                            <Setter Property="CommandParameter" Value="{Binding}"/>
+                                        </Style>
+                                    </ContextMenu.ItemContainerStyle>
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
+                        <Button Grid.Row="3" Margin="5" Padding="5" Command="{Binding MapIndexCommand}">
+                            <TextBlock Text="Map"></TextBlock>
+                        </Button>
+                    </Grid>
+                    <Grid Grid.ColumnSpan="2"
+              Background="Gray"
+              Opacity=".3"
+              Visibility="{Binding Path=DataContext.IsLoading, 
+                ElementName=grdContainer,
+                Converter={StaticResource BooleanToVisibilityConverter}}">
+                    </Grid>
+                    <Grid Grid.ColumnSpan="2"
+              Background="Transparent"
+              Visibility="{Binding Path=DataContext.IsLoading, 
+                ElementName=grdContainer,
+                Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Name="Waiter"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       RenderTransformOrigin="0.5, 0.5">
+                            <TextBlock.RenderTransform>
+                                <RotateTransform />
+                            </TextBlock.RenderTransform>
+                <fa:ImageAwesome
+                             Icon="Spinner"
+                             Width="50"
+                             Height="50"
+                             VerticalAlignment="Center"
+                             HorizontalAlignment="Center"
+                             />
+                        </TextBlock>
+                    </Grid>
+                </Grid>
+            </ContentControl>
+        </syncfusion:DockingManager>
+    </Grid>
+</Window>

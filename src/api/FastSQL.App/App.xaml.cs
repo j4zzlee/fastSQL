@@ -3,22 +3,16 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
+using FastSQL.App.Extensions;
 using FastSQL.Sync.Core.Settings.Events;
 using Microsoft.Extensions.Configuration;
 using Prism.Events;
 using Serilog;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using System.Resources;
 
 namespace FastSQL.App
 {
@@ -31,7 +25,7 @@ namespace FastSQL.App
         private IDisposable _scope;
         private IEventAggregator _eventAggregate;
         private MainWindow _mainWindow;
-
+        private const string resxFile = @".\Properties\Resources.resx";
         public App()
         {
             this.Startup += Application_Startup;
@@ -66,55 +60,43 @@ namespace FastSQL.App
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            var builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
-            .SetBasePath(Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                            "Beehexa"))
-            .AddJsonFile("appsettings.json", false, true);
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var assemblyName = assembly.GetName().Name;
+            var resourceManager = new ResourceManager($"{assemblyName}.Properties.Resources", assembly);
 
+            var appName = resourceManager.GetString("ApplicationName");
+            var basePath = Path.Combine(
+                                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                                "Beehexa", appName);
+
+            if (!Directory.Exists(basePath))
+            {
+                Directory.CreateDirectory(basePath);
+            }
+            
             _container = new WindsorContainer();
             _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel, true));
             var assemblyDescriptor = Classes.FromAssemblyInDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory));
             _container.Register(Component.For<FromAssemblyDescriptor>().UsingFactoryMethod(() => assemblyDescriptor).LifestyleSingleton());
             _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
-            _container.Register(Component.For<IConfigurationBuilder>().UsingFactoryMethod(() => builder).LifestyleSingleton());
+            _container.Register(Component.For<IConfigurationBuilder>().UsingFactoryMethod(() => new ConfigurationBuilder()
+                .SetBasePath(basePath)
+                .AddJsonFile("appsettings.json", true, true)).LifestyleSingleton());
             _container.Register(Component.For<IConfiguration>().UsingFactoryMethod((p) =>
             {
                 var b = p.Resolve<IConfigurationBuilder>();
                 return b.Build();
             }).LifestyleTransient());
-            _container.Register(Component.For<ILogger>().UsingFactoryMethod(p =>
-            {
-                var log = new LoggerConfiguration()
-                    .WriteTo.Console()
-                    .WriteTo.File(
-                        Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                            "Beehexa",
-                            "Application.log"),
-                        rollingInterval: RollingInterval.Day,
-                        rollOnFileSizeLimit: true)
-                    .CreateLogger();
-                return log;
-            }).Named("ApplicationLog").LifestyleSingleton());
-            _container.Register(Component.For<ILogger>().UsingFactoryMethod(p =>
-            {
-                var log = new LoggerConfiguration()
-                    .WriteTo.Console()
-                    .WriteTo.File(
-                        Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                            "Beehexa",
-                            "Error.log"),
-                        rollingInterval: RollingInterval.Day,
-                        rollOnFileSizeLimit: true)
-                    .CreateLogger();
-                return log;
-            }).Named("ErrorLog").LifestyleSingleton());
+
+            _container.RegisterLogger(appName);
+
             _container.Install(FromAssembly.InDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory)));
             _scope = _container.BeginScope();
             _eventAggregate = _container.Resolve<IEventAggregator>();
             _eventAggregate.GetEvent<ApplicationRestartEvent>().Subscribe(OnApplicationRestart);
+
+            // TODO: Force License Module and Configuration (appsettings.json) Module 
+
             _mainWindow = _container.Resolve<MainWindow>();
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
             Current.MainWindow = _mainWindow;

@@ -17,6 +17,8 @@ namespace FastSQL.App.ViewModels
         public IntegrationStep DependOnStep { get; set; } = IntegrationStep.Push;
         public IntegrationStep StepToExecute { get; set; } = IntegrationStep.Push;
         public bool ExecuteImmediately { get; set; } = false;
+        public string ReferenceKeys { get; set; }
+        public string ForeignKeys { get; set; }
 
         public string ExecuteImmediatelyStr => ExecuteImmediately ? "Yes" : "No";
         public string DependOnStepStr => DependOnStep.ToString();

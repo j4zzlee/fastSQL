@@ -1,4 +1,5 @@
-﻿using FastSQL.Core.UI.Events;
+﻿using FastSQL.Core;
+using FastSQL.Core.UI.Events;
 using FastSQL.Core.UI.Interfaces;
 using Prism.Events;
 using Syncfusion.Windows.Tools.Controls;
@@ -25,15 +26,16 @@ namespace FastSQL.App
     public partial class MainWindow : Window
     {
         private MainWindowViewModel _viewModel;
-
+        private readonly ResolverFactory resolverFactory;
         private List<ContentControl> controlDefs = new List<ContentControl>();
 
-        public MainWindow(MainWindowViewModel viewModel, IEventAggregator eventAggregator) //
+        public MainWindow(MainWindowViewModel viewModel, IEventAggregator eventAggregator, ResolverFactory resolverFactory) //
         {
             InitializeComponent();
             eventAggregator.GetEvent<AddPageEvent>().Subscribe(OnAddPage);
             eventAggregator.GetEvent<ActivateControlEvent>().Subscribe(OnActivateControl);
             _viewModel = viewModel;
+            this.resolverFactory = resolverFactory;
             DataContext = _viewModel;
             _viewModel.ValidateSettings();
         }
@@ -71,6 +73,10 @@ namespace FastSQL.App
             {
                 exists = AddControl(def);
             }
+            //else
+            //{
+            //    resolverFactory.Release(args.PageDefinition.Control);
+            //}
 
             ArrangeControl(exists);
 
@@ -86,7 +92,7 @@ namespace FastSQL.App
             };
             controlDefs.Add(contentControl);
             DockingManager.SetHeader(contentControl, def.ControlHeader);
-            
+
             dmMainDock.Children.Add(contentControl);
             contentControl.GotFocus += ContentControl_GotFocus;
 

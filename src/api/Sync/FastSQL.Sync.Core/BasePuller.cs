@@ -11,6 +11,7 @@ namespace FastSQL.Sync.Core
     {
         protected readonly IOptionManager OptionManager;
         protected readonly IRichProvider Provider;
+        private Action<string> _reporter;
 
         public BasePuller(IOptionManager optionManager, IRichProvider provider)
         {
@@ -30,12 +31,22 @@ namespace FastSQL.Sync.Core
             return Provider;
         }
 
-        public virtual PullResult Preview()
+        public abstract bool Init(out string message);
+        public abstract bool Initialized();
+
+        public void OnReport(Action<string> reporter)
         {
-            return PullNext();
+            _reporter = reporter;
         }
 
+        public abstract PullResult Preview();
+
         public abstract PullResult PullNext(object lastToken = null);
+
+        public void Report(string message)
+        {
+            _reporter?.Invoke(message);
+        }
 
         public virtual IOptionManager SetOptions(IEnumerable<OptionItem> options)
         {

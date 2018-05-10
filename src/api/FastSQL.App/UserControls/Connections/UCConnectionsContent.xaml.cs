@@ -34,21 +34,25 @@ namespace FastSQL.App.UserControls.Connections
             this.viewModel = viewModel;
             DataContext = viewModel;
         }
+
+        public string Id
+        {
+            get => "NZWVJgnbIEOxA5)#$)*%#*%UU8r8tNA==";
+            set { }
+        }
+
+        public string ControlName
+        {
+            get => "connection_settings";
+            set { }
+        }
+        public string ControlHeader { get => "Connection Settings"; set { } }
+        public string Description { get => "Connection Settings Details"; set { } }
         
-        public string Id => "NZWVJgnbIEOxA5)#$)*%#*%UU8r8tNA==";
-
-        public string ControlName => "connection_settings";
-        public string ControlHeader => "Connection Settings";
-        public string Description => "Connection Settings Details";
-
-        public bool IsActive { get; set; }
-
-        public string ActivatedById => "E9XCrgxIXUqlfewf2342@#@ckiPX5VAQw";
+        public string ActivatedById { get => "E9XCrgxIXUqlfewf2342@#@ckiPX5VAQw"; set { } }
 
         public int DefaultState => (int)DockState.Document;
-
-        public int DefaultPosition => (int)DockAbility.Tabbed;
-
+        
         public object Control => this;
     }
 }

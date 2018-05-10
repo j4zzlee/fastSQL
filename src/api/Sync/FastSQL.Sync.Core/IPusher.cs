@@ -1,4 +1,5 @@
 ﻿using FastSQL.Core;
+using FastSQL.Sync.Core.Models;
 using System;
 
 namespace FastSQL.Sync.Core
@@ -10,7 +11,7 @@ namespace FastSQL.Sync.Core
 
     public interface IEntityPusher: IPusher
     {
-        IEntityPusher SetEntity(Guid entityId);
+        IEntityPusher SetEntity(EntityModel entity);
         IEntityPusher SetItem(object item);
         IProcessor GetProcessor();
         IRichProvider GetProvider();
@@ -19,7 +20,7 @@ namespace FastSQL.Sync.Core
 
     public interface IAttributePusher: IPusher
     {
-        IAttributePusher SetAttribute(Guid attributeId);
+        IAttributePusher SetAttribute(AttributeModel attribute, EntityModel entity);
         IAttributePusher SetItem(object item);
         IProcessor GetAttributeProcessor();
         IProcessor GetEntityProcessor();

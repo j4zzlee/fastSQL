@@ -37,5 +37,10 @@ namespace FastSQL.Core
         {
             return container.BeginScope();
         }
+
+        public void Release(object component)
+        {
+            container.Release(component);
+        }
     }
 }

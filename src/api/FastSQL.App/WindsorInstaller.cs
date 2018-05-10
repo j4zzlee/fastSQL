@@ -7,6 +7,7 @@ using FastSQL.App.Interfaces;
 using FastSQL.App.Managers;
 using FastSQL.Core;
 using FastSQL.Sync.Core;
+using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.IndexExporters;
 using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Core.Settings;
@@ -163,6 +164,7 @@ namespace FastSQL.App
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
             container.Register(Component.For<SettingManager>().ImplementedBy<SettingManager>().LifestyleSingleton());
+            container.Register(Component.For<IndexerManager>().ImplementedBy<IndexerManager>().LifestyleTransient());
             container.Register(Component.For<IEventAggregator>().ImplementedBy<EventAggregator>().LifestyleSingleton());
         }
     }

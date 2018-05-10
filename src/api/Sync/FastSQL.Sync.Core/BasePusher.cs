@@ -65,9 +65,9 @@ namespace FastSQL.Sync.Core
             return Processor.Id == processorId && Provider.Id == providerId;
         }
 
-        public IEntityPusher SetEntity(Guid entityId)
+        public IEntityPusher SetEntity(EntityModel entity)
         {
-            entityModel = EntityRepository.GetById(entityId.ToString());
+            entityModel = entity;
             return this;
         }
 
@@ -124,10 +124,10 @@ namespace FastSQL.Sync.Core
             return AttributeProcessor.Id == attributeProcessorId && EntityProcessor.Id == entityProcessorId && Provider.Id == providerId;
         }
 
-        public IAttributePusher SetAttribute(Guid attributeId)
+        public IAttributePusher SetAttribute(AttributeModel attribute, EntityModel entity)
         {
-            attributeModel = AttributeRepository.GetById(attributeId.ToString());
-            entityModel = EntityRepository.GetById(attributeModel.EntityId.ToString());
+            attributeModel = attribute;
+            entityModel = entity;
             return this;
         }
 

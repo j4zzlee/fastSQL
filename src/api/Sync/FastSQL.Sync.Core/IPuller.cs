@@ -8,7 +8,11 @@ namespace FastSQL.Sync.Core
     {
         PullResult Preview();
         PullResult PullNext(object lastToken = null);
+        bool Init(out string message);
+        bool Initialized();
         IRichProvider GetProvider();
+        void OnReport(Action<string> reporter);
+        void Report(string message);
     }
 
     public interface IEntityPuller : IPuller

@@ -8,7 +8,7 @@ namespace FastSQL.Sync.Core.Models
 {
     [Table("core_attributes")]
     [EntityType(EntityType.Attribute)]
-    public class AttributeModel
+    public class AttributeModel: IIndexModel
     {
         [Key]
         public Guid Id { get; set; }
@@ -20,6 +20,11 @@ namespace FastSQL.Sync.Core.Models
         public Guid DestinationConnectionId { get; set; }
         public Guid EntityId { get; set; }
         public EntityState State { get; set; }
+
+        public string SourceViewName { get; set; }
+        public string OldValueTableName { get; set; }
+        public string NewValueTableName { get; set; }
+        public string ValueTableName { get; set; }
 
         [NotMapped]
         public EntityType EntityType => EntityType.Attribute;

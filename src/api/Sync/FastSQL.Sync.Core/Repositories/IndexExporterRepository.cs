@@ -14,24 +14,6 @@ namespace FastSQL.Sync.Core.Repositories
         {
         }
 
-        public override void LinkOptions(string id, IEnumerable<OptionItem> options)
-        {
-            base.LinkOptions(id, EntityType.Exporter, options);
-        }
-
-        public override IEnumerable<OptionModel> LoadOptions(string entityId, IEnumerable<string> optionGroups = null)
-        {
-            return base.LoadOptions(entityId, EntityType.Exporter, optionGroups);
-        }
-
-        public override IEnumerable<OptionModel> LoadOptions(IEnumerable<string> entityIds, IEnumerable<string> optionGroups = null)
-        {
-            return base.LoadOptions(entityIds, EntityType.Exporter, optionGroups);
-        }
-
-        public override void UnlinkOptions(string id, IEnumerable<string> optionGroups = null)
-        {
-            base.UnlinkOptions(id, EntityType.Exporter, optionGroups);
-        }
+        protected override EntityType EntityType => EntityType.Exporter;
     }
 }

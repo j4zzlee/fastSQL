@@ -28,21 +28,17 @@ namespace FastSQL.App.UserControls.Connections
             this.DataContext = viewModel;
         }
 
-        public string Id => "E9XCrgxIXUqlfewf2342@#@ckiPX5VAQw";
+        public string Id { get => "E9XCrgxIXUqlfewf2342@#@ckiPX5VAQw"; set { } }
 
-        public string Description => "Global Connections";
-
-        public bool IsActive { get; set; }
-
-        public string ActivatedById => string.Empty;
+        public string Description { get => "Global Connections"; set { } }
+        
+        public string ActivatedById { get => string.Empty; set { } }
 
         public int DefaultState => (int)DockState.Dock;
-
-        public int DefaultPosition => (int)DockAbility.Left;
-
+        
         public object Control => this;
 
-        public string ControlName => "connections_listview";
-        public string ControlHeader => "Connections";
+        public string ControlName { get => "connections_listview"; set { } }
+        public string ControlHeader { get => "Connections"; set { } }
     }
 }

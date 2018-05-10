@@ -24,7 +24,7 @@ namespace FastSQL.MsSql
                 DataSource = _selfOptions.FirstOrDefault(o => o.Name == "DataSource")?.Value,
                 MultipleActiveResultSets = true,
                 //builder.MultiSubnetFailover = true;
-                Pooling = true,
+                Pooling = false,
                 InitialCatalog = _selfOptions.FirstOrDefault(o => o.Name == "Database")?.Value
             };
             if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))

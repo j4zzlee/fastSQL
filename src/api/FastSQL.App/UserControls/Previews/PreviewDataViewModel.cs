@@ -14,10 +14,9 @@ namespace FastSQL.App.UserControls.Previews
 {
     public class PreviewDataViewModel : BaseViewModel
     {
+        private IIndexModel _index;
         private IPuller _puller;
         private SyncState _status;
-        private EntityModel _entity;
-        private AttributeModel _attribute;
         private DataGridViewModel _dataGridViewModel;
         
         public SyncState Status
@@ -50,31 +49,24 @@ namespace FastSQL.App.UserControls.Previews
             }
         }
 
-        public PreviewDataViewModel(DataGridViewModel dataGridViewModel)
+        public PreviewDataViewModel()
         {
-            DataGridViewModel = dataGridViewModel;
         }
 
         public void SetPuller(IPuller puller)
         {
             _puller = puller;
         }
-
-        public void SetEntity(EntityModel model)
+        
+        internal void SetIndex(IIndexModel model)
         {
-            _entity = model;
-        }
-
-        public void SetAttribute(AttributeModel model)
-        {
-            _attribute = model;
+            _index = model;
         }
 
         public void Load()
         {
             var res = _puller.Preview();
             DataGridViewModel.SetData(res.Data);
-            DataGridViewModel.SetGridContextMenus(new List<string> { "Change" });
             Status = res.Status;
         }
     }

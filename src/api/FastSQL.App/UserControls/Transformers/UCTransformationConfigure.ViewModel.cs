@@ -74,16 +74,6 @@ namespace FastSQL.App.UserControls.Transformers
             }
         }
 
-        public ObservableCollection<ITransformer> Transformers
-        {
-            get => new ObservableCollection<ITransformer>(transformers);
-            set
-            {
-                transformers = value.ToList();
-                OnPropertyChanged(nameof(Transformers));
-            }
-        }
-
         public ITransformer SelectedTransfomer
         {
             get => _selectedTransformer;
@@ -101,6 +91,16 @@ namespace FastSQL.App.UserControls.Transformers
             }
         }
 
+        public ObservableCollection<ITransformer> Transformers
+        {
+            get => new ObservableCollection<ITransformer>(transformers);
+            set
+            {
+                transformers = value.ToList();
+                OnPropertyChanged(nameof(Transformers));
+            }
+        }
+        
         public ObservableCollection<OptionItemViewModel> Options
         {
             get => _options ?? (_options = new ObservableCollection<OptionItemViewModel>());
@@ -133,16 +133,15 @@ namespace FastSQL.App.UserControls.Transformers
             this.transformers = transformers;
         }
 
-        public void SetEntity(object entity)
+        public void SetIndex(IIndexModel entity)
         {
             if (entity == null)
             {
                 return;
             }
-
-            var jEntity = JObject.FromObject(entity);
-            _entityId = Guid.Parse(jEntity.GetValue("Id").ToString());
-            _entityType = (EntityType)Enum.Parse(typeof(EntityType), jEntity.GetValue("EntityType").ToString());
+            
+            _entityId = entity.Id;
+            _entityType = entity.EntityType;
             var transformations = transformerRepository.GetTransformations(_entityId, _entityType);
             Transformations = new ObservableCollection<TransformationItemViewModel>(
                 transformations.Select(t =>
@@ -171,16 +170,5 @@ namespace FastSQL.App.UserControls.Transformers
                 return transformer.Options;
             });
         }
-
-        //public IEnumerable<ColumnTransformationModel> GetTransformations(Guid id)
-        //{
-        //    return Transformations.Select(t =>
-        //    {
-        //        var r = t.GetModel();
-        //        t.TargetEntityId = id;
-        //        t.TargetEntityType = EntityType.Attribute;
-        //        return r;
-        //    });
-        //}
     }
 }

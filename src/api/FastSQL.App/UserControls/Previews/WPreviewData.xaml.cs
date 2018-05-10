@@ -56,16 +56,11 @@ namespace FastSQL.App.UserControls.Previews
             viewModel.SetPuller(puller);
         }
 
-        public void SetEntity(EntityModel model)
+        public void SetIndex(IIndexModel model)
         {
-            viewModel.SetEntity(model);
+            viewModel.SetIndex(model);
         }
-
-        public void SetAttribute(AttributeModel model)
-        {
-            viewModel.SetAttribute(model);
-        }
-
+        
         public void Load()
         {
             viewModel.Load();

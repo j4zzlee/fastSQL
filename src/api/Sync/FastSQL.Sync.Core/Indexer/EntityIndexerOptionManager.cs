@@ -22,6 +22,15 @@ namespace FastSQL.Sync.Core.Indexer
                 },
                 new OptionItem
                 {
+                    Name = "indexer_primary_key_columns",
+                    DisplayName = "@Primary Key Columns",
+                    Description = @"A comma separated list of columns that could be use to check if the item is exists or get destination id",
+                    Value = string.Empty,
+                    Example = "id:int",
+                    OptionGroupNames = new List<string>{ "Indexer" },
+                },
+                new OptionItem
+                {
                     Name = "indexer_value_columns",
                     DisplayName = "@Value Columns",
                     Description = "A comma separated list of columns that are marked as [KEYS] and useful for system to track for changes.",

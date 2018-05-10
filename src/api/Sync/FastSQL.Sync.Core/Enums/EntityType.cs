@@ -11,6 +11,7 @@ namespace FastSQL.Sync.Core.Enums
         Entity = 2,
         Attribute = 4,
         Transformation = 8,
-        Exporter = 16
+        Exporter = 16,
+        PullResult
     }
 }

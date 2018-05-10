@@ -7,7 +7,7 @@ using System.Text;
 
 namespace FastSQL.Sync.Core.Models
 {
-    [Table("core_entity_dependency")]
+    [Table("core_index_dependency")]
     public class DependencyItemModel
     {
         [Key]
@@ -19,5 +19,7 @@ namespace FastSQL.Sync.Core.Models
         public IntegrationStep DependOnStep { get; set; } = IntegrationStep.Push;
         public IntegrationStep StepToExecute { get; set; } = IntegrationStep.Push;
         public bool ExecuteImmediately { get; set; } = false;
+        public string ReferenceKeys { get; set; }
+        public string ForeignKeys { get; set; }
     }
 }

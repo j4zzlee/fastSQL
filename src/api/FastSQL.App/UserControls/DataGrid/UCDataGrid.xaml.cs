@@ -122,6 +122,7 @@ namespace FastSQL.App.UserControls.DataGrid
             if (lastColumn != null)
             {
                 lastColumn.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
+                lastColumn.MinWidth = 200;
             }
         }
 
@@ -148,6 +149,11 @@ namespace FastSQL.App.UserControls.DataGrid
         public void Filter(FilterArguments args)
         {
             OnFilter?.Invoke(this, args);
+        }
+
+        private void ContextMenu_Loaded(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

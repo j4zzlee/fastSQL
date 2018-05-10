@@ -49,21 +49,17 @@ namespace FastSQL.App.UserControls
             viewModel.SetProvider(currentSetting);
         }
 
-        public string Id => "NZWVJgnbIEOxA5UU8r8tNA==";
+        public string Id { get => "NZWVJgnbIEOxA5UU8r8tNA=="; set { } }
 
-        public string ControlName => "application_settings";
-        public string ControlHeader => "Application Settings";
+        public string ControlName { get => "application_settings"; set { } }
+        public string ControlHeader { get => "Application Settings"; set { } }
 
-        public string Description => "Application Setting Details";
-
-        public bool IsActive { get; set; }
-
-        public string ActivatedById => "E9XCrgxIXUqlckiPX5VAQw";
+        public string Description { get => "Application Setting Details"; set { } }
+        
+        public string ActivatedById { get => "E9XCrgxIXUqlckiPX5VAQw"; set { } }
 
         public int DefaultState => (int)DockState.Document;
-
-        public int DefaultPosition => (int)DockAbility.Tabbed;
-
+        
         public object Control => this;
     }
 }

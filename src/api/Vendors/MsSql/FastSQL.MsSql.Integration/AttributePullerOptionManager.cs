@@ -19,30 +19,21 @@ namespace FastSQL.MsSql.Integration
                     Type = OptionType.Sql,
                     Description = @"SQL Script to get values from Source Database.
 Please remember that @Limit & @Offset are required.",
-                    Example = $@";WITH Results_CTE AS
-(
-    SELECT
-        Col1, Col2, ...,
-        ROW_NUMBER() OVER (ORDER BY ID, ...) AS RowNum
-    FROM [Table]
-    WHERE [Conditions]
-)
-SELECT Col1, Col2, ...
-FROM Results_CTE
-WHERE RowNum >= @Offset
-AND RowNum < @Offset + @Limit",
-                    Value = $@";WITH Results_CTE AS
-(
-    SELECT
-        Col1, Col2, ...,
-        ROW_NUMBER() OVER (ORDER BY ID, ...) AS RowNum
-    FROM [Table]
-    WHERE [Conditions]
-)
-SELECT Col1, Col2, ...
-FROM Results_CTE
-WHERE RowNum >= @Offset
-AND RowNum < @Offset + @Limit"
+                    Example = $@"SELECT
+Col1, Col2, ...
+FROM [Table]
+WHERE [Conditions]",
+                    Value = $@"SELECT
+Col1, Col2, ...
+FROM [Table]
+WHERE [Conditions]"
+                },
+                new OptionItem
+                {
+                    Name = "puller_is_sql_2008",
+                    DisplayName= "Is SQL Server 2008",
+                    Type = OptionType.Boolean,
+                    Description = @"Determine if a sql server is 2008 or below version"
                 },
                 new OptionItem
                 {

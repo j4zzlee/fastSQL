@@ -26,31 +26,27 @@ namespace FastSQL.App.UserControls.Connections
         private IRichProvider _selectedProvider;
 
         private ConnectionModel _connection;
+        private string _name;
+        private string _description;
         private readonly ConnectionRepository connectionRepository;
 
         public string Name
         {
-            get => _connection?.Name;
+            get => _name; //_connection?.Name;
             set
             {
-                if (_connection != null)
-                {
-                    _connection.Name = value;
-                    OnPropertyChanged(nameof(Name));
-                }
+                _name = value;
+                OnPropertyChanged(nameof(Name));
             }
         }
 
         public string Description
         {
-            get => _connection?.Description;
+            get => _description;//_connection?.Description;
             set
             {
-                if (_connection != null)
-                {
-                    _connection.Description = value;
-                    OnPropertyChanged(nameof(Description));
-                }
+                _description = value;
+                OnPropertyChanged(nameof(Description));
             }
         }
 
@@ -125,7 +121,8 @@ namespace FastSQL.App.UserControls.Connections
         private void OnSelectConnection(SelectConnectionEventArgument obj)
         {
             var connection = connectionRepository.GetById(obj.ConnectionId);
-
+            Name = connection.Name;
+            Description = connection.Description;
             SetConnection(connection);
 
             SelectedProvider = Providers?.FirstOrDefault(p => p.Id == connection.ProviderId);
@@ -170,6 +167,10 @@ namespace FastSQL.App.UserControls.Connections
 
                 connectionRepository.LinkOptions(_connection.Id.ToString(), SelectedProvider.Options);
                 connectionRepository.Commit();
+                eventAggregator.GetEvent<RefreshConnectionListEvent>().Publish(new RefreshConnectionListEventArgument
+                {
+                    SelectedConnectionId = _connection.Id.ToString()
+                });
             }
             catch
             {

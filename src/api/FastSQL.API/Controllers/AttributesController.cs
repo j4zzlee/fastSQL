@@ -155,7 +155,7 @@ namespace FastSQL.API.Controllers
 
         private IEnumerable<OptionItem> GetIndexerTemplateOptions(EntityModel e, AttributeModel a)
         {
-            var indexer = indexers.FirstOrDefault(i => i.Is(EntityType.Attribute));
+            var indexer = indexers.FirstOrDefault(i => i.IsImplemented(a.SourceConnectionId.ToString(), e.SourceConnectionId.ToString(), a.SourceProcessorId));
             return indexer?.Options ?? new List<OptionItem>();
         }
 
@@ -191,7 +191,7 @@ namespace FastSQL.API.Controllers
                 pusher = pushers.FirstOrDefault(p => p.IsImplemented(model.DestinationProcessorId, entityModel.DestinationProcessorId, destinationConnection.ProviderId));
             }
 
-            indexer = indexers.FirstOrDefault(i => i.Is(EntityType.Attribute));
+            indexer = indexers.FirstOrDefault(i => i.IsImplemented(model.SourceConnectionId, entityModel.SourceConnectionId.ToString(), model.SourceProcessorId));
             return Ok(new
             {
                 Puller = puller?.Options ?? new List<OptionItem>(),
@@ -231,7 +231,7 @@ namespace FastSQL.API.Controllers
                 pusher.SetOptions(instanceOptions);
             }
 
-            indexer = indexers.FirstOrDefault(i => i.Is(EntityType.Entity));
+            indexer = indexers.FirstOrDefault(i => i.IsImplemented(model.SourceConnectionId, entityModel.SourceConnectionId.ToString(), model.SourceProcessorId));
             indexer?.SetOptions(instanceOptions);
             return Ok(new
             {

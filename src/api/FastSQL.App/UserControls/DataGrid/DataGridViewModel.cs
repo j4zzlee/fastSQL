@@ -1,4 +1,5 @@
-﻿using FastSQL.App.Interfaces;
+﻿using FastSQL.App.Events;
+using FastSQL.App.Interfaces;
 using FastSQL.Sync.Core.Filters;
 using Newtonsoft.Json.Linq;
 using System;
@@ -32,14 +33,17 @@ namespace FastSQL.App.UserControls.DataGrid
 
         private ObservableCollection<object> _data;
         private ObservableCollection<ObservableFilterArgument> _filters;
-        private ObservableCollection<string> _filterProperties;
+        private IEnumerable<string> _filterProperties;
         private ObservableCollection<string> _gridContextMenus;
         private bool _hasGridContextMenu;
         private object _selectedItem;
+        private IEnumerable<object> _selectedItems;
 
         public delegate void FilterDelegate(object sender, FilterArguments args);
-
         public event FilterDelegate OnFilter;
+
+        public delegate void DataGridEventDelegate(object sender, DataGridCommandEventArgument args);
+        public event DataGridEventDelegate OnEvent;
 
         public BaseCommand AddFilterCommand => new BaseCommand(o => true, OnAddFilter);
         public BaseCommand RemoveFilterCommand => new BaseCommand(o => true, OnRemoveFilter);
@@ -48,6 +52,12 @@ namespace FastSQL.App.UserControls.DataGrid
         public BaseCommand GoToNextPageCommand => new BaseCommand(o => true, OnGoToNextPage);
         public BaseCommand GoToLastPageCommand => new BaseCommand(o => true, OnGoToLastPage);
         public BaseCommand OnGridContextMenuCommand => new BaseCommand(o => true, OnGridContextMenuSelected);
+        public BaseCommand SelectionChangedCommand => new BaseCommand(o => true, OnSelectedItems);
+
+        private void OnSelectedItems(object obj)
+        {
+            _selectedItems = obj as IEnumerable<object>;
+        }
 
         public bool HasFirstButton
         {
@@ -157,6 +167,7 @@ namespace FastSQL.App.UserControls.DataGrid
             {
                 _totalCount = value;
                 OnPropertyChanged(nameof(TotalCount));
+                OnPropertyChanged(nameof(HasPaging));
             }
         }
 
@@ -167,7 +178,13 @@ namespace FastSQL.App.UserControls.DataGrid
             {
                 _totalPages = value;
                 OnPropertyChanged(nameof(TotalPages));
+                OnPropertyChanged(nameof(HasPaging));
             }
+        }
+
+        public void CleanFilters()
+        {
+            Filters = new ObservableCollection<ObservableFilterArgument>();
         }
 
         public bool UseFilter
@@ -203,7 +220,7 @@ namespace FastSQL.App.UserControls.DataGrid
 
         public bool HasGridContextMenu
         {
-            get => _hasGridContextMenu || GridContextMenus?.Count > 0;
+            get => _hasGridContextMenu || GridContextMenus?.Count() > 0;
             set
             {
                 _hasGridContextMenu = value;
@@ -242,12 +259,12 @@ namespace FastSQL.App.UserControls.DataGrid
             }
         }
 
-        public ObservableCollection<string> FilterProperties
+        public IEnumerable<string> FilterProperties
         {
-            get => _filterProperties ?? (_filterProperties = new ObservableCollection<string>());
+            get => _filterProperties ?? (_filterProperties = new List<string>());
             set
             {
-                _filterProperties = value ?? new ObservableCollection<string>();
+                _filterProperties = value ?? new List<string>();
                 OnPropertyChanged(nameof(FilterProperties));
             }
         }
@@ -262,15 +279,15 @@ namespace FastSQL.App.UserControls.DataGrid
             }
         }
 
-        public ObservableCollection<string> FilterOperators
+        public List<string> FilterOperators
         {
-            get => new ObservableCollection<string> { "=", ">", "<", ">=", "<=", "Like" };
+            get => new List<string> { "=", ">", "<", ">=", "<=", "Like" };
         }
 
         private void OnRemoveFilter(object obj)
         {
             Filters.Remove((ObservableFilterArgument)obj);
-            Filter(Filters.Select(f => f.ToFilterArgument()));
+            Filter(Filters.Select(f => f.ToFilterArgument()), null, _limit, 0);
         }
 
         private void OnAddFilter(object obj)
@@ -291,7 +308,7 @@ namespace FastSQL.App.UserControls.DataGrid
                 Op = OpFilter,
                 Target = TargetFilter
             });
-            Filter(Filters.Select(f => f.ToFilterArgument()));
+            Filter(Filters.Select(f => f.ToFilterArgument()), null, _limit, 0);
         }
 
         public DataGridViewModel()
@@ -302,14 +319,16 @@ namespace FastSQL.App.UserControls.DataGrid
 
         public void SetData(IEnumerable<object> data)
         {
-            Data = new ObservableCollection<object>(data);
+            Data = new ObservableCollection<object>(data.Select(d => JObject.FromObject(d)));
             if (data?.Count() > 0)
             {
                 var first = data.First();
                 var jFirst = JObject.FromObject(first);
                 var props = jFirst.Properties();
-                FilterProperties = new ObservableCollection<string>(props.Select(p => p.Name));
+                FilterProperties = props.Select(p => p.Name);
             }
+            CalculatePage();
+            ShowPagingControls();
         }
 
         public void SetOffset(int limit, int offset)
@@ -319,6 +338,16 @@ namespace FastSQL.App.UserControls.DataGrid
             CalculatePage();
             ShowPagingControls();
             //Offset = offset;
+        }
+
+        public int GetLimit()
+        {
+            return _limit;
+        }
+
+        public int GetOffset()
+        {
+            return _offset;
         }
 
         public void SetTotalCount(int totalCount)
@@ -335,6 +364,12 @@ namespace FastSQL.App.UserControls.DataGrid
 
         private void ShowPagingControls()
         {
+            HasFirstButton = true;
+            HasPreviousButton = true;
+            HasPreviousText = true;
+            HasLastButton = true;
+            HasNextButton = true;
+            HasNextText = true;
             if (TotalCount == 0 || TotalPages == 1)
             {
                 //UsePaging = false;
@@ -363,21 +398,21 @@ namespace FastSQL.App.UserControls.DataGrid
         {
             if (_limit == 0 || TotalCount == 0)
             {
-                PageNumber = 0;
+                PageNumber = 1;
                 TotalPages = 0;
                 return;
             }
             if (TotalCount <= _limit)
             {
-                PageNumber = 0;
+                PageNumber = 1;
                 TotalPages = 1;
                 return;
             }
             var pages = TotalCount / _limit;
             var left = TotalCount % _limit;
             TotalPages = left > 0 ? pages + 1 : pages;
-            var pageOffset = _offset / _limit;
-            var pageOffsetLeft = _offset % _limit;
+            var pageOffset = (_offset + 1) / _limit; // offset always starts from 0
+            var pageOffsetLeft = (_offset + 1) % _limit; // offset always starts from 0
             if (_offset < _limit)
             {
                 PageNumber = 1;
@@ -388,28 +423,34 @@ namespace FastSQL.App.UserControls.DataGrid
 
         private void OnGoToFirstPage(object obj)
         {
-            throw new NotImplementedException();
+            Filter(Filters.Select(f => f.ToFilterArgument()), null, _limit, 0);
         }
         private void OnGoToPreviousPage(object obj)
         {
-            throw new NotImplementedException();
+            Filter(Filters.Select(f => f.ToFilterArgument()), null, _limit, _offset - _limit);
         }
         private void OnGoToNextPage(object obj)
         {
-            throw new NotImplementedException();
+            Filter(Filters.Select(f => f.ToFilterArgument()), null, _limit, _offset + _limit);
         }
         private void OnGoToLastPage(object obj)
         {
-            throw new NotImplementedException();
+            var left = TotalCount % _limit;
+            var totalPages = TotalCount / _limit;
+            Filter(Filters.Select(f => f.ToFilterArgument()), null, _limit, _limit * (left > 0 ? totalPages : totalPages - 1));
         }
         private void OnGridContextMenuSelected(object obj)
         {
-            throw new NotImplementedException();
+            OnEvent?.Invoke(this, new DataGridCommandEventArgument
+            {
+                CommandName = obj as string,
+                SelectedItems = _selectedItems
+            });
         }
 
-        public void Filter(IEnumerable<FilterArgument> args)
+        public void Filter(IEnumerable<FilterArgument> args, IDictionary<string, string> orders, int limit, int offset)
         {
-            OnFilter?.Invoke(this, new FilterArguments { Filters = args });
+            OnFilter?.Invoke(this, new FilterArguments { Filters = args, Orders = orders, Limit = limit, Offset = offset });
         }
     }
 }

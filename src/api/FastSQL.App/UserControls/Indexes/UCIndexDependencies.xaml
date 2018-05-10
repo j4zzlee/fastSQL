@@ -1,0 +1,175 @@
+﻿<UserControl x:Class="FastSQL.App.UserControls.UCIndexDependencies"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FastSQL.App.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Name="grdIndexDependency" DataContext="{Binding}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{Binding IndexName}" Grid.Row="0"></TextBlock>
+                    <ComboBox ItemsSource="{Binding IndexModels}"
+                                SelectedItem="{Binding SelectedIndexModel}"
+                                DisplayMemberPath="Name"
+                                IsSynchronizedWithCurrentItem="True"
+                                Grid.Row="1"
+                                Padding="5" Margin="0,0,0,10"></ComboBox>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Depends On Step" Grid.Row="0"></TextBlock>
+                    <ComboBox ItemsSource="{Binding DependOnSteps}"
+                                SelectedItem="{Binding SelectedDependOnStep}"
+                                IsSynchronizedWithCurrentItem="True"
+                                Grid.Row="1"
+                                Padding="5" Margin="0,0,0,10"></ComboBox>
+                </Grid>
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Execution Step" Grid.Row="0"></TextBlock>
+                    <ComboBox ItemsSource="{Binding StepsToExecute}"
+                                SelectedItem="{Binding SelectedStepToExecute}"
+                                IsSynchronizedWithCurrentItem="True"
+                                Grid.Row="1"
+                                Padding="5" Margin="0,0,0,10"></ComboBox>
+                </Grid>
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Execute Immediately" Grid.Column="0" VerticalAlignment="Center"></TextBlock>
+                    <CheckBox Grid.Column="1" IsChecked="{Binding ExecuteImmediately}" Margin="0,5,0,5"></CheckBox>
+                </Grid>
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Foreign Keys (This Index)" Grid.Column="0" VerticalAlignment="Center"></TextBlock>
+                    <TextBox Grid.Column="1" Text="{Binding ForeignKeys}" Margin="0,5,0,5" Padding="5"></TextBox>
+                </Grid>
+                <Grid Grid.Row="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Reference Keys (Target Index)" Grid.Column="0" VerticalAlignment="Center"></TextBlock>
+                    <TextBox Grid.Column="1" Text="{Binding ReferenceKeys}" Margin="0,5,0,5" Padding="5"></TextBox>
+                </Grid>
+            </Grid>
+            <Grid Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                <Button Command="{Binding AddDependencyCommand}" Margin="10" Padding="5">
+                    <TextBlock Text="Add"></TextBlock>
+                </Button>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1">
+            <GroupBox Padding="10" Margin="0,10,0,0">
+                <GroupBox.Header>
+                    <TextBlock Text="Dependencies" FontStyle="Italic" FontWeight="Bold"></TextBlock>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Padding="5" Text="{Binding IndexName}" FontWeight="Bold">
+                        </TextBlock>
+                        <TextBlock Grid.Column="1" Padding="5" Text="Depends On Step" FontWeight="Bold">
+                        </TextBlock>
+                        <TextBlock Grid.Column="2" Padding="5" Text="Execution Step" FontWeight="Bold">
+                        </TextBlock>
+                        <TextBlock Grid.Column="3" Padding="5" Text="Execute Immediately" FontWeight="Bold">
+                        </TextBlock>
+                        <TextBlock Grid.Column="4" Padding="5" Text="Foreign Keys" FontWeight="Bold">
+                        </TextBlock>
+                        <TextBlock Grid.Column="5" Padding="5" Text="Reference Keys" FontWeight="Bold">
+                        </TextBlock>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <ItemsControl ItemsSource="{Binding Path=Dependencies}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="200"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding DependOn}" Grid.Column="0" Padding="5">
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding DependOnStepStr}" Grid.Column="1" Padding="5">
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding StepToExecuteStr}" Grid.Column="2" Padding="5">
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding ExecuteImmediatelyStr}" Grid.Column="3" Padding="5">
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding ForeignKeys}" Grid.Column="4" Padding="5">
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding ReferenceKeys}" Grid.Column="5" Padding="5">
+                                        </TextBlock>
+                                        <Button Command="{Binding ElementName=grdIndexDependency, Path=DataContext.RemoveDependencyCommand}"
+                                            CommandParameter="{Binding}"
+                                            Padding="5"
+                                            Grid.Column="6">
+                                            <TextBlock Text="Remove"></TextBlock>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</UserControl>
