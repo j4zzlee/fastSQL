@@ -13,6 +13,6 @@ namespace FastSQL.Sync.Core.Processors
 
         public string Description => "Promotion Attribute Sync";
 
-        public ProcessorType Type => ProcessorType.Entity;
+        public ProcessorType Type => ProcessorType.Attribute;
     }
 }
