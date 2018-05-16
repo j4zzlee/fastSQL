@@ -164,8 +164,8 @@ namespace FastSQL.App.UserControls.Indexes
                 return;
             }
             
-            var dependOnStep = string.IsNullOrWhiteSpace(SelectedDependOnStep) ? IntegrationStep.Push : (IntegrationStep)Enum.Parse(typeof(IntegrationStep), SelectedDependOnStep);
-            var stepToExecute = string.IsNullOrWhiteSpace(SelectedStepToExecute) ? IntegrationStep.Push : (IntegrationStep)Enum.Parse(typeof(IntegrationStep), SelectedStepToExecute);
+            var dependOnStep = string.IsNullOrWhiteSpace(SelectedDependOnStep) ? IntegrationStep.Pushing : (IntegrationStep)Enum.Parse(typeof(IntegrationStep), SelectedDependOnStep);
+            var stepToExecute = string.IsNullOrWhiteSpace(SelectedStepToExecute) ? IntegrationStep.Pushing : (IntegrationStep)Enum.Parse(typeof(IntegrationStep), SelectedStepToExecute);
             var exists = Dependencies.FirstOrDefault(d => d.TargetEntityId == SelectedIndexModel.Id
                 && d.TargetEntityType == SelectedIndexModel.EntityType
                 && d.DependOnStep == dependOnStep

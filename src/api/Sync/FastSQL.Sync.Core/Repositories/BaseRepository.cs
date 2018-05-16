@@ -4,6 +4,7 @@ using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.ExtensionMethods;
 using FastSQL.Sync.Core.Models;
 using Newtonsoft.Json.Linq;
+using st2forget.commons.datetime;
 using st2forget.utils.sql;
 using System;
 using System.Collections.Generic;
@@ -339,6 +340,14 @@ new { EntityId = id, EntityType = entityType },
 transaction: _transaction);
         }
 
+        public virtual IEnumerable<DependencyItemModel> GetDependenciesOn(Guid targetEntityId, EntityType targetEntityType)
+        {
+            return _connection.Query<DependencyItemModel>($@"SELECT * FROM [core_index_dependency] 
+WHERE [TargetEntityId] = @TargetEntityId AND [TargetEntityType] = @TargetEntityType",
+new { TargetEntityId = targetEntityId, TargetEntityType = targetEntityType },
+transaction: _transaction);
+        }
+
         public virtual IEnumerable<DependencyItemModel> GetDependencies(Guid id, EntityType entityType, EntityType targetEntityType)
         {
             return _connection.Query<DependencyItemModel>($@"SELECT * FROM [core_index_dependency] 
@@ -401,6 +410,7 @@ WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType", new { 
         {
             LinkOptions(id, EntityType, options);
         }
+
         public virtual void UnlinkOptions(string id, IEnumerable<string> optionGroups = null)
         {
             UnlinkOptions(id, EntityType, optionGroups);
@@ -410,6 +420,7 @@ WHERE [TargetEntityId] = @EntityId AND [TargetEntityType] = @EntityType", new { 
         {
             return LoadOptions(entityId, EntityType, optionGroups);
         }
+
         public virtual IEnumerable<OptionModel> LoadOptions(IEnumerable<string> entityIds, IEnumerable<string> optionGroups = null)
         {
             return LoadOptions(entityIds, EntityType, optionGroups);
@@ -502,6 +513,7 @@ CREATE TABLE {model.ValueTableName} (
     [DestinationId] NVARCHAR(MAX),
     [State] INT NULL,
     [LastUpdated] INT NOT NULL,
+    [RetryCount] INT NOT NULL DEFAULT 0,
     {string.Join(",\n\t", columns)}
 )
 ";
@@ -553,6 +565,80 @@ WHERE [name] = N'{table}' AND [type] = 'U'
         public void RemoveTransformations(Guid id)
         {
             RemoveTransformations(id, EntityType);
+        }
+
+        public void UpdateFailedIndexItem(IIndexModel model, string id)
+        {
+            var sql = $@"
+UPDATE [{model.ValueTableName}]
+SET [RetryCount] = [RetryCount] + 1,
+    [LastUpdated] = @LastUpdated
+WHERE [Id] = @Id
+";
+            _connection.Execute(sql, param: new {
+                Id = id,
+                LastUpdated = DateTime.Now.ToUnixTimestamp()
+            }, transaction: _transaction);
+        }
+
+        public void UpdateItemDestinationId(IIndexModel model, string sourceId, string destinationId, bool updateState)
+        {
+            var updateStateSQL = string.Empty;
+            if (updateState)
+            {
+                updateStateSQL = $@",
+    [State] = CASE  
+        WHEN [State] = 0 THEN 0
+        WHEN [State] IS NULL THEN 0 
+        ELSE ([State] | @StatesToExclude) ^ @StatesToExclude
+    END";
+            }
+            var sql = $@"
+UPDATE [{model.ValueTableName}]
+SET [DestinationId] = @DestinationId,
+    [RetryCount] = 0,
+    [LastUpdated] = @LastUpdated{updateStateSQL}
+WHERE [SourceId] = @SourceId
+";
+            _connection.Execute(sql, param: new
+            {
+                SourceId = sourceId,
+                DestinationId = destinationId,
+                LastUpdated = DateTime.Now.ToUnixTimestamp(),
+                StatesToExclude = ItemState.Invalid
+            }, transaction: _transaction);
+        }
+
+        public void AddPullDependency(Guid targetEntityId, EntityType targetEntityType, Guid dependenOnEntityId, EntityType dependOnEntityType, string itemId)
+        {
+            var sql = $@"
+INSERT INTO [core_pull_dependencies](
+    [TargetEntityId],
+    [TargetEntityType],
+    [DependsOnEntityId],
+    [DependsOnEntityType], 
+    [DependsOnItemId],
+    [CreatedAt],
+    [IsProcessed])
+VALUE (
+    @TargetEntityId,
+    @TargetEntityType,
+    @DependsOnEntityId,
+    @DependsOnEntityType,
+    @DependsOnItemId,
+    @CreatedAt,
+    0
+)
+";
+            _connection.Execute(sql, param: new
+            {
+                TargetEntityId = targetEntityId,
+                TargetEntityType = targetEntityType,
+                DependsOnEntityId = dependenOnEntityId,
+                DependsOnEntityType = dependOnEntityType,
+                DependsOnItemId = itemId,
+                CreatedAt = DateTime.Now.ToUnixTimestamp()
+            }, transaction: _transaction);
         }
 
         protected abstract EntityType EntityType { get; }

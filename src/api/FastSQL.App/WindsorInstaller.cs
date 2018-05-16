@@ -6,6 +6,7 @@ using Castle.Windsor;
 using FastSQL.App.Interfaces;
 using FastSQL.App.Managers;
 using FastSQL.Core;
+using FastSQL.Core.Loggers;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.IndexExporters;
@@ -15,6 +16,8 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Prism.Events;
+using Serilog;
+using Serilog.Core;
 using st2forget.migrations;
 using st2forget.utils.commands;
 using st2forget.utils.sql;
@@ -142,6 +145,14 @@ namespace FastSQL.App
                .WithServiceSelf()
                .WithServiceAllInterfaces()
                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
+            container.Register(descriptor
+                .BasedOn<ILogEventSink>()
+                .WithService.Select(new Type[] { typeof(ILogEventSink) })
+                .WithServiceAllInterfaces()
+                .WithServiceSelf()
+                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
             container.Register(Component.For<JsonSerializer>().UsingFactoryMethod(() => new JsonSerializer()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
@@ -163,9 +174,21 @@ namespace FastSQL.App
                 .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
+            container.Register(Component.For<IConfigurationBuilder>().UsingFactoryMethod((p) => {
+                var appResource = p.Resolve<IApplicationResourceManager>();
+                return new ConfigurationBuilder()
+                    .SetBasePath(appResource.BasePath)
+                    .AddJsonFile("appsettings.json", true, true);
+            }).LifestyleTransient());
+
             container.Register(Component.For<SettingManager>().ImplementedBy<SettingManager>().LifestyleSingleton());
             container.Register(Component.For<IndexerManager>().ImplementedBy<IndexerManager>().LifestyleTransient());
+            container.Register(Component.For<SyncManager>().ImplementedBy<SyncManager>().LifestyleTransient());
             container.Register(Component.For<IEventAggregator>().ImplementedBy<EventAggregator>().LifestyleSingleton());
+            container.Register(Component.For<IApplicationResourceManager>().ImplementedBy<ApplicationResourceManager>().LifestyleSingleton());
+            container.Register(Component.For<LoggerFactory>().ImplementedBy<LoggerFactory>().LifestyleTransient());
+            container.Register(Component.For<LoggerConfiguration>().UsingFactoryMethod(p => new LoggerConfiguration()
+                    .Enrich.FromLogContext()).LifestyleTransient());
         }
     }
 }

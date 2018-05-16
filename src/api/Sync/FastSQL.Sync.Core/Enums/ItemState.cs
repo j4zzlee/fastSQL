@@ -7,9 +7,9 @@ namespace FastSQL.Sync.Core.Enums
     [Flags]
     public enum ItemState
     {
-        Removed = 4,
-        Changed = 8,
-        Processed = 16,
-        Invalid = 32
+        Removed = 1,
+        Changed = 2,
+        Processed = 4,
+        Invalid = 8
     }
 }

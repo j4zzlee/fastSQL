@@ -11,6 +11,7 @@ namespace FastSQL.Core.Events
 
     public class ApplicationOutputEventArgument
     {
+        //public string Owner { get; set; }
         public string Channel { get; set; }
         public string Message { get; set; }
     }

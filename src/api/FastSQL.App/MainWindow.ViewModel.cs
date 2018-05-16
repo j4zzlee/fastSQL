@@ -1,5 +1,6 @@
 ﻿using FastSQL.App.Interfaces;
 using FastSQL.App.Managers;
+using FastSQL.App.UserControls.OutputView;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,8 +14,19 @@ namespace FastSQL.App
     public class MainWindowViewModel : BaseViewModel
     {
         private bool _isInitialized = false;
+        private UCOutputViewViewModel _outputViewViewModel;
         private readonly SettingManager settingManager;
         private readonly IEnumerable<IPageManager> pageManagers;
+
+        public UCOutputViewViewModel OutputViewViewModel
+        {
+            get => _outputViewViewModel;
+            set
+            {
+                _outputViewViewModel = value;
+                OnPropertyChanged(nameof(OutputViewViewModel));
+            }
+        }
 
         public bool IsInitialized
         {

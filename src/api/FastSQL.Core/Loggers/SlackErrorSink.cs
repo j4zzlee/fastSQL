@@ -30,11 +30,6 @@ namespace FastSQL.Core.Loggers
             var message = logEvent.RenderMessage(_formatProvider);
             // Queue slack message
         }
-
-        public void SetChannel(string channel)
-        {
-            _channel = channel;
-        }
     }
 
     public static class SlackErrorSinkExtensions
@@ -42,11 +37,9 @@ namespace FastSQL.Core.Loggers
         public static LoggerConfiguration SlackError(
                   this LoggerSinkConfiguration loggerConfiguration,
                   ResolverFactory resolverFactory,
-                  string channel,
                   IFormatProvider fmtProvider = null)
         {
             var sink = resolverFactory.Resolve<SlackErrorSink>();
-            sink.SetChannel(channel);
             sink.SetFormatPrivider(fmtProvider);
             return loggerConfiguration.Sink(sink);
         }

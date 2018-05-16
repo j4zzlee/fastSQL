@@ -7,9 +7,13 @@ namespace FastSQL.Sync.Core.Enums
     [Flags]
     public enum IntegrationStep
     {
-        Pull = 1,
-        Index = 2,
-        Queue = 3,
-        Push = 4
+        Pulling = 1,
+        Pulled = 2,
+        Indexing = 4,
+        Indexed = 8,
+        Queuing = 16,
+        Queued = 32,
+        Pushing = 64,
+        Pushed = 128
     }
 }

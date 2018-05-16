@@ -104,7 +104,7 @@ WHERE RowNum >= @Offset AND RowNum < (@Offset + @Limit)";
             };
         }
 
-        public override bool Init(out string message)
+        public override void Init()
         {
             var options = EntityRepository.LoadOptions(EntityModel.Id.ToString());
             var sqlScript = options.GetValue("puller_sql_script");
@@ -123,8 +123,6 @@ CREATE VIEW [{EntityModel.SourceViewName}]
 AS
 {sqlScript}";
             adapter.Execute(createViewSQL);
-            message = "Sucess";
-            return true;
         }
 
         public override bool Initialized()

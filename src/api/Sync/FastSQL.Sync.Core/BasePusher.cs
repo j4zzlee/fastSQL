@@ -10,23 +10,41 @@ namespace FastSQL.Sync.Core
     public abstract class BasePusher : IPusher
     {
         protected readonly IOptionManager OptionManager;
+        protected Action<string> _reporter;
+        protected IndexItemModel _item;
+
         public BasePusher(IOptionManager optionManager)
         {
             OptionManager = optionManager;
         }
-        public virtual IEnumerable<OptionItem> Options => OptionManager.Options;
 
+        public virtual IEnumerable<OptionItem> Options => OptionManager.Options;
+        
         public virtual IEnumerable<OptionItem> GetOptionsTemplate()
         {
             return OptionManager.GetOptionsTemplate();
         }
+
+        public void OnReport(Action<string> reporter)
+        {
+            _reporter = reporter;
+        }
         
-        public abstract void Push(Guid itemId);
+        public IPusher SetItem(IndexItemModel item)
+        {
+            _item = item;
+            return this;
+        }
 
         public IOptionManager SetOptions(IEnumerable<OptionItem> options)
         {
             return OptionManager.SetOptions(options);
         }
+
+        public abstract string Create();
+        public abstract string GetDestinationId();
+        public abstract string Remove(string destinationId = null);
+        public abstract string Update(string destinationId = null);
     }
 
     public abstract class BaseEntityPusher : BasePusher, IEntityPusher
@@ -68,12 +86,6 @@ namespace FastSQL.Sync.Core
         public IEntityPusher SetEntity(EntityModel entity)
         {
             entityModel = entity;
-            return this;
-        }
-
-        public IEntityPusher SetItem(object item)
-        {
-            Item = item;
             return this;
         }
     }
@@ -128,12 +140,6 @@ namespace FastSQL.Sync.Core
         {
             attributeModel = attribute;
             entityModel = entity;
-            return this;
-        }
-
-        public IAttributePusher SetItem(object item)
-        {
-            Item = item;
             return this;
         }
     }

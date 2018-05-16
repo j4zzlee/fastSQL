@@ -31,7 +31,7 @@ namespace FastSQL.Sync.Core
             return Provider;
         }
 
-        public abstract bool Init(out string message);
+        public abstract void Init();
         public abstract bool Initialized();
 
         public void OnReport(Action<string> reporter)

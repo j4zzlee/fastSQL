@@ -2,6 +2,9 @@
 using FastSQL.App.Interfaces;
 using FastSQL.App.UserControls.DataGrid;
 using FastSQL.App.UserControls.OutputView;
+using FastSQL.Core;
+using FastSQL.Core.Events;
+using FastSQL.Core.Loggers;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Constants;
 using FastSQL.Sync.Core.Enums;
@@ -11,6 +14,7 @@ using FastSQL.Sync.Core.IndexExporters;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using Prism.Events;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,7 +26,7 @@ using System.Windows;
 
 namespace FastSQL.App.UserControls.Indexes
 {
-    public class WManageIndexViewModel : BaseViewModel
+    public class WManageIndexViewModel : BaseViewModel, IDisposable
     {
         private IPusher _pusher;
         private IIndexer _indexer;
@@ -38,8 +42,12 @@ namespace FastSQL.App.UserControls.Indexes
         private readonly EntityRepository entityRepository;
         private readonly AttributeRepository attributeRepository;
         private readonly ConnectionRepository connectionRepository;
+        private readonly LoggerFactory loggerFactory;
         private readonly IEnumerable<IIndexExporter> indexExporters;
         private readonly IndexerManager indexerManager;
+        private readonly SyncManager syncManager;
+        private readonly ResolverFactory resolverFactory;
+        private ILogger logger;
 
         public BaseCommand InitIndexCommand => new BaseCommand(o => true, OnInitIndex);
         public BaseCommand UpdateIndexCommand => new BaseCommand(o => true, OnUpdateIndex);
@@ -78,17 +86,15 @@ namespace FastSQL.App.UserControls.Indexes
         private async void DataGridViewModel_OnEvent(object sender, Events.DataGridCommandEventArgument args)
         {
             var selectedItems = args.SelectedItems
-                .Select(i => {
-                    var obj = IndexItemModel.FromObject(i);
-                    return obj["Id"].ToString();
-                });
+                .Select(i => IndexItemModel.FromObject(i));
+            var selectedItemIds = selectedItems.Select(i => i["Id"].ToString());
             switch (args.CommandName)
             {
                 case "Change":
                     entityRepository.ChangeIndexedItems(_indexModel,
                         ItemState.Changed,
                         ItemState.Removed | ItemState.Invalid | ItemState.Processed,
-                        selectedItems.ToArray());
+                        selectedItemIds.ToArray());
                     break;
                 case "Change All":
                     entityRepository.ChangeIndexedItems(_indexModel,
@@ -100,7 +106,7 @@ namespace FastSQL.App.UserControls.Indexes
                     entityRepository.ChangeIndexedItems(_indexModel,
                         ItemState.Changed | ItemState.Removed,
                         ItemState.Invalid | ItemState.Processed,
-                        selectedItems.ToArray());
+                        selectedItemIds.ToArray());
                     break;
                 case "Remove All":
                     entityRepository.ChangeIndexedItems(_indexModel,
@@ -109,6 +115,10 @@ namespace FastSQL.App.UserControls.Indexes
                         null);
                     break;
                 case "Sync":
+                    syncManager.SetIndex(_indexModel);
+                    syncManager.SetIndexer(_indexer);
+                    syncManager.SetPusher(_pusher);
+                    await syncManager.Push(selectedItems.ToArray());
                     break;
             }
             await LoadData(null, DataGridViewModel.GetLimit(), DataGridViewModel.GetOffset(), true);
@@ -183,18 +193,24 @@ namespace FastSQL.App.UserControls.Indexes
 
         public WManageIndexViewModel(
             IEventAggregator eventAggregator,
+            IEnumerable<IIndexExporter> indexExporters,
             EntityRepository entityRepository,
             AttributeRepository attributeRepository,
             ConnectionRepository connectionRepository,
-            IEnumerable<IIndexExporter> indexExporters,
-            IndexerManager indexerManager)
+            LoggerFactory loggerFactory,
+            IndexerManager indexerManager, 
+            SyncManager syncManager,
+            ResolverFactory resolverFactory)
         {
             this.eventAggregator = eventAggregator;
             this.entityRepository = entityRepository;
             this.attributeRepository = attributeRepository;
             this.connectionRepository = connectionRepository;
+            this.loggerFactory = loggerFactory;
             this.indexExporters = indexExporters;
             this.indexerManager = indexerManager;
+            this.syncManager = syncManager;
+            this.resolverFactory = resolverFactory;
         }
         
         private void OnMapIndex(object obj)
@@ -207,18 +223,7 @@ namespace FastSQL.App.UserControls.Indexes
             try
             {
                 IsLoading = true;
-                var pullerInit = _puller.Init(out string pullerInitMessage);
-                if (!pullerInit)
-                {
-                    MessageBox.Show(
-                        (Owner as Window) ?? Application.Current.MainWindow,
-                        pullerInitMessage,
-                        "Failed",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                    return;
-                }
-
+                _puller.Init();
                 entityRepository.Init(_indexModel);
                 indexerManager.SetIndex(_indexModel);
                 indexerManager.SetIndexer(_indexer);
@@ -284,6 +289,14 @@ namespace FastSQL.App.UserControls.Indexes
 
         public async void Loaded()
         {
+            this.logger = loggerFactory
+                .WriteToApplication($"{_indexModel.EntityType} Index")
+                .WriteToFile()
+                .CreateApplicationLogger();
+            this.indexerManager.OnReport(m =>
+            {
+                logger.Information(m);
+            });
             if (_indexModel.EntityType == EntityType.Entity)
             {
                 (_puller as IEntityPuller)?.SetEntity(_indexModel as EntityModel);
@@ -305,6 +318,12 @@ namespace FastSQL.App.UserControls.Indexes
             {
                 await LoadData(null, DataGridContstants.PageLimit, 0, true);
             }
+        }
+
+        public void Dispose()
+        {
+            resolverFactory.Release(logger);
+            //throw new NotImplementedException();
         }
     }
 }

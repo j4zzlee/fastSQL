@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace FastSQL.Magento2.Integration
+namespace FastSQL.Magento1.Integration.Pushers.Products
 {
-    public class ProductPusherOptionManager : BaseOptionMananger
+    public class ProductImagePusherOptionManager : BaseOptionMananger
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

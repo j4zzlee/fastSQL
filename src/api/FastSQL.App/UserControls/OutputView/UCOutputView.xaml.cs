@@ -20,10 +20,78 @@ namespace FastSQL.App.UserControls.OutputView
     /// </summary>
     public partial class UCOutputView : UserControl
     {
+        public static readonly DependencyProperty HasChannelsProperty =
+          DependencyProperty.Register("HasChannel", typeof(bool),
+          typeof(UCOutputView), new FrameworkPropertyMetadata(true,
+              FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, new PropertyChangedCallback(OnHasChannelsPropertyChanged)));
+
+        //public static readonly DependencyProperty ListenToProperty =
+        //  DependencyProperty.Register("ListenTo", typeof(string),
+        //  typeof(UCOutputView), new FrameworkPropertyMetadata("Application",
+        //      FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, new PropertyChangedCallback(OnListenToPropertyChanged)));
+
+        private static void OnHasChannelsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var vm = (UCOutputViewViewModel)d.GetValue(DataContextProperty);
+            if (vm == null)
+            {
+                return;
+            }
+            vm.HasChannels = (bool)e.NewValue;
+        }
+
+        //private static void OnListenToPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        //{
+        //    var vm = (UCOutputViewViewModel)d.GetValue(DataContextProperty);
+        //    if (vm == null)
+        //    {
+        //        return;
+        //    }
+        //    vm.ListenTo = (string)e.NewValue;
+        //}
+
+        public bool HasChannel
+        {
+            get
+            {
+                return (bool)GetValue(HasChannelsProperty);
+            }
+            set
+            {
+                SetValue(HasChannelsProperty, value);
+            }
+        }
+
+        //public string ListenTo
+        //{
+        //    get
+        //    {
+        //        return (string)GetValue(ListenToProperty);
+        //    }
+        //    set
+        //    {
+        //        SetValue(ListenToProperty, value);
+        //    }
+        //}
+
+
         public UCOutputView()
         {
             InitializeComponent();
             scrMessageContainer.ScrollChanged += ScrollViewer_ScrollChanged;
+            DataContextChanged += UCOutputView_DataContextChanged;
+            //Loaded += (s, e) => (DataContext as UCOutputViewViewModel).HasChannels = HasChannel;
+        }
+
+        private void UCOutputView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var viewModel = DataContext as UCOutputViewViewModel;
+            if (viewModel == null)
+            {
+                return;
+            }
+
+            viewModel.HasChannels = HasChannel;
         }
 
         private Boolean AutoScroll = true;

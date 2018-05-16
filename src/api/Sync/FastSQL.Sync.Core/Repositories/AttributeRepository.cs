@@ -15,6 +15,18 @@ namespace FastSQL.Sync.Core.Repositories
         {
         }
 
+        public IEnumerable<AttributeModel> GetByEntityId(string entityId)
+        {
+            var sql = $@"
+SELECT * FROM [core_attributes]
+WHERE [EntityId] = @EntityId
+";
+            return _connection.Query<AttributeModel>(sql, param: new
+            {
+                EntityId = entityId
+            }, transaction: _transaction);
+        }
+
         protected override EntityType EntityType => EntityType.Attribute;
     }
 }

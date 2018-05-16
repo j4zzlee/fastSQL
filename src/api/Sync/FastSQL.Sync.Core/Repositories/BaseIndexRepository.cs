@@ -113,5 +113,34 @@ SELECT COUNT(*) FROM {model.ValueTableName}
 
             return result.Select(d => IndexItemModel.FromDictionary(d));
         }
+
+        public IndexItemModel GetIndexedItemById(IIndexModel model, string id)
+        {
+            var items = _connection.Query($@"
+SELECT * FROM [{model.ValueTableName}]
+WHERE [Id] = @Id", param: new { Id = id }, transaction: _transaction) as IEnumerable<IDictionary<string, object>>;
+            var item = items?.FirstOrDefault();
+            return item != null ? IndexItemModel.FromDictionary(item) : null;
+        }
+
+        public IndexItemModel GetIndexedItemBySourceId(IIndexModel model, string id)
+        {
+            var items = _connection.Query($@"
+SELECT * FROM [{model.ValueTableName}]
+WHERE [SourceId] = @Id", param: new { Id = id }, transaction: _transaction) as IEnumerable<IDictionary<string, object>>;
+            var item = items?.FirstOrDefault();
+            return item != null ? IndexItemModel.FromDictionary(item) : null;
+        }
+
+        public IndexItemModel GetIndexedItemDestinationId(IIndexModel model, string id)
+        {
+            var items = _connection.Query($@"
+SELECT * FROM [{model.ValueTableName}]
+WHERE [DestinationId] = @Id", param: new { Id = id }, transaction: _transaction) as IEnumerable<IDictionary<string, object>>;
+            var item = items?.FirstOrDefault();
+            return item != null ? IndexItemModel.FromDictionary(item) : null;
+        }
+
+
     }
 }

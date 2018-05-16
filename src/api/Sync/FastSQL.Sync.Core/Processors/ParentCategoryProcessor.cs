@@ -5,7 +5,7 @@ using FastSQL.Sync.Core.Enums;
 
 namespace FastSQL.Sync.Core.Processors
 {
-    public class CategoryProcessor : IProcessor
+    public class ParentCategoryProcessor : IProcessor
     {
         public string Id => "PmuKvXrqRkiYYfpywfyeKQ==";
 

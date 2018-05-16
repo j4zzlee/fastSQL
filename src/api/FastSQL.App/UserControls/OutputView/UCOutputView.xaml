@@ -7,7 +7,16 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid DataContext="{Binding}" Name="grdContainer">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Name="scrMessageContainer">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ComboBox ItemsSource="{Binding ElementName=grdContainer, Path=DataContext.Channels}"
+                SelectedItem="{Binding ElementName=grdContainer, Path=DataContext.SelectedChannel}"
+                IsSynchronizedWithCurrentItem="True"
+                Grid.Row="0"
+                Padding="5" Margin="5"></ComboBox>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Name="scrMessageContainer">
             <ItemsControl ItemsSource="{Binding ElementName=grdContainer, Path=DataContext.Messages}"
                       VerticalAlignment="Stretch"
                       HorizontalAlignment="Stretch"

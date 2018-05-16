@@ -8,7 +8,8 @@
         Title="fastSQL"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf" 
-        xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF">
+        xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+        xmlns:outputview="clr-namespace:FastSQL.App.UserControls.OutputView">
     <Grid>
         <DockPanel>
             <Menu DockPanel.Dock="Top">
@@ -31,6 +32,14 @@
                                            UseDocumentContainer="True"
                                            PersistState="True"
                                            syncfusionskin:SfSkinManager.VisualStyle="VisualStudio2015">
+                    <ContentControl x:Name="Output" syncfusion:DockingManager.Header="Output"
+                            syncfusion:DockingManager.State="Dock"
+                            syncfusion:DockingManager.SideInDockedMode="Bottom"
+                            syncfusion:DockingManager.DockAbility="Bottom"
+                            syncfusion:DockingManager.DesiredMinHeightInDockedMode="200"
+                            syncfusion:DockingManager.CanClose="False">
+                        <outputview:UCOutputView DataContext="{Binding OutputViewViewModel}" HasChannel="True"></outputview:UCOutputView>
+                    </ContentControl>
                 </syncfusion:DockingManager>
             </Grid>
         </DockPanel>

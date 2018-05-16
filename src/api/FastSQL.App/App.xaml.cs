@@ -13,6 +13,8 @@ using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using System.Resources;
+using FastSQL.Core;
+using FastSQL.Core.Loggers;
 
 namespace FastSQL.App
 {
@@ -35,7 +37,11 @@ namespace FastSQL.App
 
         private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            var logger = _container.Resolve<ILogger>("ErrorLog");
+            var logger = _container.Resolve<LoggerFactory>()
+                .WriteToConsole()
+                .WriteToApplication("Error")
+                .WriteToFile()
+                .CreateErrorLogger();
             logger?.Error(e.Exception, "An error has occurred!!!");
 
             if (Current.MainWindow != null)
@@ -62,33 +68,17 @@ namespace FastSQL.App
         {
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
             var assemblyName = assembly.GetName().Name;
-            var resourceManager = new ResourceManager($"{assemblyName}.Properties.Resources", assembly);
+            var assemblyDescriptor = Classes.FromAssemblyInDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory));
 
-            var appName = resourceManager.GetString("ApplicationName");
-            var basePath = Path.Combine(
-                                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                                "Beehexa", appName);
-
-            if (!Directory.Exists(basePath))
-            {
-                Directory.CreateDirectory(basePath);
-            }
-            
             _container = new WindsorContainer();
             _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel, true));
-            var assemblyDescriptor = Classes.FromAssemblyInDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory));
-            _container.Register(Component.For<FromAssemblyDescriptor>().UsingFactoryMethod(() => assemblyDescriptor).LifestyleSingleton());
-            _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
-            _container.Register(Component.For<IConfigurationBuilder>().UsingFactoryMethod(() => new ConfigurationBuilder()
-                .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json", true, true)).LifestyleSingleton());
-            _container.Register(Component.For<IConfiguration>().UsingFactoryMethod((p) =>
-            {
-                var b = p.Resolve<IConfigurationBuilder>();
-                return b.Build();
-            }).LifestyleTransient());
 
-            _container.RegisterLogger(appName);
+            _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
+            _container.Register(Component.For<FromAssemblyDescriptor>().UsingFactoryMethod(() => assemblyDescriptor).LifestyleSingleton());
+            _container.Register(Component.For<ResourceManager>().UsingFactoryMethod(p => new ResourceManager($"{assemblyName}.Properties.Resources", assembly)).LifestyleSingleton());
+            _container.Register(Component.For<IConfiguration>().UsingFactoryMethod((p) => p.Resolve<IConfigurationBuilder>().Build()).LifestyleTransient());
+
+            //_container.RegisterLogger(appName);
 
             _container.Install(FromAssembly.InDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory)));
             _scope = _container.BeginScope();
@@ -122,6 +112,7 @@ namespace FastSQL.App
         private void Application_Exit(object sender, ExitEventArgs e)
         {
             _scope?.Dispose();
+            _container.Dispose();
         }
     }
 }

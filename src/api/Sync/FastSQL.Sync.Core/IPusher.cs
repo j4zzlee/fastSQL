@@ -6,13 +6,17 @@ namespace FastSQL.Sync.Core
 {
     public interface IPusher: IOptionManager
     {
-        void Push(Guid itemId);
+        string Create();
+        string Remove(string destinationId = null);
+        string Update(string destinationId = null);
+        string GetDestinationId();
+        void OnReport(Action<string> reporter);
+        IPusher SetItem(IndexItemModel item);
     }
 
     public interface IEntityPusher: IPusher
     {
         IEntityPusher SetEntity(EntityModel entity);
-        IEntityPusher SetItem(object item);
         IProcessor GetProcessor();
         IRichProvider GetProvider();
         bool IsImplemented(string processorId, string providerId);
@@ -21,7 +25,6 @@ namespace FastSQL.Sync.Core
     public interface IAttributePusher: IPusher
     {
         IAttributePusher SetAttribute(AttributeModel attribute, EntityModel entity);
-        IAttributePusher SetItem(object item);
         IProcessor GetAttributeProcessor();
         IProcessor GetEntityProcessor();
         IRichProvider GetProvider();

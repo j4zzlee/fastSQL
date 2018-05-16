@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace FastSQL.Sync.Core.Indexer
 {
-    public class IndexerManager: IDisposable
+    public class IndexerManager
     {
         private IPuller _puller;
         private IIndexer _indexer;
@@ -21,8 +21,8 @@ namespace FastSQL.Sync.Core.Indexer
         private readonly IEventAggregator eventAggregator;
         private readonly IndexTokenRepository indexTokenRepository;
         private readonly ResolverFactory resolverFactory;
-        private readonly ILogger logger;
         private List<string> _messages;
+        private Action<string> _reporter;
 
         public void SetIndex(IIndexModel model)
         {
@@ -40,12 +40,22 @@ namespace FastSQL.Sync.Core.Indexer
             _indexer.OnReport(Report);
         }
 
+        public void OnReport(Action<string> reporter)
+        {
+            _reporter = reporter;
+        }
+
         private void Report(string message)
         {
             _messages.Add(message);
-            logger.Information(message);
+            _reporter?.Invoke(message);
         }
 
+        public IEnumerable<string> GetReportMessages()
+        {
+            return _messages ?? new List<string>();
+        }
+        
         public IndexerManager(
             IEventAggregator eventAggregator,
             IndexTokenRepository indexTokenRepository,
@@ -54,8 +64,6 @@ namespace FastSQL.Sync.Core.Indexer
             this.eventAggregator = eventAggregator;
             this.indexTokenRepository = indexTokenRepository;
             this.resolverFactory = resolverFactory;
-            var logger = resolverFactory.Resolve<ILogger>("ApplicationLog");
-            this.logger = logger.ForContext("Channel", "Index Manager");
             _messages = new List<string>();
         }
 
@@ -132,11 +140,6 @@ namespace FastSQL.Sync.Core.Indexer
                 indexTokenRepository.RollBack();
                 throw; // never let the while loop runs forever
             }
-        }
-
-        public void Dispose()
-        {
-            resolverFactory.Release(this.logger);
         }
     }
 }

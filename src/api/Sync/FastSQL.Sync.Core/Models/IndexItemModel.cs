@@ -29,33 +29,7 @@ namespace FastSQL.Sync.Core.Models
             {
                 result.Add(key.Name, i.GetValue(key.Name).ToString());
             }
-
-            if (result.ContainsKey("LastUpdated") && !result.ContainsKey("Last Updated Date"))
-            {
-                result.Add("Last Updated Date", long.Parse(result["LastUpdated"]?.ToString() ?? "0").UnixTimeToTime());
-            }
-
-            if (result.ContainsKey("State"))
-            {
-                ItemState state = (ItemState)int.Parse(result["State"].ToString()); // (ItemState)Enum.Parse(typeof(ItemState), result["State"].ToString());
-                if (!result.ContainsKey("Changed"))
-                {
-                    result.Add("Changed", ((state & ItemState.Changed) > 0).ToString());
-                }
-                if (!result.ContainsKey("Removed"))
-                {
-                    result.Add("Removed", ((state & ItemState.Removed) > 0).ToString());
-                }
-                if (!result.ContainsKey("Invalid"))
-                {
-                    result.Add("Invalid", ((state & ItemState.Invalid) > 0).ToString());
-                }
-                if (!result.ContainsKey("Processed"))
-                {
-                    result.Add("Processed", ((state & ItemState.Processed) > 0).ToString());
-                }
-            }
-            return result;
+            return result.BuildProperties();
         }
 
         public static IndexItemModel FromDictionary(IDictionary<string, object> i)
@@ -65,47 +39,88 @@ namespace FastSQL.Sync.Core.Models
             {
                 result.Add(key, i[key]?.ToString());
             }
-
-            if (result.ContainsKey("LastUpdated"))
-            {
-                result.Add("Last Updated Date", long.Parse(result["LastUpdated"]?.ToString() ?? "0").UnixTimeToTime());
-            }
-
-            if (result.ContainsKey("State"))
-            {
-                ItemState state = (ItemState)int.Parse(result["State"].ToString()); // (ItemState)Enum.Parse(typeof(ItemState), result["State"].ToString());
-                result.Add("Changed", ((state & ItemState.Changed) > 0).ToString());
-                result.Add("Removed", ((state & ItemState.Removed) > 0).ToString());
-                result.Add("Invalid", ((state & ItemState.Invalid) > 0).ToString());
-                result.Add("Processed", ((state & ItemState.Processed) > 0).ToString());
-            }
-            return result;
+            return result.BuildProperties();
+            
         }
 
-        //public string Id
-        //{
-        //    get => ContainsKey("Id") ? this["Id"]?.ToString() : string.Empty;
-        //}
+        private IndexItemModel BuildProperties()
+        {
+            if (this.ContainsKey("LastUpdated") && !this.ContainsKey("Last Updated Date"))
+            {
+                this.Add("Last Updated Date", long.Parse(this["LastUpdated"]?.ToString() ?? "0").UnixTimeToTime());
+            }
 
-        //public string SourceId
-        //{
-        //    get => ContainsKey("SourceId") ? this["SourceId"]?.ToString() : string.Empty;
-        //}
+            if (this.ContainsKey("State"))
+            {
+                ItemState state = (ItemState)int.Parse(this["State"].ToString()); // (ItemState)Enum.Parse(typeof(ItemState), result["State"].ToString());
+                if (!this.ContainsKey("Changed"))
+                {
+                    this.Add("Changed", ((state & ItemState.Changed) > 0).ToString());
+                }
+                if (!this.ContainsKey("Removed"))
+                {
+                    this.Add("Removed", ((state & ItemState.Removed) > 0).ToString());
+                }
+                if (!this.ContainsKey("Invalid"))
+                {
+                    this.Add("Invalid", ((state & ItemState.Invalid) > 0).ToString());
+                }
+                if (!this.ContainsKey("Processed"))
+                {
+                    this.Add("Processed", ((state & ItemState.Processed) > 0).ToString());
+                }
+            }
+            return this;
+        }
 
-        //public string DestinationId
-        //{
-        //    get => ContainsKey("DestinationId") ? this["DestinationId"]?.ToString() : string.Empty;
-        //}
+        public string GetId()
+        {
+            return ContainsKey("Id") ? this["Id"]?.ToString() : string.Empty;
+        }
 
-        //public string LastUpdatedDate
-        //{
-        //    get => ContainsKey("LastUpdated") ? this["LastUpdated"]?.ToString() : string.Empty;
-        //}
+        public string GetSourceId()
+        {
+            return ContainsKey("SourceId") ? this["SourceId"]?.ToString() : string.Empty;
+        }
 
-        //public bool IsCreated { get; set; }
-        //public bool IsChanged { get; set; }
-        //public bool IsUpdated { get; set; }
-        //public bool IsRemoved { get; set; }
-        //public bool IsInvalid { get; set; }
+        public string GetDestinationId()
+        {
+            return ContainsKey("DestinationId") ? this["DestinationId"]?.ToString() : string.Empty;
+        }
+
+        public bool HasState(ItemState state)
+        {
+            if (!this.ContainsKey("State"))
+            {
+                return false;
+            }
+
+            var s = (ItemState)int.Parse(this["State"].ToString());
+            return (s & state) > 0;
+        }
+
+        public void SetState(ItemState state)
+        {
+            if (!this.ContainsKey("State"))
+            {
+                return;
+            }
+
+            var s = (ItemState)int.Parse(this["State"].ToString());
+
+            this["State"] = s == 0 ? state : s | state;
+        }
+
+        public void RemoveState(ItemState state)
+        {
+            if (!this.ContainsKey("State"))
+            {
+                return;
+            }
+
+            var s = (ItemState)int.Parse(this["State"].ToString());
+
+            this["State"] = s == 0 ? s : (s | state) ^ state;
+        }
     }
 }

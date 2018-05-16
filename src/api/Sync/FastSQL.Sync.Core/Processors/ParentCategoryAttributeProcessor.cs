@@ -5,13 +5,13 @@ using System.Text;
 
 namespace FastSQL.Sync.Core.Processors
 {
-    public class ProductCategoryAttributeProcessor : IProcessor
+    public class ParentCategoryAttributeProcessor : IProcessor
     {
         public string Id => "rbeOthqg+UKieWWBoUEFXA==";
 
-        public string Name => "Product's category attribute sync";
+        public string Name => "Parent category attribute sync";
 
-        public string Description => "Product's category attribute sync";
+        public string Description => "Parent category attribute sync";
 
         public ProcessorType Type => ProcessorType.Attribute;
     }

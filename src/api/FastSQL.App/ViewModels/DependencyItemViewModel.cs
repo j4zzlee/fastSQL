@@ -14,8 +14,8 @@ namespace FastSQL.App.ViewModels
         public EntityType EntityType { get; set; }
         public Guid TargetEntityId { get; set; }
         public EntityType TargetEntityType { get; set; }
-        public IntegrationStep DependOnStep { get; set; } = IntegrationStep.Push;
-        public IntegrationStep StepToExecute { get; set; } = IntegrationStep.Push;
+        public IntegrationStep DependOnStep { get; set; } = IntegrationStep.Pushing;
+        public IntegrationStep StepToExecute { get; set; } = IntegrationStep.Pushing;
         public bool ExecuteImmediately { get; set; } = false;
         public string ReferenceKeys { get; set; }
         public string ForeignKeys { get; set; }

@@ -13,6 +13,8 @@ namespace FastSQL.Core.Loggers
     public class ApplicationOutputSink : ILogEventSink
     {
         IFormatProvider _formatProvider;
+        //private string _owner;
+        private string _channel;
         private readonly IEventAggregator eventAggregator;
 
         public ApplicationOutputSink(IEventAggregator eventAggregator)
@@ -27,15 +29,23 @@ namespace FastSQL.Core.Loggers
 
         public void Emit(LogEvent logEvent)
         {
-            var channel = logEvent.Properties?.ContainsKey("Channel") == true
-                ? logEvent.Properties["Channel"].ToString()
-                : "Application";
             var message = logEvent.RenderMessage(_formatProvider);
             eventAggregator.GetEvent<ApplicationOutputEvent>().Publish(new ApplicationOutputEventArgument
             {
-                Channel = channel,
+                //Owner = _owner,
+                Channel = _channel,
                 Message = message
             });
+        }
+
+        //public void SetOwner(string owner)
+        //{
+        //    _owner = owner;
+        //}
+
+        public void SetChannel(string channel)
+        {
+            _channel = channel;
         }
     }
 
@@ -44,10 +54,13 @@ namespace FastSQL.Core.Loggers
         public static LoggerConfiguration ApplicationOutput(
                   this LoggerSinkConfiguration loggerConfiguration,
                   ResolverFactory resolverFactory,
+                  string channel,
                   IFormatProvider fmtProvider = null)
         {
             var sink = resolverFactory.Resolve<ApplicationOutputSink>();
             sink.SetFormatPrivider(fmtProvider);
+            //sink.SetOwner(owner);
+            sink.SetChannel(channel);
             return loggerConfiguration.Sink(sink);
         }
     }
