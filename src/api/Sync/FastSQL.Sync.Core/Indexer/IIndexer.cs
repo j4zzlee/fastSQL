@@ -4,29 +4,27 @@ using FastSQL.Sync.Core.Models;
 using System;
 using System.Collections.Generic;
 
-namespace FastSQL.Sync.Core
+namespace FastSQL.Sync.Core.Indexer
 {
     public interface IIndexer : IOptionManager
     {
-        void Persist(IEnumerable<object> data = null);
-        void OnReport(Action<string> reporter);
-        void Report(string message);
-        void StartIndexing(bool cleanAll);
-        void EndIndexing();
-        void BeginTransaction();
-        void Commit();
-        void RollBack();
+        IIndexer Persist(IEnumerable<object> data = null);
+        IIndexer OnReport(Action<string> reporter);
+        IIndexer StartIndexing(bool cleanAll);
+        IIndexer EndIndexing();
+        IIndexer BeginTransaction();
+        IIndexer Commit();
+        IIndexer RollBack();
+        IIndexer SetIndex(IIndexModel model);
     }
 
     public interface IEntityIndexer: IIndexer
     {
-        IEntityIndexer SetEntity(EntityModel entity);
         bool IsImplemented(string processorId, string providerId);
     }
 
     public interface IAttributeIndexer: IIndexer
     {
-        IAttributeIndexer SetAttribute(AttributeModel attribute, EntityModel entity);
         bool IsImplemented(string attributeProcessorId, string entityProcessorId, string providerId);
     }
 }

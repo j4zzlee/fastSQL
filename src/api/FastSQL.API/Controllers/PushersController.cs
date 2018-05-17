@@ -1,4 +1,6 @@
 ﻿using FastSQL.Sync.Core;
+using FastSQL.Sync.Core.Indexer;
+using FastSQL.Sync.Core.Pusher;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;

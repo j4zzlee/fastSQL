@@ -1,6 +1,7 @@
 ﻿using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Processors;
+using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,10 @@ namespace FastSQL.Magento2.Integration.Pushers
     {
         public ParentCategoryPusher(ParentCategoryPusherOptionManager optionManager,
             ParentCategoryProcessor processor,
-            FastProvider provider, 
-            EntityRepository entityRepository) : base(optionManager, processor, provider, entityRepository)
+            FastProvider provider,
+            FastAdapter adapter,
+            EntityRepository entityRepository,
+            ConnectionRepository connectionRepository) : base(optionManager, processor, provider, adapter, entityRepository, connectionRepository)
         {
         }
 

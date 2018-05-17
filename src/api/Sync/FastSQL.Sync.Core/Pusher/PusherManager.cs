@@ -1,6 +1,8 @@
 ﻿using FastSQL.Core;
 using FastSQL.Sync.Core.Enums;
+using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.Models;
+using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Repositories;
 using Newtonsoft.Json;
 using Prism.Events;
@@ -10,9 +12,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FastSQL.Sync.Core.Indexer
+namespace FastSQL.Sync.Core.Pusher
 {
-    public class SyncManager
+    public class PusherManager
     {
         private List<string> _messages;
         private Action<string> _reporter;
@@ -60,7 +62,7 @@ namespace FastSQL.Sync.Core.Indexer
             return _messages ?? new List<string>();
         }
 
-        public SyncManager(
+        public PusherManager(
             IEventAggregator eventAggregator,
             IEnumerable<IEntityPuller> entityPullers,
             IEnumerable<IAttributePuller> attributePullers,
@@ -78,32 +80,17 @@ namespace FastSQL.Sync.Core.Indexer
             this.connectionRepository = connectionRepository;
             _messages = new List<string>();
         }
-
-        //private void InitPusher()
-        //{
-        //    if (_indexerModel.EntityType == EntityType.Entity)
-        //    {
-        //        var entity = _indexerModel as EntityModel;
-        //        (_pusher as IEntityPuller).SetEntity(entity);
-        //    } else
-        //    {
-        //        var attr = _indexerModel as AttributeModel;
-        //        var entity = entityRepository.GetById(attr.EntityId.ToString());
-        //        (_pusher as IAttributePusher).SetAttribute(attr, entity);
-        //    }
-        //}
-
-        public async Task PushSingle(IndexItemModel item)
+        
+        public async Task PushItem(IndexItemModel item)
         {
             Report($@"
 ---------------------------------------------------------------------------------
 Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)}...");
+            _pusher.SetIndex(_indexerModel);
             await Task.Run(() =>
             {
                 try
                 {
-                    //InitPusher();
-
                     entityRepository.BeginTransaction();
                     attributeRepository.BeginTransaction();
 
@@ -155,6 +142,9 @@ to destination. Please make sure that the Pusher of {_indexerModel.Name} works c
                     // Detect dependencies that depends on "Synced" step
                     UpdateDependencies(item, destinationId);
 
+                    // Signal to tell that the item is success
+                    entityRepository.UpdateIndexItemStatus(_indexerModel, item.GetId(), true);
+
                     entityRepository.Commit();
                     attributeRepository.Commit();
                 }
@@ -165,7 +155,7 @@ to destination. Please make sure that the Pusher of {_indexerModel.Name} works c
                     // Update invalid item
                     // Increate retry count
                     // Next time when queue items, it will be put behind because of the retry count
-                    entityRepository.UpdateFailedIndexItem(_indexerModel, item.GetId());
+                    entityRepository.UpdateIndexItemStatus(_indexerModel, item.GetId(), false);
                     throw;
                 }
                 finally
@@ -187,7 +177,7 @@ Ended synchronizing...
             }
             foreach (var item in items)
             {
-                await PushSingle(item);
+                await PushItem(item);
             }
         }
 

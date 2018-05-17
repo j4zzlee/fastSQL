@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FastSQL.Core;
 using FastSQL.Sync.Core;
+using FastSQL.Sync.Core.Indexer;
+using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +43,7 @@ namespace FastSQL.API.Controllers
             var entity = entityRepository.GetById(id);
             var sourceConnection = connectionRepository.GetById(entity.SourceConnectionId.ToString());
             var puller = _entityPullers.FirstOrDefault(p => p.IsImplemented(entity.SourceProcessorId, sourceConnection.ProviderId));
-            puller.SetEntity(entity);
+            puller.SetIndex(entity);
             var data = puller.PullNext(nextToken);
             return Ok(data);
         }
@@ -53,7 +55,7 @@ namespace FastSQL.API.Controllers
             var entity = entityRepository.GetById(attribute.EntityId.ToString());
             var sourceConnection = connectionRepository.GetById(attribute.SourceConnectionId.ToString());
             var puller = _attributePullers.FirstOrDefault(p => p.IsImplemented(attribute.SourceProcessorId, entity.SourceProcessorId, sourceConnection.ProviderId));
-            puller.SetAttribute(attribute, entity);
+            puller.SetIndex(attribute);
             var data = puller.PullNext(nextToken);
             return Ok(data);
         }

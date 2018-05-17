@@ -11,7 +11,12 @@ namespace FastSQL.Magento2.Integration.Indexers
 {
     public class CustomerIndexer : BaseEntityIndexer
     {
-        public CustomerIndexer(CustomerProcessor processor, FastProvider provider, CustomerIndexerOptionManager optionManager, EntityRepository entityRepository) : base(processor, provider, optionManager, entityRepository)
+        public CustomerIndexer(
+            CustomerProcessor processor, CustomerIndexerOptionManager optionManager,
+            FastProvider provider,
+            FastAdapter adapter,
+            EntityRepository entityRepository,
+            ConnectionRepository connectionRepository) : base(processor, optionManager, provider, adapter, entityRepository, connectionRepository)
         {
         }
     }

@@ -4,7 +4,11 @@ using FastSQL.App.UserControls.Transformers;
 using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Enums;
+using FastSQL.Sync.Core.Indexer;
+using FastSQL.Sync.Core.Mapper;
 using FastSQL.Sync.Core.Models;
+using FastSQL.Sync.Core.Puller;
+using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
 using Prism.Events;
 using st2forget.commons.datetime;
@@ -28,6 +32,7 @@ namespace FastSQL.App.UserControls.Indexes
         private readonly IEnumerable<IPuller> pullers;
         private readonly IEnumerable<IIndexer> indexers;
         private readonly IEnumerable<IPusher> pushers;
+        private readonly IEnumerable<IMapper> mappers;
         private readonly IEnumerable<ITransformer> transformers;
         
         private readonly EntityRepository entityRepository;
@@ -42,6 +47,7 @@ namespace FastSQL.App.UserControls.Indexes
         private ObservableCollection<OptionItemViewModel> _pullerOptions;
         private ObservableCollection<OptionItemViewModel> _indexerOptions;
         private ObservableCollection<OptionItemViewModel> _pusherOptions;
+        private ObservableCollection<OptionItemViewModel> _mapperOptions;
         private ObservableCollection<ConnectionModel> _sourceConnections;
         private ObservableCollection<IProcessor> _sourceProcessors;
         private ObservableCollection<ConnectionModel> _destinationConnections;
@@ -58,6 +64,7 @@ namespace FastSQL.App.UserControls.Indexes
         private IPuller _puller;
         private IIndexer _indexer;
         private IPusher _pusher;
+        private IMapper _mapper;
 
         public BaseCommand ApplyCommand => new BaseCommand(o => true, OnApplyCommand);
 
@@ -256,6 +263,19 @@ namespace FastSQL.App.UserControls.Indexes
             }
         }
 
+        public ObservableCollection<OptionItemViewModel> MapperOptions
+        {
+            get
+            {
+                return _mapperOptions;
+            }
+            set
+            {
+                _mapperOptions = value;
+                OnPropertyChanged(nameof(MapperOptions));
+            }
+        }
+
         public ObservableCollection<ConnectionModel> SourceConnections
         {
             get
@@ -354,6 +374,7 @@ namespace FastSQL.App.UserControls.Indexes
             IEnumerable<IPuller> pullers,
             IEnumerable<IIndexer> indexers,
             IEnumerable<IPusher> pushers,
+            IEnumerable<IMapper> mappers,
             IEnumerable<ITransformer> transformers,
             EntityRepository entityRepository,
             AttributeRepository attributeRepository,
@@ -368,6 +389,7 @@ namespace FastSQL.App.UserControls.Indexes
             this.pullers = pullers;
             this.indexers = indexers;
             this.pushers = pushers;
+            this.mappers = mappers;
             this.transformers = transformers;
 
             Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
@@ -477,15 +499,7 @@ namespace FastSQL.App.UserControls.Indexes
             }
             
             _puller.SetOptions(PullerOptions.Select(o => new OptionItem { Name = o.Name, Value = o.Value }));
-            if (_indexType == EntityType.Entity)
-            {
-                (_puller as IEntityPuller).SetEntity(_indexModel as EntityModel);
-            }
-            else
-            {
-                (_puller as IAttributePuller).SetAttribute(_indexModel as AttributeModel, _selectedEntity);
-            }
-            
+            _puller.SetIndex(_indexModel);
             eventAggregator.GetEvent<OpenIndexPreviewPageEvent>().Publish(new OpenIndexPreviewPageEventArgument
             {
                 IndexModel = _indexModel,
@@ -510,6 +524,12 @@ namespace FastSQL.App.UserControls.Indexes
                 OptionGroupNames = o.OptionGroupNames
             }));
             options.AddRange(PusherOptions.Select(o => new OptionItem
+            {
+                Name = o.Name,
+                Value = o.Value,
+                OptionGroupNames = o.OptionGroupNames
+            }));
+            options.AddRange(MapperOptions.Select(o => new OptionItem
             {
                 Name = o.Name,
                 Value = o.Value,
@@ -790,7 +810,8 @@ namespace FastSQL.App.UserControls.Indexes
                     IndexModel = _indexModel,
                     Puller = _puller,
                     Indexer = _indexer,
-                    Pusher = _pusher
+                    Pusher = _pusher,
+                    Mapper = _mapper
                 });
         }
 
@@ -838,6 +859,7 @@ namespace FastSQL.App.UserControls.Indexes
             LoadPuller(optionItems);
             LoadPusher(optionItems);
             LoadIndexer(optionItems);
+            LoadMapper(optionItems);
         }
 
         private void LoadIndexer(IEnumerable<OptionItem> options)
@@ -897,6 +919,29 @@ namespace FastSQL.App.UserControls.Indexes
 
             _pusher?.SetOptions(options);
             PusherOptions = new ObservableCollection<OptionItemViewModel>(_pusher?.Options.Select(o =>
+            {
+                var result = new OptionItemViewModel();
+                result.SetOption(o);
+                return result;
+            }) ?? new List<OptionItemViewModel>());
+        }
+
+        private void LoadMapper(IEnumerable<OptionItem> options)
+        {
+            switch (_indexType)
+            {
+                case EntityType.Entity:
+                    _mapper = mappers.Where(p => typeof(IMapper).IsAssignableFrom(p.GetType()))
+                        .FirstOrDefault(p => p.IsImplemented(
+                            SelectedDestinationProcessor?.Id,
+                            SelectedDestinationConnection?.ProviderId));
+                    break;
+                default:
+                    return;
+            }
+
+            _mapper?.SetOptions(options);
+            MapperOptions = new ObservableCollection<OptionItemViewModel>(_mapper?.Options.Select(o =>
             {
                 var result = new OptionItemViewModel();
                 result.SetOption(o);

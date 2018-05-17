@@ -324,7 +324,8 @@ VALUES (
 @{nameof(ColumnTransformationModel.TargetEntityType)},
 @{nameof(ColumnTransformationModel.ColumnName)},
 @{nameof(ColumnTransformationModel.TransformerId)})",
-transformations.Select(t => {
+transformations.Select(t =>
+{
     t.TargetEntityId = id;
     t.TargetEntityType = entityType;
     return t;
@@ -392,7 +393,8 @@ VALUES (
 @{nameof(DependencyItemModel.ReferenceKeys)},
 @{nameof(DependencyItemModel.ForeignKeys)})",
 dependencies
-    .Select(d => {
+    .Select(d =>
+    {
         d.EntityId = id;
         d.EntityType = entityType;
         return d;
@@ -536,12 +538,12 @@ WHERE [name] = N'{table}' AND [type] = 'U'
 
             return exists;
         }
-        
+
         public IEnumerable<DependencyItemModel> GetDependencies(Guid id)
         {
             return GetDependencies(id, EntityType);
         }
-        
+
         public void RemoveDependencies(Guid id)
         {
             RemoveDependencies(id, EntityType);
@@ -567,15 +569,30 @@ WHERE [name] = N'{table}' AND [type] = 'U'
             RemoveTransformations(id, EntityType);
         }
 
-        public void UpdateFailedIndexItem(IIndexModel model, string id)
+        public void UpdateIndexItemStatus(IIndexModel model, string id, bool success)
         {
-            var sql = $@"
+            var sql = string.Empty;
+            if (success)
+            {
+                sql = $@"
+UPDATE [{model.ValueTableName}]
+SET [RetryCount] = 0,
+    [LastUpdated] = @LastUpdated
+WHERE [Id] = @Id
+";
+            }
+            else
+            {
+                sql = $@"
 UPDATE [{model.ValueTableName}]
 SET [RetryCount] = [RetryCount] + 1,
     [LastUpdated] = @LastUpdated
 WHERE [Id] = @Id
 ";
-            _connection.Execute(sql, param: new {
+            }
+
+            _connection.Execute(sql, param: new
+            {
                 Id = id,
                 LastUpdated = DateTime.Now.ToUnixTimestamp()
             }, transaction: _transaction);

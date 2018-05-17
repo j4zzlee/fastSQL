@@ -15,9 +15,11 @@ namespace FastSQL.MySQL.Integration
             AttributeProcessor attributeProcessor,
             EntityProcessor entityProcessor,
             FastProvider provider,
+            FastAdapter adapter,
             AttributeIndexerOptionManager optionManager,
             EntityRepository entityRepository,
-            AttributeRepository attributeRepository) : base(attributeProcessor, entityProcessor, provider, optionManager, entityRepository, attributeRepository)
+            AttributeRepository attributeRepository,
+            ConnectionRepository connectionRepository) : base(attributeProcessor, entityProcessor, optionManager, provider, adapter, entityRepository, attributeRepository, connectionRepository)
         {
         }
     }

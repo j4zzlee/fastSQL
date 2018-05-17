@@ -4,6 +4,7 @@ using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.ExtensionMethods;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Processors;
+using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Repositories;
 using Newtonsoft.Json.Linq;
 using System;
@@ -104,7 +105,7 @@ WHERE RowNum >= @Offset AND RowNum < (@Offset + @Limit)";
             };
         }
 
-        public override void Init()
+        public override IPuller Init()
         {
             var options = EntityRepository.LoadOptions(EntityModel.Id.ToString());
             var sqlScript = options.GetValue("puller_sql_script");
@@ -123,6 +124,7 @@ CREATE VIEW [{EntityModel.SourceViewName}]
 AS
 {sqlScript}";
             adapter.Execute(createViewSQL);
+            return this;
         }
 
         public override bool Initialized()

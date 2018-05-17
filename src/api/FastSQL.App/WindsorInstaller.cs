@@ -10,6 +10,9 @@ using FastSQL.Core.Loggers;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.IndexExporters;
+using FastSQL.Sync.Core.Mapper;
+using FastSQL.Sync.Core.Puller;
+using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Core.Settings;
 using Microsoft.Extensions.Configuration;
@@ -89,7 +92,15 @@ namespace FastSQL.App
                 .WithServiceAllInterfaces()
                 .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-            
+
+            // Pusher
+            container.Register(descriptor
+                .BasedOn<IMapper>()
+                .WithService.Select(new Type[] { typeof(IMapper) })
+                .WithServiceAllInterfaces()
+                .WithServiceSelf()
+                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
             // Repositories
             container.Register(descriptor
                 .BasedOn<BaseRepository>()
@@ -183,7 +194,8 @@ namespace FastSQL.App
 
             container.Register(Component.For<SettingManager>().ImplementedBy<SettingManager>().LifestyleSingleton());
             container.Register(Component.For<IndexerManager>().ImplementedBy<IndexerManager>().LifestyleTransient());
-            container.Register(Component.For<SyncManager>().ImplementedBy<SyncManager>().LifestyleTransient());
+            container.Register(Component.For<PusherManager>().ImplementedBy<PusherManager>().LifestyleTransient());
+            container.Register(Component.For<MapperManager>().ImplementedBy<MapperManager>().LifestyleTransient());
             container.Register(Component.For<IEventAggregator>().ImplementedBy<EventAggregator>().LifestyleSingleton());
             container.Register(Component.For<IApplicationResourceManager>().ImplementedBy<ApplicationResourceManager>().LifestyleSingleton());
             container.Register(Component.For<LoggerFactory>().ImplementedBy<LoggerFactory>().LifestyleTransient());

@@ -2,7 +2,10 @@
 using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Enums;
+using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.Models;
+using FastSQL.Sync.Core.Puller;
+using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

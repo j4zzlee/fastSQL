@@ -1,5 +1,9 @@
 ﻿using FastSQL.Sync.Core;
+using FastSQL.Sync.Core.Indexer;
+using FastSQL.Sync.Core.Mapper;
 using FastSQL.Sync.Core.Models;
+using FastSQL.Sync.Core.Puller;
+using FastSQL.Sync.Core.Pusher;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
@@ -19,5 +23,6 @@ namespace FastSQL.App.Events
         public IPuller Puller { get; set; }
         public IIndexer Indexer { get; set; }
         public IPusher Pusher { get; set; }
+        public IMapper Mapper { get; internal set; }
     }
 }

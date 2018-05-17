@@ -12,12 +12,14 @@ namespace FastSQL.MsSql.Integration
     public class AttributeIndexer : BaseAttributeIndexer
     {
         public AttributeIndexer(
-            AttributeProcessor attributeProcessor,
             EntityProcessor entityProcessor,
-            FastProvider provider,
+            AttributeProcessor attributeProcessor,
             AttributeIndexerOptionManager optionManager,
+            FastProvider provider,
+            FastAdapter adapter,
             EntityRepository entityRepository,
-            AttributeRepository attributeRepository) : base(attributeProcessor, entityProcessor, provider, optionManager, entityRepository, attributeRepository)
+            AttributeRepository attributeRepository,
+            ConnectionRepository connectionRepository) : base(entityProcessor, attributeProcessor, optionManager, provider, adapter, entityRepository, attributeRepository, connectionRepository)
         {
         }
     }

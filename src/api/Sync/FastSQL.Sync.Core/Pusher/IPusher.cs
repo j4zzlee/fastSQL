@@ -2,7 +2,7 @@
 using FastSQL.Sync.Core.Models;
 using System;
 
-namespace FastSQL.Sync.Core
+namespace FastSQL.Sync.Core.Pusher
 {
     public interface IPusher: IOptionManager
     {
@@ -10,24 +10,18 @@ namespace FastSQL.Sync.Core
         string Remove(string destinationId = null);
         string Update(string destinationId = null);
         string GetDestinationId();
-        void OnReport(Action<string> reporter);
+        IPusher OnReport(Action<string> reporter);
         IPusher SetItem(IndexItemModel item);
+        IPusher SetIndex(IIndexModel model);
     }
 
     public interface IEntityPusher: IPusher
     {
-        IEntityPusher SetEntity(EntityModel entity);
-        IProcessor GetProcessor();
-        IRichProvider GetProvider();
         bool IsImplemented(string processorId, string providerId);
     }
 
     public interface IAttributePusher: IPusher
     {
-        IAttributePusher SetAttribute(AttributeModel attribute, EntityModel entity);
-        IProcessor GetAttributeProcessor();
-        IProcessor GetEntityProcessor();
-        IRichProvider GetProvider();
         bool IsImplemented(string attributeProcessorId, string entityProcessorId, string providerId);
     }
 }

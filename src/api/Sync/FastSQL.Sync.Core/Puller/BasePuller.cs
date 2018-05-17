@@ -5,7 +5,7 @@ using FastSQL.Core;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 
-namespace FastSQL.Sync.Core
+namespace FastSQL.Sync.Core.Puller
 {
     public abstract class BasePuller : IPuller
     {
@@ -26,26 +26,24 @@ namespace FastSQL.Sync.Core
             return OptionManager.GetOptionsTemplate();
         }
         
-        public IRichProvider GetProvider()
-        {
-            return Provider;
-        }
-
-        public abstract void Init();
+        public abstract IPuller Init();
         public abstract bool Initialized();
+        public abstract IPuller SetIndex(IIndexModel model);
 
-        public void OnReport(Action<string> reporter)
+        public IPuller OnReport(Action<string> reporter)
         {
             _reporter = reporter;
+            return this;
         }
 
         public abstract PullResult Preview();
 
         public abstract PullResult PullNext(object lastToken = null);
 
-        public void Report(string message)
+        public IPuller Report(string message)
         {
             _reporter?.Invoke(message);
+            return this;
         }
 
         public virtual IOptionManager SetOptions(IEnumerable<OptionItem> options)
@@ -59,9 +57,10 @@ namespace FastSQL.Sync.Core
         protected readonly IProcessor EntityProcessor;
         protected readonly IRichAdapter Adapter;
         protected readonly EntityRepository EntityRepository;
-        private readonly ConnectionRepository ConnectionRepository;
+        protected readonly ConnectionRepository ConnectionRepository;
         protected EntityModel EntityModel;
         protected ConnectionModel ConnectionModel;
+
         public BaseEntityPuller(IOptionManager optionManager,
             IProcessor processor,
             IRichProvider provider,
@@ -74,31 +73,19 @@ namespace FastSQL.Sync.Core
             EntityRepository = entityRepository;
             ConnectionRepository = connectionRepository;
         }
-
-        public IProcessor GetProcessor()
-        {
-            return EntityProcessor;
-        }
-
+        
         public bool IsImplemented(string processorId, string providerId)
         {
             return EntityProcessor.Id == processorId && Provider.Id == providerId;
         }
 
-        public IEntityPuller SetEntity(Guid entityId)
+        public override IPuller SetIndex(IIndexModel model)
         {
-            EntityModel = EntityRepository.GetById(entityId.ToString());
+            EntityModel = model as EntityModel;
             SpreadOptions();
             return this;
         }
-
-        public IEntityPuller SetEntity(EntityModel entity)
-        {
-            EntityModel = entity;
-            SpreadOptions();
-            return this;
-        }
-
+        
         protected virtual IEntityPuller SpreadOptions()
         {
             ConnectionModel = ConnectionRepository.GetById(EntityModel.SourceConnectionId.ToString());
@@ -140,37 +127,19 @@ namespace FastSQL.Sync.Core
             this.ConnectionRepository = connectionRepository;
         }
 
-        public virtual IProcessor GetEntityProcessor()
+        public override IPuller SetIndex(IIndexModel model)
         {
-            return EntityProcessor;
-        }
-
-        public virtual IAttributePuller SetAttribute(Guid attributeId)
-        {
-            AttributeModel = AttributeRepository.GetById(attributeId.ToString());
+            AttributeModel = model as AttributeModel;
             EntityModel = EntityRepository.GetById(AttributeModel.EntityId.ToString());
             SpreadOptions();
             return this;
         }
-
-        public virtual IProcessor GetAttributeProcessor()
-        {
-            return AttributeProcessor;
-        }
-
+        
         public bool IsImplemented(string attributeProcessorId, string entityProcessorId, string providerId)
         {
             return Provider.Id == providerId && AttributeProcessor.Id == attributeProcessorId && EntityProcessor.Id == entityProcessorId;
         }
-
-        public IAttributePuller SetAttribute(AttributeModel attribute, EntityModel entityModel = null)
-        {
-            AttributeModel = attribute;
-            EntityModel = entityModel;
-            SpreadOptions();
-            return this;
-        }
-
+        
         protected virtual IAttributePuller SpreadOptions()
         {
             ConnectionModel = ConnectionRepository.GetById(AttributeModel.SourceConnectionId.ToString());

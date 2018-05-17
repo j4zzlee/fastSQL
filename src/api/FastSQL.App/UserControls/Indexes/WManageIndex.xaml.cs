@@ -15,7 +15,11 @@ using System.Windows.Shapes;
 using FastSQL.App.Events;
 using FastSQL.App.UserControls.Indexes;
 using FastSQL.Sync.Core;
+using FastSQL.Sync.Core.Indexer;
+using FastSQL.Sync.Core.Mapper;
 using FastSQL.Sync.Core.Models;
+using FastSQL.Sync.Core.Puller;
+using FastSQL.Sync.Core.Pusher;
 using Prism.Events;
 
 namespace FastSQL.App.UserControls
@@ -29,6 +33,7 @@ namespace FastSQL.App.UserControls
         private IPusher _pusher;
         private IIndexer _indexer;
         private IPuller _puller;
+        private IMapper _mapper;
         private readonly WManageIndexViewModel viewModel;
 
         public WManageIndex(WManageIndexViewModel viewModel, IEventAggregator eventAggregator)
@@ -76,6 +81,12 @@ namespace FastSQL.App.UserControls
         {
             _puller = puller;
             viewModel.SetPuller(puller);
+        }
+
+        public void SetMapper(IMapper mapper)
+        {
+            _mapper = mapper;
+            viewModel.SetMapper(mapper);
         }
 
         public void SetIndexer(IIndexer indexer)

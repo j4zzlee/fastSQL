@@ -7,6 +7,7 @@ using Dapper;
 using FastSQL.Core;
 using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.ExtensionMethods;
+using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using Newtonsoft.Json;
@@ -37,12 +38,13 @@ namespace FastSQL.Sync.Core
             return OptionManager.GetOptionsTemplate();
         }
 
-        public void OnReport(Action<string> reporter)
+        public IIndexer OnReport(Action<string> reporter)
         {
             Reporter = reporter;
+            return this;
         }
 
-        public virtual void StartIndexing(bool cleanAll)
+        public virtual IIndexer StartIndexing(bool cleanAll)
         {
             var indexer = GetIndexer();
             if (cleanAll)
@@ -61,6 +63,7 @@ namespace FastSQL.Sync.Core
                 Report($"Cleaning up table {indexer.OldValueTableName}");
                 Connection.Execute($@"TRUNCATE TABLE [{indexer.OldValueTableName}];", transaction: Transaction);
             }
+            return this;
         }
 
         private IEnumerable<string> FilterColumns(string columnStr)
@@ -73,11 +76,11 @@ namespace FastSQL.Sync.Core
                 .Where(s => !string.IsNullOrWhiteSpace(s));
         }
 
-        public virtual void Persist(IEnumerable<object> data = null)
+        public virtual IIndexer Persist(IEnumerable<object> data = null)
         {
             if (data == null || data.Count() <= 0)
             {
-                return;
+                return this;
             }
             var indexer = GetIndexer();
             var repo = GetRepository();
@@ -108,8 +111,9 @@ namespace FastSQL.Sync.Core
 
             // Check items that are updated
             CheckChangedItems(idColumn, primaryColumns, valueColumns, allColumns, insertData);
-        }
 
+            return this;
+        }
 
         /**
          * 
@@ -348,7 +352,7 @@ WHERE [SourceId] IN @SourceIds";
             Report($@"Found {affectedRows} item(s) that are removed.");
         }
         
-        public virtual void EndIndexing()
+        public virtual IIndexer EndIndexing()
         {
             var indexer = GetIndexer();
             var repo = GetRepository();
@@ -364,11 +368,14 @@ WHERE [SourceId] IN @SourceIds";
             Connection.Execute($@"TRUNCATE TABLE [{indexer.OldValueTableName}];", transaction: Transaction); // truncate the old table first
             Connection.Execute($@"INSERT INTO [{indexer.OldValueTableName}]
 SELECT * FROM [{indexer.NewValueTableName}]", transaction: Transaction); // old & new value table has exactly the same structure
+
+            return this;
         }
 
-        public void Report(string message)
+        public IIndexer Report(string message)
         {
             Reporter?.Invoke(message);
+            return this;
         }
 
         public IOptionManager SetOptions(IEnumerable<OptionItem> options)
@@ -376,23 +383,28 @@ SELECT * FROM [{indexer.NewValueTableName}]", transaction: Transaction); // old 
             return OptionManager.SetOptions(options);
         }
 
-        public void BeginTransaction()
+        public IIndexer BeginTransaction()
         {
             Transaction = Connection.BeginTransaction();
+            return this;
         }
 
-        public void Commit()
+        public IIndexer Commit()
         {
             Transaction?.Commit();
             Transaction?.Dispose();
             Transaction = null;
+            return this;
         }
 
-        public void RollBack()
+        public IIndexer RollBack()
         {
             Transaction?.Rollback();
             Transaction?.Dispose();
             Transaction = null;
+            return this;
         }
+
+        public abstract IIndexer SetIndex(IIndexModel model);
     }
 }

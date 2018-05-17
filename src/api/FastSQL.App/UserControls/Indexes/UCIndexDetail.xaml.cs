@@ -70,6 +70,7 @@ namespace FastSQL.App.UserControls
             window.SetIndexer(obj.Indexer);
             window.SetPusher(obj.Pusher);
             window.SetIndex(obj.IndexModel);
+            window.SetMapper(obj.Mapper);
             window.ShowDialog();
         }
 

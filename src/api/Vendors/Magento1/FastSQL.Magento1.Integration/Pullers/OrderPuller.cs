@@ -1,6 +1,7 @@
 ﻿using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Processors;
+using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Repositories;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace FastSQL.Magento1.Integration.Pullers
         {
         }
 
-        public override void Init()
+        public override IPuller Init()
         {
             throw new NotImplementedException();
         }

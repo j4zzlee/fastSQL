@@ -1,6 +1,7 @@
 ﻿using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Processors;
+using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
 using System;
 using System.Collections.Generic;
@@ -15,8 +16,10 @@ namespace FastSQL.Magento2.Integration.Pushers.Products
             ProductProcessor entityProcessor, 
             SingleAttributeProcessor attributeProcessor, 
             FastProvider provider, 
+            FastAdapter adapter,
             EntityRepository entityRepository,
-            AttributeRepository attributeRepository) : base(optionManager, entityProcessor, attributeProcessor, provider, entityRepository, attributeRepository)
+            AttributeRepository attributeRepository,
+            ConnectionRepository connectionRepository) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter, entityRepository, attributeRepository, connectionRepository)
         {
         }
 

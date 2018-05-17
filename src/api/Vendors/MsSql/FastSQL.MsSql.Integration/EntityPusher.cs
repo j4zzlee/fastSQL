@@ -1,6 +1,7 @@
 ﻿using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Processors;
+using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,13 @@ namespace FastSQL.MsSql.Integration
 {
     public class EntityPusher : BaseEntityPusher
     {
-        public EntityPusher(EntityPusherOptionManager optionManager, EntityProcessor processor, FastProvider provider, EntityRepository entityRepository) : base(optionManager, processor, provider, entityRepository)
+        public EntityPusher(
+            EntityPusherOptionManager optionManager,
+            EntityProcessor processor,
+            FastProvider provider,
+            FastAdapter adapter,
+            EntityRepository entityRepository,
+            ConnectionRepository connectionRepository) : base(optionManager, processor, provider, adapter, entityRepository, connectionRepository)
         {
         }
 

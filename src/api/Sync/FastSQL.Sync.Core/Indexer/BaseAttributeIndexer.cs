@@ -4,6 +4,7 @@ using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace FastSQL.Sync.Core.Indexer
@@ -13,33 +14,41 @@ namespace FastSQL.Sync.Core.Indexer
         protected readonly IProcessor AttributeProcessor;
         protected readonly IProcessor EntityProcessor;
         protected readonly IRichProvider Provider;
+        protected readonly IRichAdapter Adapter;
         protected readonly EntityRepository EntityRepository;
         protected readonly AttributeRepository AttributeRepository;
+        protected readonly ConnectionRepository ConnectionRepository;
         protected EntityModel EntityModel;
         protected AttributeModel AttributeModel;
+        protected ConnectionModel ConnectionModel;
 
         public BaseAttributeIndexer(
-            IProcessor attributeProcessor,
             IProcessor entityProcessor,
-            IRichProvider provider,
+            IProcessor attributeProcessor,
             IOptionManager optionManager,
+            IRichProvider provider,
+            IRichAdapter adapter,
             EntityRepository entityRepository,
-            AttributeRepository attributeRepository) : base(optionManager)
+            AttributeRepository attributeRepository,
+            ConnectionRepository connectionRepository) : base(optionManager)
         {
-            this.AttributeProcessor = attributeProcessor;
-            this.EntityProcessor = entityProcessor;
-            this.Provider = provider;
+            AttributeProcessor = attributeProcessor;
+            EntityProcessor = entityProcessor;
+            Provider = provider;
+            Adapter = adapter;
             EntityRepository = entityRepository;
             AttributeRepository = attributeRepository;
-        }
-
-        public virtual IAttributeIndexer SetAttribute(AttributeModel attribute, EntityModel entity)
-        {
-            AttributeModel = attribute;
-            EntityModel = entity;
-            return this;
+            ConnectionRepository = connectionRepository;
         }
         
+        public override IIndexer SetIndex(IIndexModel model)
+        {
+            AttributeModel = model as AttributeModel;
+            EntityModel = EntityRepository.GetById(AttributeModel.EntityId.ToString());
+            SpreadOptions();
+            return this;
+        }
+
         protected override IIndexModel GetIndexer()
         {
             return AttributeModel;
@@ -53,6 +62,16 @@ namespace FastSQL.Sync.Core.Indexer
         public bool IsImplemented(string attributeProcessorId, string entityProcessorId, string providerId)
         {
             return AttributeProcessor.Id == attributeProcessorId && EntityProcessor.Id == entityProcessorId && Provider.Id == providerId;
+        }
+        
+        protected virtual IIndexer SpreadOptions()
+        {
+            ConnectionModel = ConnectionRepository.GetById(AttributeModel.SourceConnectionId.ToString());
+            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
+            var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
+            Adapter.SetOptions(connectionOptionItems);
+            Provider.SetOptions(connectionOptionItems);
+            return this;
         }
     }
 }

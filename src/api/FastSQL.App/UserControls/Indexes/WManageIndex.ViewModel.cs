@@ -11,7 +11,10 @@ using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Filters;
 using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.IndexExporters;
+using FastSQL.Sync.Core.Mapper;
 using FastSQL.Sync.Core.Models;
+using FastSQL.Sync.Core.Puller;
+using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
 using Prism.Events;
 using Serilog;
@@ -31,6 +34,7 @@ namespace FastSQL.App.UserControls.Indexes
         private IPusher _pusher;
         private IIndexer _indexer;
         private IPuller _puller;
+        private IMapper _mapper;
         private IIndexModel _indexModel;
 
         private bool _initialized;
@@ -45,10 +49,11 @@ namespace FastSQL.App.UserControls.Indexes
         private readonly LoggerFactory loggerFactory;
         private readonly IEnumerable<IIndexExporter> indexExporters;
         private readonly IndexerManager indexerManager;
-        private readonly SyncManager syncManager;
+        private readonly PusherManager syncManager;
+        private readonly MapperManager mapperManager;
         private readonly ResolverFactory resolverFactory;
         private ILogger logger;
-
+        
         public BaseCommand InitIndexCommand => new BaseCommand(o => true, OnInitIndex);
         public BaseCommand UpdateIndexCommand => new BaseCommand(o => true, OnUpdateIndex);
         public BaseCommand MapIndexCommand => new BaseCommand(o => true, OnMapIndex); // Only entity has map index
@@ -81,6 +86,11 @@ namespace FastSQL.App.UserControls.Indexes
                 dataGridViewModel.OnEvent += DataGridViewModel_OnEvent;
                 OnPropertyChanged(nameof(DataGridViewModel));
             }
+        }
+
+        public void SetMapper(IMapper mapper)
+        {
+            _mapper = mapper;
         }
 
         private async void DataGridViewModel_OnEvent(object sender, Events.DataGridCommandEventArgument args)
@@ -199,7 +209,8 @@ namespace FastSQL.App.UserControls.Indexes
             ConnectionRepository connectionRepository,
             LoggerFactory loggerFactory,
             IndexerManager indexerManager, 
-            SyncManager syncManager,
+            PusherManager syncManager,
+            MapperManager mapperManager,
             ResolverFactory resolverFactory)
         {
             this.eventAggregator = eventAggregator;
@@ -210,12 +221,16 @@ namespace FastSQL.App.UserControls.Indexes
             this.indexExporters = indexExporters;
             this.indexerManager = indexerManager;
             this.syncManager = syncManager;
+            this.mapperManager = mapperManager;
             this.resolverFactory = resolverFactory;
         }
         
         private void OnMapIndex(object obj)
         {
-            throw new NotImplementedException();
+            mapperManager
+                .SetIndex(_indexModel)
+                .SetMapper(_mapper)
+                .Map();
         }
 
         private async void OnInitIndex(object obj)
@@ -297,20 +312,9 @@ namespace FastSQL.App.UserControls.Indexes
             {
                 logger.Information(m);
             });
-            if (_indexModel.EntityType == EntityType.Entity)
-            {
-                (_puller as IEntityPuller)?.SetEntity(_indexModel as EntityModel);
-                (_pusher as IEntityPusher)?.SetEntity(_indexModel as EntityModel);
-                (_indexer as IEntityIndexer)?.SetEntity(_indexModel as EntityModel);
-            }
-            else
-            {
-                var attr = _indexModel as AttributeModel;
-                var entity = entityRepository.GetById(attr.Id.ToString());
-                (_puller as IAttributePuller)?.SetAttribute(attr, entity);
-                (_pusher as IAttributePusher)?.SetAttribute(attr, entity);
-                (_indexer as IAttributeIndexer)?.SetAttribute(attr, entity);
-            }
+            _puller.SetIndex(_indexModel);
+            _pusher.SetIndex(_indexModel);
+            _indexer.SetIndex(_indexModel);
 
             Initialized = _puller.Initialized() && entityRepository.Initialized(_indexModel);
 

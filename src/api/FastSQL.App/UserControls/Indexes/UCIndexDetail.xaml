@@ -264,6 +264,22 @@
                         </ItemsControl>
                     </ScrollViewer>
                 </TabItem>
+                <TabItem Header="Mapper Options" >
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                        <ItemsControl ItemsSource="{Binding Path=MapperOptions}" Grid.Row="7" Grid.Column="0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </TabItem>
                 <TabItem Header="Entity Dependencies">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
                         <local:UCIndexDependencies DataContext="{Binding EntityDependencyViewModel}" DependencyType="Entity"></local:UCIndexDependencies>

@@ -1,5 +1,6 @@
 ﻿using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Models;
+using FastSQL.Sync.Core.Puller;
 using System;
 using System.Collections.Generic;
 using System.Linq;

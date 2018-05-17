@@ -4,6 +4,7 @@ using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace FastSQL.Sync.Core.Indexer
@@ -12,18 +13,25 @@ namespace FastSQL.Sync.Core.Indexer
     {
         protected readonly IProcessor Processor;
         protected readonly IRichProvider Provider;
+        private readonly IRichAdapter Adapter;
         protected readonly EntityRepository EntityRepository;
+        private readonly ConnectionRepository ConnectionRepository;
         protected EntityModel EntityModel;
+        protected ConnectionModel ConnectionModel;
 
         public BaseEntityIndexer(
             IProcessor processor,
-            IRichProvider provider,
             IOptionManager optionManager,
-            EntityRepository entityRepository) : base(optionManager)
+            IRichProvider provider,
+            IRichAdapter adapter,
+            EntityRepository entityRepository,
+            ConnectionRepository connectionRepository) : base(optionManager)
         {
-            this.Processor = processor;
-            this.Provider = provider;
+            Processor = processor;
+            Provider = provider;
+            Adapter = adapter;
             EntityRepository = entityRepository;
+            ConnectionRepository = connectionRepository;
         }
 
         public bool IsImplemented(string processorId, string providerId)
@@ -31,12 +39,13 @@ namespace FastSQL.Sync.Core.Indexer
             return Processor.Id == processorId && Provider.Id == providerId;
         }
 
-        public virtual IEntityIndexer SetEntity(EntityModel entity)
+        public override IIndexer SetIndex(IIndexModel model)
         {
-            EntityModel = entity;
+            EntityModel = model as EntityModel;
+            SpreadOptions();
             return this;
         }
-        
+
         protected override IIndexModel GetIndexer()
         {
             return EntityModel;
@@ -46,5 +55,16 @@ namespace FastSQL.Sync.Core.Indexer
         {
             return EntityRepository;
         }
+        
+        protected virtual IIndexer SpreadOptions()
+        {
+            ConnectionModel = ConnectionRepository.GetById(EntityModel.SourceConnectionId.ToString());
+            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
+            var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
+            Adapter.SetOptions(connectionOptionItems);
+            Provider.SetOptions(connectionOptionItems);
+            return this;
+        }
+
     }
 }
