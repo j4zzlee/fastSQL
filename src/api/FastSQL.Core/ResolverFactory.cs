@@ -1,8 +1,8 @@
-﻿using Castle.MicroKernel.Lifestyle;
-using Castle.Windsor;
+﻿
 using System;
 using System.Collections.Generic;
-using System.Text;
+using Castle.MicroKernel.Lifestyle;
+using Castle.Windsor;
 
 namespace FastSQL.Core
 {

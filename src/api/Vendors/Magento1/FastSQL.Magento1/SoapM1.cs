@@ -30,7 +30,7 @@ namespace FastSQL.Magento1
             return this;
         }
 
-        protected PortTypeClient GetClient()
+        public PortTypeClient GetClient()
         {
             return new PortTypeClient(ApiUrl.ToLower().Contains("https") ? "HttpsPort" : "HttpPort", ApiUrl);
         }

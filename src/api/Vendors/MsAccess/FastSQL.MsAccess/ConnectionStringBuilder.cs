@@ -27,7 +27,7 @@ namespace FastSQL.MsAccess
                 $"Uid={username}",
                 $"Pwd={password}",
                 "ExtendedAnsiSQL=1",
-                "Exclusive=1"
+                //"Exclusive=1"
             };
             return string.Join(";", options);
         }

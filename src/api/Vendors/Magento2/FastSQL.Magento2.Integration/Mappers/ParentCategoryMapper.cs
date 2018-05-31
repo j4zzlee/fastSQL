@@ -22,7 +22,7 @@ namespace FastSQL.Magento2.Integration.Mappers
         {
         }
 
-        public override MapResult Map(object lastToken = null)
+        public override MapResult Pull(object lastToken = null)
         {
             throw new NotImplementedException();
         }

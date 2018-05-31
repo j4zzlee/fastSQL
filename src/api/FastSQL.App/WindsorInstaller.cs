@@ -7,6 +7,7 @@ using FastSQL.App.Interfaces;
 using FastSQL.App.Managers;
 using FastSQL.Core;
 using FastSQL.Core.Loggers;
+using FastSQL.Core.Middlewares;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.IndexExporters;
@@ -164,6 +165,13 @@ namespace FastSQL.App
                 .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
+            container.Register(descriptor
+                .BasedOn<IMiddleware>()
+                .WithService.Select(new Type[] { typeof(IMiddleware) })
+                .WithServiceAllInterfaces()
+                .WithServiceSelf()
+                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
             container.Register(Component.For<JsonSerializer>().UsingFactoryMethod(() => new JsonSerializer()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
@@ -187,10 +195,13 @@ namespace FastSQL.App
 
             container.Register(Component.For<IConfigurationBuilder>().UsingFactoryMethod((p) => {
                 var appResource = p.Resolve<IApplicationResourceManager>();
-                return new ConfigurationBuilder()
+                var builder = new ConfigurationBuilder()
                     .SetBasePath(appResource.BasePath)
                     .AddJsonFile("appsettings.json", true, true);
+                return builder;
             }).LifestyleTransient());
+
+            container.Register(Component.For<IConfiguration>().UsingFactoryMethod((p) => p.Resolve<IConfigurationBuilder>().Build()).LifestyleTransient());
 
             container.Register(Component.For<SettingManager>().ImplementedBy<SettingManager>().LifestyleSingleton());
             container.Register(Component.For<IndexerManager>().ImplementedBy<IndexerManager>().LifestyleTransient());

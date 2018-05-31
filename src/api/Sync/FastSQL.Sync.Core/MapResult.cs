@@ -7,5 +7,6 @@ namespace FastSQL.Sync.Core
     {
         public bool IsValid { get; set; }
         public object LastToken { get; set; }
+        public IEnumerable<object> Data { get; set; }
     }
 }

@@ -22,15 +22,22 @@ namespace FastSQL.Sync.Core
         public DbConnection Connection { get; set; }
         protected Action<string> Reporter;
         protected DbTransaction Transaction;
+        protected ConnectionModel ConnectionModel;
+        protected ConnectionRepository ConnectionRepository;
+        protected IRichAdapter Adapter;
+        protected IRichProvider Provider;
 
-        public BaseIndexer(IOptionManager optionManager)
+        public BaseIndexer(IOptionManager optionManager, IRichAdapter adapter, IRichProvider provider, ConnectionRepository connectionRepository)
         {
             OptionManager = optionManager;
+            Adapter = adapter;
+            Provider = provider;
+            ConnectionRepository = connectionRepository;
         }
 
         public virtual IEnumerable<OptionItem> Options => OptionManager.Options;
 
-        protected abstract IIndexModel GetIndexer();
+        protected abstract IIndexModel GetIndexModel();
         protected abstract BaseRepository GetRepository();
         
         public virtual IEnumerable<OptionItem> GetOptionsTemplate()
@@ -46,7 +53,7 @@ namespace FastSQL.Sync.Core
 
         public virtual IIndexer StartIndexing(bool cleanAll)
         {
-            var indexer = GetIndexer();
+            var indexer = GetIndexModel();
             if (cleanAll)
             {
                 Report($@"Initializing index ""{indexer.Name}""....");
@@ -82,7 +89,7 @@ namespace FastSQL.Sync.Core
             {
                 return this;
             }
-            var indexer = GetIndexer();
+            var indexer = GetIndexModel();
             var repo = GetRepository();
             var options = repo.LoadOptions(indexer.Id.ToString());
             var idColumn = FilterColumns(options.GetValue("indexer_key_column")).First();
@@ -127,7 +134,7 @@ namespace FastSQL.Sync.Core
         {
             var schemaSQL = string.Join(",\n\t", allColumns.Select(c => $"[{c}]"));
             var paramsSQL = string.Join(",\n\t", allColumns.Select(c => $"@{c}"));
-            var indexer = GetIndexer();
+            var indexer = GetIndexModel();
             var sql = $@"
 INSERT INTO [{indexer.NewValueTableName}](
     [Id],
@@ -154,7 +161,7 @@ VALUES (
             IEnumerable<string> allColumns,
             IEnumerable<DynamicParameters> data)
         {
-            var indexer = GetIndexer();
+            var indexer = GetIndexModel();
             var comparePrimarySQL = $@"o.[Id] = n.[Id]";
             if (primaryColumns?.Count() > 0)
             {
@@ -237,7 +244,7 @@ WHEN NOT MATCHED THEN
                 return;
             }
 
-            var indexer = GetIndexer();
+            var indexer = GetIndexModel();
             string comparePrimarySQL = $@"o.[Id] = n.[Id]";
             if (primaryColumns?.Count() > 0)
             {
@@ -307,7 +314,7 @@ WHEN MATCHED THEN
         {
             var limit = 100;
             var offset = 0;
-            var indexer = GetIndexer();
+            var indexer = GetIndexModel();
             string comparePrimarySQL = $@"o.[Id] = n.[Id]";
             if (primaryColumns?.Count() > 0) {
                 comparePrimarySQL = string.Join(" AND ", primaryColumns.Select(c => $@"o.[{c}] = n.[{c}]"));
@@ -354,7 +361,7 @@ WHERE [SourceId] IN @SourceIds";
         
         public virtual IIndexer EndIndexing()
         {
-            var indexer = GetIndexer();
+            var indexer = GetIndexModel();
             var repo = GetRepository();
             var options = repo.LoadOptions(indexer.Id.ToString());
             var idColumn = FilterColumns(options.GetValue("indexer_key_column")).First();
@@ -406,5 +413,15 @@ SELECT * FROM [{indexer.NewValueTableName}]", transaction: Transaction); // old 
         }
 
         public abstract IIndexer SetIndex(IIndexModel model);
+        
+        protected virtual IIndexer SpreadOptions()
+        {
+            ConnectionModel = ConnectionRepository.GetById(GetIndexModel().SourceConnectionId.ToString());
+            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
+            var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
+            Adapter.SetOptions(connectionOptionItems);
+            Provider.SetOptions(connectionOptionItems);
+            return this;
+        }
     }
 }

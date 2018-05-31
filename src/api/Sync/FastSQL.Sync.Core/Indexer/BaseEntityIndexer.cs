@@ -12,12 +12,8 @@ namespace FastSQL.Sync.Core.Indexer
     public abstract class BaseEntityIndexer : BaseIndexer, IEntityIndexer
     {
         protected readonly IProcessor Processor;
-        protected readonly IRichProvider Provider;
-        private readonly IRichAdapter Adapter;
         protected readonly EntityRepository EntityRepository;
-        private readonly ConnectionRepository ConnectionRepository;
         protected EntityModel EntityModel;
-        protected ConnectionModel ConnectionModel;
 
         public BaseEntityIndexer(
             IProcessor processor,
@@ -25,13 +21,10 @@ namespace FastSQL.Sync.Core.Indexer
             IRichProvider provider,
             IRichAdapter adapter,
             EntityRepository entityRepository,
-            ConnectionRepository connectionRepository) : base(optionManager)
+            ConnectionRepository connectionRepository) : base(optionManager, adapter, provider, connectionRepository)
         {
             Processor = processor;
-            Provider = provider;
-            Adapter = adapter;
             EntityRepository = entityRepository;
-            ConnectionRepository = connectionRepository;
         }
 
         public bool IsImplemented(string processorId, string providerId)
@@ -46,7 +39,7 @@ namespace FastSQL.Sync.Core.Indexer
             return this;
         }
 
-        protected override IIndexModel GetIndexer()
+        protected override IIndexModel GetIndexModel()
         {
             return EntityModel;
         }
@@ -55,16 +48,5 @@ namespace FastSQL.Sync.Core.Indexer
         {
             return EntityRepository;
         }
-        
-        protected virtual IIndexer SpreadOptions()
-        {
-            ConnectionModel = ConnectionRepository.GetById(EntityModel.SourceConnectionId.ToString());
-            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
-            var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
-            Adapter.SetOptions(connectionOptionItems);
-            Provider.SetOptions(connectionOptionItems);
-            return this;
-        }
-
     }
 }

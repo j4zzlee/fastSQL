@@ -8,15 +8,12 @@ using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FastSQL.Sync.Core.Mapper
 {
     public class MapperManager
     {
-        //private IPuller _puller;
-        //private IIndexer _indexer;
-        //private IPusher _pusher;
-
         private IIndexModel _indexerModel;
         private readonly IEventAggregator eventAggregator;
         private readonly EntityRepository entityRepository;
@@ -29,24 +26,7 @@ namespace FastSQL.Sync.Core.Mapper
             _indexerModel = model;
             return this;
         }
-
-        //public void SetPuller(IPuller puller)
-        //{
-        //    _puller = puller;
-        //    _puller.OnReport(Report);
-        //}
-        //public void SetIndexer(IIndexer indexer)
-        //{
-        //    _indexer = indexer;
-        //    _indexer.OnReport(Report);
-        //}
-
-        //public void SetPusher(IPusher pusher)
-        //{
-        //    _pusher = pusher;
-        //    _pusher.OnReport(Report);
-        //}
-
+        
         public MapperManager SetMapper(IMapper mapper)
         {
             _mapper = mapper;
@@ -80,19 +60,27 @@ namespace FastSQL.Sync.Core.Mapper
             _messages = new List<string>();
         }
 
-        public void Map()
+        public async Task Map()
         {
             object lastToken = null;
             _mapper.SetIndex(_indexerModel);
-            while (true)
+            await Task.Run(() =>
             {
-                var mapResult = _mapper.Map(lastToken);
-                if (!mapResult.IsValid)
+                while (true)
                 {
-                    break;
+                    // there is no need to store the last token data into database
+                    // the map function is only available on Application Scope
+                    // Workflow services NEVER use Map Function
+                    var mapResult = _mapper.Pull(lastToken);
+                    if (!mapResult.IsValid)
+                    {
+                        break;
+                    }
+                    lastToken = mapResult.LastToken;
+
+                    _mapper.Map(mapResult.Data);
                 }
-                lastToken = mapResult.LastToken;
-            }
+            });
         }
     }
 }

@@ -225,12 +225,27 @@ namespace FastSQL.App.UserControls.Indexes
             this.resolverFactory = resolverFactory;
         }
         
-        private void OnMapIndex(object obj)
+        private async void OnMapIndex(object obj)
         {
-            mapperManager
-                .SetIndex(_indexModel)
-                .SetMapper(_mapper)
-                .Map();
+            try
+            {
+                IsLoading = true;
+                await mapperManager
+                    .SetIndex(_indexModel)
+                    .SetMapper(_mapper)
+                    .Map();
+                await LoadData(null, DataGridContstants.PageLimit, 0, true);
+                MessageBox.Show(
+                    (Owner as Window) ?? Application.Current.MainWindow,
+                    "Entities are mapped successfully",
+                    "Sucess",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async void OnInitIndex(object obj)

@@ -1,4 +1,5 @@
 ﻿using FastSQL.Core;
+using FastSQL.Magento1.Magento1Soap;
 using System;
 using System.Data;
 

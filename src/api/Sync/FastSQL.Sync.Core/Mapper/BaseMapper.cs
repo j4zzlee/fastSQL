@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Dapper;
 using FastSQL.Core;
 using FastSQL.Sync.Core.Mapper;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
+using Newtonsoft.Json.Linq;
 
 namespace FastSQL.Sync.Core.Mapper
 {
@@ -18,6 +22,7 @@ namespace FastSQL.Sync.Core.Mapper
         protected readonly ConnectionRepository ConnectionRepository;
         protected EntityModel EntityModel;
         protected ConnectionModel ConnectionModel;
+        public DbConnection Connection { get; set; }
         protected Action<string> _reporter;
 
         public BaseMapper(
@@ -74,7 +79,7 @@ namespace FastSQL.Sync.Core.Mapper
 
         protected virtual IMapper SpreadOptions()
         {
-            ConnectionModel = ConnectionRepository.GetById(EntityModel.SourceConnectionId.ToString());
+            ConnectionModel = ConnectionRepository.GetById(EntityModel.DestinationConnectionId.ToString());
             var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
             var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
             Adapter.SetOptions(connectionOptionItems);
@@ -82,6 +87,62 @@ namespace FastSQL.Sync.Core.Mapper
             return this;
         }
 
-        public abstract MapResult Map(object lastToken = null);
+        public abstract MapResult Pull(object lastToken = null);
+
+        public virtual IMapper Map(IEnumerable<object> data)
+        {
+            if (data == null)
+            {
+                return this;
+            }
+            var destinationIdKey = Options?.FirstOrDefault(o => o.Name == "mapper_id_key").Value;
+            var foreignKeyStr = Options?.FirstOrDefault(o => o.Name == "mapper_foreign_keys").Value;
+            var foreignKeys = Regex.Split(foreignKeyStr, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            var referenceKeyStr = Options?.FirstOrDefault(o => o.Name == "mapper_reference_keys").Value;
+            var referenceKeys = Regex.Split(referenceKeyStr, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            var affectedRows = 0;
+            foreach (var item in data)
+            {
+                var jItem = JObject.FromObject(item);
+                var destinationId = jItem.GetValue(destinationIdKey).ToString();
+
+                var queryParams = new DynamicParameters();
+                var conditions = new List<string>();
+                
+                // !!! NEVER CHECK FOR DEPENDENCIES. An entity cannot be mapped if its values are required to be check SOURCE v.s DEST with dependencies
+                for (var i = 0; i < foreignKeys.Length; i++)
+                {
+                    var foreignValue = jItem.GetValue(foreignKeys[i]);
+                    // Foreign values should NEVER BE NULL
+                    conditions.Add($@"[{referenceKeys[i]}] = @{referenceKeys[i]}");
+                    queryParams.Add(referenceKeys[i], foreignValue?.ToString());
+                }
+
+                var indexedItem = Connection
+                    .Query<object>($@"
+SELECT * FROM [{EntityModel.ValueTableName}]
+WHERE {string.Join(" AND ", conditions)}
+", queryParams)
+.Select(i => IndexItemModel.FromObject(i))
+.FirstOrDefault();
+               
+                if (indexedItem != null)
+                {
+                    affectedRows += Connection
+                    .Execute($@"
+UPDATE [{EntityModel.ValueTableName}]
+SET [DestinationId] = @DestinationId
+WHERE [Id] = @Id
+", 
+new {
+    Id = indexedItem.GetId(),
+    DestinationId = jItem.GetValue(destinationIdKey).ToString()
+});
+                }
+                
+            }
+            Report($@"Mapped {affectedRows} item(s).");
+            return this;
+        }
     }
 }

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="IntegrationWorkflow.cs" />
+    <Compile Remove="Steps\PullStep.cs" />
+    <Compile Remove="Steps\QueueStep.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\workflow-core\src\WorkflowCore.IOC.Castle\WorkflowCore.IOC.Castle.csproj" />
+    <ProjectReference Include="..\FastSQL.Core\FastSQL.Core.csproj" />
+    <ProjectReference Include="..\Sync\FastSQL.Sync.Core\FastSQL.Sync.Core.csproj" />
+  </ItemGroup>
+
+</Project>

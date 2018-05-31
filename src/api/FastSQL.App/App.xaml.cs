@@ -15,6 +15,8 @@ using System.Windows.Threading;
 using System.Resources;
 using FastSQL.Core;
 using FastSQL.Core.Loggers;
+using Microsoft.Extensions.DependencyInjection;
+using Castle.Windsor.MsDependencyInjection;
 
 namespace FastSQL.App
 {
@@ -23,11 +25,12 @@ namespace FastSQL.App
     /// </summary>
     public partial class App : Application
     {
-        private IWindsorContainer _container;
+        private static IWindsorContainer _container;
+        private static IServiceProvider _provider;
+        private static IServiceCollection _services;
         private IDisposable _scope;
         private IEventAggregator _eventAggregate;
         private MainWindow _mainWindow;
-        private const string resxFile = @".\Properties\Resources.resx";
         public App()
         {
             this.Startup += Application_Startup;
@@ -61,7 +64,7 @@ namespace FastSQL.App
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
-            e.Handled = true;
+            e.Handled = _mainWindow != null;
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)
@@ -76,36 +79,47 @@ namespace FastSQL.App
             _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
             _container.Register(Component.For<FromAssemblyDescriptor>().UsingFactoryMethod(() => assemblyDescriptor).LifestyleSingleton());
             _container.Register(Component.For<ResourceManager>().UsingFactoryMethod(p => new ResourceManager($"{assemblyName}.Properties.Resources", assembly)).LifestyleSingleton());
-            _container.Register(Component.For<IConfiguration>().UsingFactoryMethod((p) => p.Resolve<IConfigurationBuilder>().Build()).LifestyleTransient());
 
             //_container.RegisterLogger(appName);
 
             _container.Install(FromAssembly.InDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory)));
-            _scope = _container.BeginScope();
             _eventAggregate = _container.Resolve<IEventAggregator>();
             _eventAggregate.GetEvent<ApplicationRestartEvent>().Subscribe(OnApplicationRestart);
 
             // TODO: Force License Module and Configuration (appsettings.json) Module 
 
+            //this.Shutdown();
+
+            _scope = _container.BeginScope();
             _mainWindow = _container.Resolve<MainWindow>();
-            Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            _mainWindow.Closed += OnShutDown;
+            Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             Current.MainWindow = _mainWindow;
             _mainWindow.Show();
         }
 
+        private void OnShutDown(object sender, EventArgs e)
+        {
+            this.Shutdown();
+        }
+        
         private void OnApplicationRestart(ApplicationRestartEventArgument obj)
         {
             _mainWindow.Dispatcher.Invoke(new Action(delegate ()
             {
                 var oldScope = _scope;
-                _scope = _container.BeginScope();
-                var newWindow = _container.Resolve<MainWindow>();
-                Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-                Current.MainWindow = newWindow;
-                newWindow.Show();
-                _mainWindow.Close();
+                var oldWindow = _mainWindow;
+
+                oldWindow.Closed -= OnShutDown;
                 oldScope?.Dispose();
-                _mainWindow = newWindow;
+                oldWindow.Close();
+
+                _scope = _container.BeginScope();
+                _mainWindow = _container.Resolve<MainWindow>();
+                _mainWindow.Closed += OnShutDown;
+                Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                Current.MainWindow = _mainWindow;
+                _mainWindow.Show();
             }));
         }
 
