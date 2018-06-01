@@ -3,12 +3,14 @@ using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using FastSQL.Core.Loggers;
+using FastSQL.Sync.Workflow;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System;
 using System.Resources;
 using Topshelf;
-using WorkflowCore.IOC.Castle;
+using WorkflowCore.Ioc.CastleWindsor;
 
 namespace FastSQL.Service
 {
@@ -28,7 +30,11 @@ namespace FastSQL.Service
             _container.Register(Component.For<FromAssemblyDescriptor>().UsingFactoryMethod(() => assemblyDescriptor).LifestyleSingleton());
             _container.Register(Component.For<ResourceManager>().UsingFactoryMethod(p => new ResourceManager($"{assemblyName}.Resources", assembly)).LifestyleSingleton());
             _container.Install(FromAssembly.InDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory)));
-            _container.AddWorkflow();
+            _container.AddWorkflow(o => {
+                var conf = _container.Resolve<IConfiguration>();
+                var connectionString = conf.GetConnectionString("__MigrationDatabase");
+                o.UseCastleWindsorSqlServerBroker(connectionString, false, true);
+            });
             
             var syncService = _container.Resolve<SyncService>();
           

@@ -11,6 +11,11 @@ namespace FastSQL.Sync.Workflow
 
         public int Version => 1;
 
+        public ReportWorkflow()
+        {
+
+        }
+
         public void Build(IWorkflowBuilder<object> builder)
         {
             builder.StartWith(x => { })

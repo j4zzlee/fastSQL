@@ -16,6 +16,7 @@ using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Core.Settings;
+using FastSQL.Sync.Workflow;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -31,6 +32,8 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Controls;
+using WorkflowCore.Interface;
+using WorkflowCore.Models;
 
 namespace FastSQL.App
 {
@@ -212,6 +215,27 @@ namespace FastSQL.App
             container.Register(Component.For<LoggerFactory>().ImplementedBy<LoggerFactory>().LifestyleTransient());
             container.Register(Component.For<LoggerConfiguration>().UsingFactoryMethod(p => new LoggerConfiguration()
                     .Enrich.FromLogContext()).LifestyleTransient());
+            container.Register(Component.For<SyncService>().ImplementedBy<SyncService>().LifestyleSingleton());
+            container.Register(descriptor
+               .BasedOn<StepBody>()
+               .WithService.Select(new Type[] { typeof(StepBody) })
+               .WithServiceAllInterfaces()
+               .WithServiceSelf()
+               .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
+            container.Register(descriptor
+               .BasedOn<IWorkflow>()
+               .WithService.Select(new Type[] { typeof(IWorkflow) })
+               .WithServiceAllInterfaces()
+               .WithServiceSelf()
+               .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
+            container.Register(descriptor
+               .BasedOn(typeof(IWorkflow<>))
+               .WithService.Select(new Type[] { typeof(IWorkflow<>) })
+               .WithServiceAllInterfaces()
+               .WithServiceSelf()
+               .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
         }
     }
 }

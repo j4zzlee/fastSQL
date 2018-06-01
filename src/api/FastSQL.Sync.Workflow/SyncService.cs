@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WorkflowCore.Interface;
 
-namespace FastSQL.Service
+namespace FastSQL.Sync.Workflow
 {
     public class SyncService: IDisposable
     {

@@ -264,25 +264,25 @@
       <Version>4.7.0.9</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration">
-      <Version>2.0.2</Version>
+      <Version>2.1.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions">
-      <Version>2.0.2</Version>
+      <Version>2.1.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder">
-      <Version>2.0.2</Version>
+      <Version>2.1.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions">
-      <Version>2.0.2</Version>
+      <Version>2.1.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json">
-      <Version>2.0.2</Version>
+      <Version>2.1.0</Version>
     </PackageReference>
     <PackageReference Include="MvvmLight">
       <Version>5.4.1</Version>
     </PackageReference>
     <PackageReference Include="NETStandard.Library">
-      <Version>2.0.3</Version>
+      <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="Prism.Core">
       <Version>7.0.0.396</Version>
@@ -324,22 +324,25 @@
       <Version>16.1.0.37</Version>
     </PackageReference>
     <PackageReference Include="System.Private.ServiceModel">
-      <Version>4.4.2</Version>
+      <Version>4.5.0</Version>
     </PackageReference>
     <PackageReference Include="System.ServiceModel.Http">
-      <Version>4.4.2</Version>
+      <Version>4.5.0</Version>
     </PackageReference>
     <PackageReference Include="System.ServiceModel.NetTcp">
-      <Version>4.4.2</Version>
+      <Version>4.5.0</Version>
     </PackageReference>
     <PackageReference Include="System.ServiceModel.Primitives">
-      <Version>4.4.2</Version>
+      <Version>4.5.0</Version>
     </PackageReference>
     <PackageReference Include="System.ServiceModel.Security">
-      <Version>4.4.2</Version>
+      <Version>4.5.0</Version>
     </PackageReference>
     <PackageReference Include="System.Xml.XmlSerializer">
       <Version>4.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="WorkflowCore.Ioc.CastleWindsor">
+      <Version>1.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -374,6 +377,10 @@
     <ProjectReference Include="..\FastSQL.Sync.Core.Settings\FastSQL.Sync.Core.Settings.csproj">
       <Project>{486d0b89-d0d3-4f16-8bb7-59d6f1f898bc}</Project>
       <Name>FastSQL.Sync.Core.Settings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FastSQL.Sync.Workflow\FastSQL.Sync.Workflow.csproj">
+      <Project>{9B4260A1-CF79-4DD5-9981-E448EE1824C4}</Project>
+      <Name>FastSQL.Sync.Workflow</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sync\FastSQL.Sync.Core\FastSQL.Sync.Core.csproj">
       <Project>{582cb864-2fc8-40ce-9bd5-3d1470274352}</Project>

@@ -17,6 +17,7 @@ using FastSQL.Core;
 using FastSQL.Core.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Castle.Windsor.MsDependencyInjection;
+using WorkflowCore.Ioc.CastleWindsor;
 
 namespace FastSQL.App
 {
@@ -79,10 +80,13 @@ namespace FastSQL.App
             _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
             _container.Register(Component.For<FromAssemblyDescriptor>().UsingFactoryMethod(() => assemblyDescriptor).LifestyleSingleton());
             _container.Register(Component.For<ResourceManager>().UsingFactoryMethod(p => new ResourceManager($"{assemblyName}.Properties.Resources", assembly)).LifestyleSingleton());
-
-            //_container.RegisterLogger(appName);
-
+            
             _container.Install(FromAssembly.InDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory)));
+            _container.AddWorkflow(o => {
+                var conf = _container.Resolve<IConfiguration>();
+                var connectionString = conf.GetConnectionString("__MigrationDatabase");
+                o.UseCastleWindsorSqlServerBroker(connectionString, false, true);
+            });
             _eventAggregate = _container.Resolve<IEventAggregator>();
             _eventAggregate.GetEvent<ApplicationRestartEvent>().Subscribe(OnApplicationRestart);
 
