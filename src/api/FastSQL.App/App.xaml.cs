@@ -1,23 +1,13 @@
 ﻿using Castle.MicroKernel.Lifestyle;
-using Castle.MicroKernel.Registration;
-using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
-using Castle.Windsor.Installer;
-using FastSQL.App.Extensions;
 using FastSQL.Sync.Core.Settings.Events;
-using Microsoft.Extensions.Configuration;
 using Prism.Events;
-using Serilog;
 using System;
-using System.IO;
 using System.Windows;
 using System.Windows.Threading;
-using System.Resources;
-using FastSQL.Core;
 using FastSQL.Core.Loggers;
 using Microsoft.Extensions.DependencyInjection;
-using Castle.Windsor.MsDependencyInjection;
-using WorkflowCore.Ioc.CastleWindsor;
+using FastSQL.Core.ExtensionMethods;
 
 namespace FastSQL.App
 {
@@ -70,23 +60,9 @@ namespace FastSQL.App
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            var assemblyName = assembly.GetName().Name;
-            var assemblyDescriptor = Classes.FromAssemblyInDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory));
-
             _container = new WindsorContainer();
-            _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel, true));
+            _container.RegisterAll();
 
-            _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
-            _container.Register(Component.For<FromAssemblyDescriptor>().UsingFactoryMethod(() => assemblyDescriptor).LifestyleSingleton());
-            _container.Register(Component.For<ResourceManager>().UsingFactoryMethod(p => new ResourceManager($"{assemblyName}.Properties.Resources", assembly)).LifestyleSingleton());
-            
-            _container.Install(FromAssembly.InDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory)));
-            _container.AddWorkflow(o => {
-                var conf = _container.Resolve<IConfiguration>();
-                var connectionString = conf.GetConnectionString("__MigrationDatabase");
-                o.UseCastleWindsorSqlServerBroker(connectionString, false, true);
-            });
             _eventAggregate = _container.Resolve<IEventAggregator>();
             _eventAggregate.GetEvent<ApplicationRestartEvent>().Subscribe(OnApplicationRestart);
 

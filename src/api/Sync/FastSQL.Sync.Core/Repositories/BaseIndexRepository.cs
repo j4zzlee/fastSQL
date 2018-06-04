@@ -2,7 +2,7 @@
 using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Filters;
 using FastSQL.Sync.Core.Models;
-using st2forget.commons.datetime;
+using DateTimeExtensions;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -83,7 +83,7 @@ WHERE Id >= @FromId";
             {
                 foreach (var filter in filters)
                 {
-                    var paramName = StringRandom.Generate(10);
+                    var paramName = StringExtensions.StringExtensions.Random(10);
                     filterStrs.Add($@"[{filter.Field}] {filter.Op} @Param_{paramName}");
                     @params.Add($@"Param_{paramName}", filter.Target);
                 }

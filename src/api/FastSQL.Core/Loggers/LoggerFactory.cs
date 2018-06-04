@@ -9,7 +9,7 @@ namespace FastSQL.Core.Loggers
 {
     public class LoggerFactory : IDisposable
     {
-        private readonly IApplicationResourceManager applicationResourceManager;
+        private readonly IApplicationManager applicationResourceManager;
         private readonly ResolverFactory resolverFactory;
         private LoggerConfiguration loggerConfiguration;
         private ILogger _container;
@@ -21,7 +21,7 @@ namespace FastSQL.Core.Loggers
         private string _file;
 
         public LoggerFactory(
-            IApplicationResourceManager applicationResourceManager,
+            IApplicationManager applicationResourceManager,
             ResolverFactory resolverFactory,
             LoggerConfiguration loggerConfiguration)
         {

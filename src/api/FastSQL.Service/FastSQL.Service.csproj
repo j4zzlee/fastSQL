@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCSolutions.Commands" Version="1.0.0" />
     <PackageReference Include="Castle.Windsor" Version="4.1.0" />
     <PackageReference Include="Castle.Windsor.MsDependencyInjection" Version="3.3.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0" />
@@ -17,28 +18,11 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
     <PackageReference Include="Topshelf" Version="4.0.4" />
     <PackageReference Include="Topshelf.Serilog" Version="4.0.4" />
-    <PackageReference Include="WorkflowCore.Ioc.CastleWindsor" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FastSQL.App\FastSQL.App.csproj" />
     <ProjectReference Include="..\FastSQL.Sync.Workflow\FastSQL.Sync.Workflow.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

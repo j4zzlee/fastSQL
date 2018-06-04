@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using WorkflowCore.Interface;
 
-namespace FastSQL.Sync.Workflow
+namespace FastSQL.Sync.Workflow.Workflows
 {
+    [Description("Queue Index Changes")]
     public class QueueIndexChangesWorkflow : IWorkflow
     {
         public string Id => nameof(QueueIndexChangesWorkflow);

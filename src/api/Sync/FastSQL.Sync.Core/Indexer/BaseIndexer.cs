@@ -12,7 +12,7 @@ using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using st2forget.commons.datetime;
+using DateTimeExtensions;
 
 namespace FastSQL.Sync.Core
 {

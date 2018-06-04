@@ -1,6 +1,7 @@
 ﻿using FastSQL.App.Interfaces;
 using FastSQL.App.UserControls;
 using FastSQL.Core.UI.Events;
+using FastSQL.Core.UI.Interfaces;
 using FastSQL.Sync.Core.Enums;
 using Prism.Events;
 

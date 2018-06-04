@@ -11,7 +11,7 @@ using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
 using Prism.Events;
-using st2forget.commons.datetime;
+using DateTimeExtensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -516,30 +516,30 @@ namespace FastSQL.App.UserControls.Indexes
         private IEnumerable<OptionItem> GetOptionItems()
         {
             var options = new List<OptionItem>();
-            options.AddRange(PullerOptions.Select(o => new OptionItem
+            options.AddRange(PullerOptions?.Select(o => new OptionItem
             {
                 Name = o.Name,
                 Value = o.Value,
                 OptionGroupNames = o.OptionGroupNames
-            }));
-            options.AddRange(IndexerOptions.Select(o => new OptionItem
+            }) ?? new List<OptionItem>());
+            options.AddRange(IndexerOptions?.Select(o => new OptionItem
             {
                 Name = o.Name,
                 Value = o.Value,
                 OptionGroupNames = o.OptionGroupNames
-            }));
-            options.AddRange(PusherOptions.Select(o => new OptionItem
+            }) ?? new List<OptionItem>());
+            options.AddRange(PusherOptions?.Select(o => new OptionItem
             {
                 Name = o.Name,
                 Value = o.Value,
                 OptionGroupNames = o.OptionGroupNames
-            }));
-            options.AddRange(MapperOptions.Select(o => new OptionItem
+            }) ?? new List<OptionItem>());
+            options.AddRange(MapperOptions?.Select(o => new OptionItem
             {
                 Name = o.Name,
                 Value = o.Value,
                 OptionGroupNames = o.OptionGroupNames
-            }));
+            }) ?? new List<OptionItem>());
             return options;
         }
 
@@ -597,7 +597,7 @@ namespace FastSQL.App.UserControls.Indexes
                     // max to 128 characters, luckily we use SQL Server
                     var strippedName = Regex.Replace(Name, @"[^0-9a-zA-Z_]+", "");
                     strippedName = strippedName.Length > 90 ? strippedName.Substring(0, 90) : strippedName;
-                    var randomStr = StringRandom.Generate(10);
+                    var randomStr = StringExtensions.StringExtensions.Random(10);
                     SourceViewName = $"vw_e_{strippedName}_{randomStr}";
                     ValueTableName = $"tbl_e_{strippedName}_{randomStr}";
                     OldValueTableName = $"tbl_e_{strippedName}_{randomStr}_old";
@@ -682,7 +682,7 @@ namespace FastSQL.App.UserControls.Indexes
             {
                 var strippedName = Regex.Replace(Name, @"[^0-9a-zA-Z_]+", "");
                 strippedName = strippedName.Length > 90 ? strippedName.Substring(0, 90) : strippedName;
-                var randomStr = StringRandom.Generate(10);
+                var randomStr = StringExtensions.StringExtensions.Random(10);
                 var sourceViewName = $"vw_e_{strippedName}_{randomStr}";
                 var valueTableName = $"tbl_e_{strippedName}_{randomStr}";
                 var oldValueTableName = $"tbl_e_{strippedName}_{randomStr}_old";

@@ -11,10 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="St2forget.WorkflowCore" Version="1.6.4" />
+    <PackageReference Include="WorkflowCore" Version="1.6.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\3rd\WorkflowCore.Extensions.WorkflowController\WorkflowCore.Extensions.WorkflowController.csproj" />
     <ProjectReference Include="..\FastSQL.Core\FastSQL.Core.csproj" />
     <ProjectReference Include="..\Sync\FastSQL.Sync.Core\FastSQL.Sync.Core.csproj" />
   </ItemGroup>

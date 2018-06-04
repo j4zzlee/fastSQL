@@ -1,12 +1,12 @@
 ﻿using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel;
 using WorkflowCore.Interface;
 
-namespace FastSQL.Sync.Workflow
+namespace FastSQL.Sync.Workflow.Workflows
 {
+    [Description("Pull Indexes in Parallel Mode")]
     public class PullIndexParallelWorkflow : IWorkflow
     {
         private readonly EntityRepository entityRepository;

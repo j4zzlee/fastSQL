@@ -6,11 +6,11 @@ using System.Text;
 
 namespace FastSQL.Core
 {
-    public class ApplicationResourceManager : IApplicationResourceManager
+    public class ApplicationManager : IApplicationManager
     {
         private readonly ResourceManager resourceManager;
 
-        public ApplicationResourceManager(ResourceManager resourceManager)
+        public ApplicationManager(ResourceManager resourceManager)
         {
             this.resourceManager = resourceManager;
         }

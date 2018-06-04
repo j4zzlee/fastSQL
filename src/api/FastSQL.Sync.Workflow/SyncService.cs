@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WorkflowCore.Extensions.WorkflowController;
 using WorkflowCore.Interface;
 
 namespace FastSQL.Sync.Workflow
@@ -26,7 +27,9 @@ namespace FastSQL.Sync.Workflow
         }
 
         public void Dispose()
-        { 
+        {
+            _logger.Information("Service stopped.");
+            _host.Stop();
         }
 
         public void Start()

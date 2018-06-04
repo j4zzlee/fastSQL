@@ -3,7 +3,7 @@ using FastSQL.Core;
 using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
 using Newtonsoft.Json;
-using st2forget.commons.datetime;
+using DateTimeExtensions;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;

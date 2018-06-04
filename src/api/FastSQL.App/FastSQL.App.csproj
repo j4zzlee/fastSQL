@@ -68,12 +68,12 @@
     <Compile Include="Extensions\ContextMenuServiceExtensions.cs" />
     <Compile Include="Interfaces\BaseCommand.cs" />
     <Compile Include="Interfaces\BaseViewModel.cs" />
-    <Compile Include="Interfaces\IPageManager.cs" />
     <Compile Include="MainWindow.ViewModel.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Managers\AttributePageManager.cs" />
     <Compile Include="Managers\EntityPageManager.cs" />
+    <Compile Include="Managers\SchedulerPageManager.cs" />
     <Compile Include="Managers\SettingManager.cs" />
     <Compile Include="Managers\ConnectionPageManager.cs" />
     <Compile Include="Managers\SettingPageManager.cs" />
@@ -127,6 +127,12 @@
     </Compile>
     <Compile Include="UserControls\Previews\WPreviewData.xaml.cs">
       <DependentUpon>WPreviewData.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Schedulers\UCSchedulerContent.xaml.cs">
+      <DependentUpon>UCSchedulerContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Schedulers\WScheduler.xaml.cs">
+      <DependentUpon>WScheduler.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\Settings\UCSettingContent.ViewModel.cs">
       <DependentUpon>UCSettingsContent.xaml</DependentUpon>
@@ -198,6 +204,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\Previews\WPreviewData.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Schedulers\UCSchedulerContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Schedulers\WScheduler.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -341,30 +355,11 @@
     <PackageReference Include="System.Xml.XmlSerializer">
       <Version>4.3.0</Version>
     </PackageReference>
-    <PackageReference Include="WorkflowCore.Ioc.CastleWindsor">
-      <Version>1.0.1</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\migrations\st2forget.commons.datetime\st2forget.commons.datetime.csproj">
-      <Project>{7c24901f-90e6-4998-a579-c5a03c85465c}</Project>
-      <Name>st2forget.commons.datetime</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\migrations\st2forget.console.utils\st2forget.console.utils.csproj">
-      <Project>{c5910933-18e0-44f6-855a-b4de8e173b63}</Project>
-      <Name>st2forget.console.utils</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\migrations\st2forget.migrations.commands\st2forget.migrations.commands.csproj">
-      <Project>{fd106fc4-dd36-4969-af5e-8fa2319da076}</Project>
-      <Name>st2forget.migrations.commands</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\migrations\st2forget.utils.commands\st2forget.utils.commands.csproj">
-      <Project>{011eb62f-d235-4018-b4ec-d7a9541dd740}</Project>
-      <Name>st2forget.utils.commands</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\migrations\st2forget.utils.sql\st2forget.utils.sql.csproj">
-      <Project>{4c89e0ff-9ca3-480d-b357-f383b59aa35c}</Project>
-      <Name>st2forget.utils.sql</Name>
+    <ProjectReference Include="..\3rd\Castle.Windsor.ServiceCollection\Castle.Windsor.ServiceCollection.csproj">
+      <Project>{782E7B65-2FAE-4BE1-AAB8-C43EDF07E632}</Project>
+      <Name>Castle.Windsor.ServiceCollection</Name>
     </ProjectReference>
     <ProjectReference Include="..\FastSQL.Core.UI\FastSQL.Core.UI.csproj">
       <Project>{880e9fe2-b578-4c18-84b1-25b3ebb1b6a8}</Project>
@@ -427,13 +422,22 @@
     <Content Include="Migrations\1.0.0\1523441581-InitDatabase.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Migrations\1.0.0\1525009970-AddTransformOptionRelationship.sql">
+    <Content Include="Migrations\1.0.0\1524036538-UpdateEntityAndAttributeTableProcessors.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1524110565-AddStateColumnForEntityAndAttribute.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1524161797-AddUniqueConstraints.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1525009845-AddEntityDependTable.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Migrations\1.0.0\1525009870-AddEntityColumnTransformation.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Migrations\1.0.0\1525009845-AddEntityDependTable.sql">
+    <Content Include="Migrations\1.0.0\1525009970-AddTransformOptionRelationship.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Migrations\1.0.0\1525333084-AddDependencyReferenceColumns.sql">
@@ -442,28 +446,21 @@
     <Content Include="Migrations\1.0.0\1525333086-AddIndexTablesInfo.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Migrations\1.0.0\1525335086-AddIndexPullDependencies.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Migrations\1.0.0\1525334086-AddIndexPullHistory.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Migrations\1.0.0\1524036538-UpdateEntityAndAttributeTableProcessors.sql">
+    <Content Include="Migrations\1.0.0\1525335086-AddIndexPullDependencies.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1528054402-AddTableQueueItem.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1528054404-AddTableScheduleItem.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1528054406-AddTableMessageItems.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Migrations\1.0.0\1524110565-AddStateColumnForEntityAndAttribute.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Migrations\1.0.0\1524161797-AddUniqueConstraints.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

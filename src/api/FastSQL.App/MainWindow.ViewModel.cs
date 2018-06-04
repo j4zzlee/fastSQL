@@ -1,6 +1,7 @@
 ﻿using FastSQL.App.Interfaces;
 using FastSQL.App.Managers;
 using FastSQL.App.UserControls.OutputView;
+using FastSQL.Core.UI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

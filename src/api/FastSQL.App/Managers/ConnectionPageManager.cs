@@ -2,6 +2,7 @@
 using FastSQL.App.UserControls;
 using FastSQL.App.UserControls.Connections;
 using FastSQL.Core.UI.Events;
+using FastSQL.Core.UI.Interfaces;
 using Prism.Events;
 using Syncfusion.Windows.Tools.Controls;
 using System;

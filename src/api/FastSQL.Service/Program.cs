@@ -1,16 +1,10 @@
-﻿using Castle.MicroKernel.Registration;
-using Castle.MicroKernel.Resolvers.SpecializedResolvers;
-using Castle.Windsor;
-using Castle.Windsor.Installer;
+﻿using Castle.Windsor;
+using FastSQL.Core.ExtensionMethods;
 using FastSQL.Core.Loggers;
 using FastSQL.Sync.Workflow;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System;
-using System.Resources;
 using Topshelf;
-using WorkflowCore.Ioc.CastleWindsor;
 
 namespace FastSQL.Service
 {
@@ -19,30 +13,10 @@ namespace FastSQL.Service
         private static IWindsorContainer _container;
         static void Main(string[] args)
         {
-            var assembly = typeof(Program).Assembly;
-            var assemblyName = assembly.GetName().Name;
-            var assemblyDescriptor = Classes.FromAssemblyInDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory));
-
             _container = new WindsorContainer();
-            
-            _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel, true));
-            _container.Register(Component.For<IWindsorContainer>().UsingFactoryMethod(() => _container).LifestyleSingleton());
-            _container.Register(Component.For<FromAssemblyDescriptor>().UsingFactoryMethod(() => assemblyDescriptor).LifestyleSingleton());
-            _container.Register(Component.For<ResourceManager>().UsingFactoryMethod(p => new ResourceManager($"{assemblyName}.Resources", assembly)).LifestyleSingleton());
-            _container.Install(FromAssembly.InDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory)));
-            _container.AddWorkflow(o => {
-                var conf = _container.Resolve<IConfiguration>();
-                var connectionString = conf.GetConnectionString("__MigrationDatabase");
-                o.UseCastleWindsorSqlServerBroker(connectionString, false, true);
-            });
+            _container.RegisterAll();
             
             var syncService = _container.Resolve<SyncService>();
-          
-            var errorLog = _container.Resolve<LoggerFactory>()
-                .WriteToConsole()
-                .WriteToFile()
-                .CreateErrorLogger();
-
             Log.Logger = _container.Resolve<LoggerFactory>()
                 .WriteToFile("Topshelf")
                 .WriteToConsole()
@@ -73,7 +47,7 @@ namespace FastSQL.Service
             }
             catch (Exception ex)
             {
-                errorLog.Error(ex, "An error has occurred!!!");
+                Log.Logger.Error(ex, "An error has occurred!!!");
                 Console.ReadKey();
             }
         }

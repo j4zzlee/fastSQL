@@ -2,11 +2,13 @@
 using FastSQL.Sync.Core.Repositories;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using WorkflowCore.Interface;
 
-namespace FastSQL.Sync.Workflow
+namespace FastSQL.Sync.Workflow.Workflows
 {
+    [Description("Pull Indexes in Sequence Mode")]
     public class PullIndexSequenceWorkflow : IWorkflow
     {
         private readonly EntityRepository entityRepository;

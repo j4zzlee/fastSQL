@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FastSQL.Core
 {
-    public interface IApplicationResourceManager
+    public interface IApplicationManager
     {
         string ApplicationName { get; }
         string BasePath { get; }

@@ -11,6 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCSolutions.DateTimeExtensions" Version="1.0.0" />
+    <PackageReference Include="BCSolutions.StringExtensions" Version="1.0.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
     <PackageReference Include="Prism.Core" Version="7.0.0.396" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
@@ -18,8 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\migrations\st2forget.commons.datetime\st2forget.commons.datetime.csproj" />
-    <ProjectReference Include="..\..\..\..\..\migrations\st2forget.utils.sql\st2forget.utils.sql.csproj" />
     <ProjectReference Include="..\..\FastSQL.Core\FastSQL.Core.csproj" />
   </ItemGroup>
 

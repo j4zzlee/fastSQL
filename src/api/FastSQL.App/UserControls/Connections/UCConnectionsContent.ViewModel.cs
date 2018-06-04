@@ -1,16 +1,12 @@
 ﻿using FastSQL.App.Events;
 using FastSQL.App.Interfaces;
 using FastSQL.Core;
-using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using Prism.Events;
-using st2forget.utils.sql;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
