@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
 
 namespace FastSQL.Sync.Core.Repositories
 {
@@ -16,6 +18,44 @@ namespace FastSQL.Sync.Core.Repositories
     {
         protected BaseIndexRepository(DbConnection connection) : base(connection)
         {
+        }
+
+        public void AddIndexItemState(string valueTable, string itemId, ItemState state)
+        {
+            _connection.Execute($@"
+UPDATE [{valueTable}]
+SET [State] = CASE  
+    WHEN [State] = 0 THEN @State
+    WHEN [State] IS NULL THEN @State 
+    ELSE ([State] | @State)
+    END
+WHERE [Id] = @ItemId
+",
+new
+{
+    ItemId = itemId,
+    State = state
+},
+transaction: _transaction);
+        }
+
+        public void RemoveIndexItemState(string valueTable, string itemId, ItemState state)
+        {
+            _connection.Execute($@"
+UPDATE [{valueTable}]
+SET [State] = CASE  
+    WHEN [State] = 0 THEN 0
+    WHEN [State] IS NULL THEN NULL
+    ELSE ([State] | @State) ^ @State
+    END
+WHERE [Id] = @ItemId
+",
+new
+{
+    ItemId = itemId,
+    State = state
+},
+transaction: _transaction);
         }
 
         public void ChangeIndexedItems(IIndexModel model, ItemState include, ItemState exclude, params string[] ids)
@@ -44,7 +84,7 @@ WHERE Id IN @Id";
         public void ChangeIndexedItemsRange(IIndexModel model, ItemState include, ItemState exclude, string fromId = null, string toId = null)
         {
             fromId = !string.IsNullOrWhiteSpace(fromId) ? fromId : "0";
-            
+
             var sql = $@"
 UPDATE {model.ValueTableName}
 SET [State] = 
@@ -111,7 +151,78 @@ SELECT COUNT(*) FROM {model.ValueTableName}
             var result = _connection
                 .Query(sql, param: @params, transaction: _transaction) as IEnumerable<IDictionary<string, object>>;
 
-            return result.Select(d => IndexItemModel.FromDictionary(d));
+            return result.Select(d => IndexItemModel.FromJObject(JObject.FromObject(d)));
+        }
+
+        public IndexItemModel GetDependsOnItem(string valueTableName, DependencyItemModel dependence, IndexItemModel item)
+        {
+            var referenceKeyParams = Regex.Split(dependence.ReferenceKeys, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            var foreignKeyParams = Regex.Split(dependence.ForeignKeys, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            var @params = foreignKeyParams
+                .Select((fk, i) => new { fk, i })
+                .Select(fk => new KeyValuePair<string, string>(referenceKeyParams[fk.i], item[fk.fk].ToString()))
+                .ToDictionary(fk => fk.Key, fk => fk.Value);
+
+            //var dependsOnItem = entityRepository.GetIndexedItemByUniqueParams(_indexerModel, @params);
+            var dependsOnItem = _connection.Query<object>($@"
+SELECT TOP 1 * FROM {valueTableName}
+WHERE {string.Join(" AND ", @params.Select(p => $@"[{p.Key}] = @{p.Key}"))}
+", param: @params, transaction: _transaction).Select(d => IndexItemModel.FromJObject(JObject.FromObject(d))).FirstOrDefault();
+            return dependsOnItem;
+        }
+
+        public IEnumerable<IndexItemModel> GetIndexChangedItems(
+            IIndexModel model,
+            int limit,
+            int offset,
+            out int totalCount)
+        {
+            var @params = new DynamicParameters();
+            @params.Add("Limit", limit > 0 ? limit : 100);
+            @params.Add("Offset", offset);
+            @params.Add("ChangedState", ItemState.Changed);
+            /**
+             * Do not ignore RelatedItemNotFound and RelatedItemNotSync, 
+             * These items should be checked in code logic
+             */
+            @params.Add("InvalidState", ItemState.Invalid | ItemState.Processed);
+            var sql = $@"
+SELECT * FROM {model.ValueTableName}
+WHERE [DestinationId] IS NULL
+    OR [State] IS NULL
+    OR (
+        ([State] & @ChangedState) > 0
+        AND 
+    )
+
+(
+    ([State] IS NOT NULL AND ([State] & @ChangedState) > 0) -- The item has been changed
+    OR [DestinationId] IS NULL -- The item is not synced yet
+) AND (
+    [State] IS NULL
+    OR ([State] & @InvalidState) = 0 -- The item should not be invalid
+)
+ORDER BY [Id]
+OFFSET @Offset ROWS
+FETCH NEXT @Limit ROWS ONLY;
+";
+            var countSql = $@"
+SELECT COUNT(*) FROM {model.ValueTableName}
+WHERE (
+    ([State] IS NOT NULL AND ([State] & @ChangedState) > 0) -- The item has been changed
+    OR [DestinationId] IS NULL -- The item is not synced yet
+) AND (
+    [State] IS NULL
+    OR ([State] & @InvalidState) = 0 -- The item should not be invalid
+)
+";
+            totalCount = _connection
+                .Query<int>(countSql, param: @params, transaction: _transaction)
+                .FirstOrDefault();
+            var result = _connection
+                .Query(sql, param: @params, transaction: _transaction) as IEnumerable<IDictionary<string, object>>;
+
+            return result.Select(d => IndexItemModel.FromJObject(JObject.FromObject(d)));
         }
 
         public IndexItemModel GetIndexedItemById(IIndexModel model, string id)
@@ -120,7 +231,7 @@ SELECT COUNT(*) FROM {model.ValueTableName}
 SELECT * FROM [{model.ValueTableName}]
 WHERE [Id] = @Id", param: new { Id = id }, transaction: _transaction) as IEnumerable<IDictionary<string, object>>;
             var item = items?.FirstOrDefault();
-            return item != null ? IndexItemModel.FromDictionary(item) : null;
+            return item != null ? IndexItemModel.FromJObject(JObject.FromObject(item)) : null;
         }
 
         public IndexItemModel GetIndexedItemBySourceId(IIndexModel model, string id)
@@ -129,7 +240,7 @@ WHERE [Id] = @Id", param: new { Id = id }, transaction: _transaction) as IEnumer
 SELECT * FROM [{model.ValueTableName}]
 WHERE [SourceId] = @Id", param: new { Id = id }, transaction: _transaction) as IEnumerable<IDictionary<string, object>>;
             var item = items?.FirstOrDefault();
-            return item != null ? IndexItemModel.FromDictionary(item) : null;
+            return item != null ? IndexItemModel.FromJObject(JObject.FromObject(item)) : null;
         }
 
         public IndexItemModel GetIndexedItemDestinationId(IIndexModel model, string id)
@@ -138,9 +249,69 @@ WHERE [SourceId] = @Id", param: new { Id = id }, transaction: _transaction) as I
 SELECT * FROM [{model.ValueTableName}]
 WHERE [DestinationId] = @Id", param: new { Id = id }, transaction: _transaction) as IEnumerable<IDictionary<string, object>>;
             var item = items?.FirstOrDefault();
-            return item != null ? IndexItemModel.FromDictionary(item) : null;
+            return item != null ? IndexItemModel.FromJObject(JObject.FromObject(item)) : null;
         }
 
+        public string QueueItem(IIndexModel model, string itemId, bool force = false)
+        {
+            if (force) // use for requeue errors
+            {
+                return Create<QueueItemModel>(new
+                {
+                    TargetEntityId = model.Id,
+                    TargetEntityType = model.EntityType,
+                    TargetItemId = itemId,
+                    CreatedAt = DateTime.Now.ToUnixTimestamp(),
+                    UpdatedAt = DateTime.Now.ToUnixTimestamp(),
+                });
+            }
+            // Get the newest
+            var exists = _connection.Query<QueueItemModel>($@"
+SELECT TOP 1 * 
+FROM [core_queue_items]
+WHERE [TargetEntityId] = @TargetEntityId 
+    AND [TargetEntityType] = @TargetEntityType 
+    AND [TargetItemId] = @TargetItemId
+ORDER BY [CreatedAt] DESC -- always get the newest
+",
+param: new
+{
+    TargetEntityId = model.Id,
+    TargetEntityType = model.EntityType,
+    TargetItemId = itemId
+},
+transaction: _transaction).FirstOrDefault();
 
+            if (exists != null && (exists.Status == 0 || exists.HasState(QueueItemState.ByPassed | QueueItemState.Failed)))
+            {
+                return null; // no row inserted
+            }
+
+            return Create<QueueItemModel>(new
+            {
+                TargetEntityId = model.Id,
+                TargetEntityType = model.EntityType,
+                TargetItemId = itemId,
+                CreatedAt = DateTime.Now.ToUnixTimestamp(),
+                UpdatedAt = DateTime.Now.ToUnixTimestamp(),
+            });
+        }
+
+        public QueueItemModel GetCurrentQueuedItems()
+        {
+            return _connection.Query<QueueItemModel>($@"
+SELECT TOP 1 * 
+FROM [core_queue_items]
+WHERE [TargetEntityId] = @TargetEntityId 
+    AND [TargetEntityType] = @TargetEntityType 
+    AND [TargetItemId] = @TargetItemId
+    AND (
+        [Status] IS NULL 
+        OR [Status] = 0
+    )
+ORDER BY [CreatedAt] ASC -- always first in first out
+",
+ transaction: _transaction).FirstOrDefault();
+        }
     }
 }

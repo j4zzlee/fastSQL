@@ -35,7 +35,7 @@ namespace FastSQL.App.Managers
             this.content.ControlName = "entity_detail_management";
             this.content.ControlHeader = "Manage Entity";
             this.content.Description = "Manage Entity Detail";
-            this.listView.ActivatedById = "lS2j9IRSTE+c8TFL7LFgZA==";
+            this.content.ActivatedById = "lS2j9IRSTE+c8TFL7LFgZA==";
 
             this.listView.SetIndexType(EntityType.Entity);
             this.content.SetIndexType(EntityType.Entity);

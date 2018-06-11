@@ -19,8 +19,8 @@ namespace FastSQL.Sync.Core.Models
         public IntegrationStep DependOnStep { get; set; } = IntegrationStep.Pushed;
         public IntegrationStep StepToExecute { get; set; } = IntegrationStep.Pushing;
         public bool ExecuteImmediately { get; set; } = false;
-        public string ReferenceKeys { get; set; }
-        public string ForeignKeys { get; set; }
+        public string ReferenceKeys { get; set; } // Keys that hold by TargetEntity
+        public string ForeignKeys { get; set; } // Keys that hold by the Entity
 
         public bool HasDependOnStep(IntegrationStep step)
         {

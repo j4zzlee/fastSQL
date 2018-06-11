@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FastSQL.App\FastSQL.App.csproj" />
-    <ProjectReference Include="..\FastSQL.Sync.Workflow\FastSQL.Sync.Workflow.csproj" />
   </ItemGroup>
 
 </Project>

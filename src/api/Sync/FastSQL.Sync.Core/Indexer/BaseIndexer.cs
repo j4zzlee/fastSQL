@@ -254,8 +254,12 @@ WHEN NOT MATCHED THEN
             var changedItemsSQL = $@"
 SELECT n.*
 FROM (VALUES (@Id, {string.Join(", ", allColumns.Select(a => $"@{a}"))})) AS n([Id], {string.Join(", ", allColumns.Select(a => $"[{a}]"))})
-INNER JOIN [{indexer.OldValueTableName}] AS o ON {comparePrimarySQL}
-WHERE o.[Id] IS NOT NULL AND {compareValueSQL}
+LEFT JOIN [{indexer.OldValueTableName}] AS o ON {comparePrimarySQL}
+LEFT JOIN [{indexer.ValueTableName}] AS v ON v.SourceId = o.Id
+WHERE o.[Id] IS NOT NULL AND (
+    ({compareValueSQL}) -- Some values is not matched
+    OR (v.[State] IS NOT NULL AND (v.[State] & {(int) ItemState.Removed}) > 0) -- Item was marked as 'Removed' but now it is back again
+)
 ORDER BY n.[Id];
 ";
 

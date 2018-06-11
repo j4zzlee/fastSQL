@@ -223,7 +223,7 @@ WHERE EntityId IN @EntityIds AND EntityType = @EntityType";
             }
             var items = _connection
                 .Query<T>(
-                    $@"SELECT * FROM [{tableName}] WHERE {string.Join(" OR ", conditions)}",
+                    $@"SELECT DISTINCT * FROM [{tableName}] WHERE {string.Join(" OR ", conditions)}",
                     param: @params,
                     transaction: _transaction
                 );

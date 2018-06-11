@@ -1,4 +1,6 @@
-﻿using FastSQL.Core.UI.Interfaces;
+﻿using FastSQL.Core;
+using FastSQL.Core.UI.Interfaces;
+using Prism.Events;
 using Syncfusion.Windows.Tools.Controls;
 using System;
 using System.Collections.Generic;
@@ -22,9 +24,19 @@ namespace FastSQL.App.UserControls.Schedulers
     /// </summary>
     public partial class UCSchedulerContent : UserControl, IControlDefinition
     {
-        public UCSchedulerContent()
+        private readonly UCSchedulerContentViewModel viewModel;
+        private readonly ResolverFactory resolverFactory;
+
+        public UCSchedulerContent(
+            IEventAggregator eventAggregator,
+            UCSchedulerContentViewModel viewModel,
+            ResolverFactory resolverFactory)
         {
             InitializeComponent();
+            this.viewModel = viewModel;
+            this.resolverFactory = resolverFactory;
+            DataContext = this.viewModel;
+            Loaded += (s, e) => viewModel.Loaded();
         }
 
         public string Id { get => "NZW8@!2_+38$@32VJgnbIEOxA5UU8r8tNA=="; set { } }

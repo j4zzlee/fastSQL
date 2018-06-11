@@ -59,10 +59,14 @@
     <Compile Include="Events\ManageIndexLoadingEvent.cs" />
     <Compile Include="Events\OpenIndexPreviewPageEvent.cs" />
     <Compile Include="Events\OpenManageIndexPageEvent.cs" />
+    <Compile Include="Events\RefreshChannelListEvent.cs" />
     <Compile Include="Events\RefreshConnectionListEvent.cs" />
     <Compile Include="Events\RefreshIndexesListViewEvent.cs" />
+    <Compile Include="Events\RefreshReporterListEvent.cs" />
+    <Compile Include="Events\SelectChannelEvent.cs" />
     <Compile Include="Events\SelectConnectionEvent.cs" />
     <Compile Include="Events\SelectIndexEvent.cs" />
+    <Compile Include="Events\SelectReporterEvent.cs" />
     <Compile Include="Events\SelectSettingEvent.cs" />
     <Compile Include="Extensions\BindingProxy.cs" />
     <Compile Include="Extensions\ContextMenuServiceExtensions.cs" />
@@ -76,7 +80,16 @@
     <Compile Include="Managers\SchedulerPageManager.cs" />
     <Compile Include="Managers\SettingManager.cs" />
     <Compile Include="Managers\ConnectionPageManager.cs" />
+    <Compile Include="Managers\MessageDeliveryChannelPageManager.cs" />
+    <Compile Include="Managers\ReporterPageManager.cs" />
     <Compile Include="Managers\SettingPageManager.cs" />
+    <Compile Include="Middlewares\ApplicationSettings\ApplicationSettingMiddleware.cs" />
+    <Compile Include="Middlewares\ApplicationSettings\WApplicationSettings.ViewModel.cs">
+      <DependentUpon>WApplicationSettings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Middlewares\ApplicationSettings\WApplicationSettings.xaml.cs">
+      <DependentUpon>WApplicationSettings.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\Connections\UCConnectionListView.ViewModel.cs">
       <DependentUpon>UCConnectionsListView.xaml</DependentUpon>
     </Compile>
@@ -107,6 +120,18 @@
     <Compile Include="UserControls\Indexes\WManageIndex.ViewModel.cs">
       <DependentUpon>WManageIndex.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\MessageDeliveryChannels\UCMessageDeliveryChannelContent.ViewModel.cs">
+      <DependentUpon>UCMessageDeliveryChannelContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\MessageDeliveryChannels\UCMessageDeliveryChannelContent.xaml.cs">
+      <DependentUpon>UCMessageDeliveryChannelContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\MessageDeliveryChannels\UCMessageDeliveryChannelListView.ViewModel.cs">
+      <DependentUpon>UCMessageDeliveryChannelListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\MessageDeliveryChannels\UCMessageDeliveryChannelListView.xaml.cs">
+      <DependentUpon>UCMessageDeliveryChannelListView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\OptionItems\UCOpenFileDialog.xaml.cs">
       <DependentUpon>UCOpenFileDialog.xaml</DependentUpon>
     </Compile>
@@ -128,11 +153,23 @@
     <Compile Include="UserControls\Previews\WPreviewData.xaml.cs">
       <DependentUpon>WPreviewData.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\Schedulers\UCSchedulerContent.xaml.cs">
+    <Compile Include="UserControls\Reporters\UCReporterContent.ViewModel.cs">
+      <DependentUpon>UCReporterContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Reporters\UCReporterContent.xaml.cs">
+      <DependentUpon>UCReporterContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Reporters\UCRepoterListView.ViewModel.cs">
+      <DependentUpon>UCRepoterListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Reporters\UCRepoterListView.xaml.cs">
+      <DependentUpon>UCRepoterListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Schedulers\UCSchedulerContent.ViewModel.cs">
       <DependentUpon>UCSchedulerContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\Schedulers\WScheduler.xaml.cs">
-      <DependentUpon>WScheduler.xaml</DependentUpon>
+    <Compile Include="UserControls\Schedulers\UCSchedulerContent.xaml.cs">
+      <DependentUpon>UCSchedulerContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\Settings\UCSettingContent.ViewModel.cs">
       <DependentUpon>UCSettingsContent.xaml</DependentUpon>
@@ -179,6 +216,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Middlewares\ApplicationSettings\WApplicationSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\Connections\UCConnectionsContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -188,6 +229,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\DataGrid\UCDataGrid.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\MessageDeliveryChannels\UCMessageDeliveryChannelContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\MessageDeliveryChannels\UCMessageDeliveryChannelListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -207,11 +256,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\Schedulers\UCSchedulerContent.xaml">
+    <Page Include="UserControls\Reporters\UCReporterContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\Schedulers\WScheduler.xaml">
+    <Page Include="UserControls\Reporters\UCRepoterListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Schedulers\UCSchedulerContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -265,6 +318,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="BCSolutions.Migrations">
+      <Version>2.0.9</Version>
+    </PackageReference>
     <PackageReference Include="Castle.Core-Serilog">
       <Version>4.2.1</Version>
     </PackageReference>
@@ -357,6 +413,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\3rd\Castle.Windsor.InstallerPriority\Castle.Windsor.InstallerPriority.csproj">
+      <Project>{5EA55567-A6D8-43EB-9F1D-A0DCA3BF7CE6}</Project>
+      <Name>Castle.Windsor.InstallerPriority</Name>
+    </ProjectReference>
     <ProjectReference Include="..\3rd\Castle.Windsor.ServiceCollection\Castle.Windsor.ServiceCollection.csproj">
       <Project>{782E7B65-2FAE-4BE1-AAB8-C43EDF07E632}</Project>
       <Name>Castle.Windsor.ServiceCollection</Name>
@@ -369,17 +429,17 @@
       <Project>{b3b25279-44c1-4818-a57f-07e29f30e1be}</Project>
       <Name>FastSQL.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FastSQL.Sync.Core.Settings\FastSQL.Sync.Core.Settings.csproj">
-      <Project>{486d0b89-d0d3-4f16-8bb7-59d6f1f898bc}</Project>
+    <ProjectReference Include="..\Sync\FastSQL.Sync.Core.Settings\FastSQL.Sync.Core.Settings.csproj">
+      <Project>{8984C65B-E4C2-44D3-A96D-C5C9604FBF7D}</Project>
       <Name>FastSQL.Sync.Core.Settings</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FastSQL.Sync.Workflow\FastSQL.Sync.Workflow.csproj">
-      <Project>{9B4260A1-CF79-4DD5-9981-E448EE1824C4}</Project>
-      <Name>FastSQL.Sync.Workflow</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sync\FastSQL.Sync.Core\FastSQL.Sync.Core.csproj">
       <Project>{582cb864-2fc8-40ce-9bd5-3d1470274352}</Project>
       <Name>FastSQL.Sync.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sync\FastSQL.Sync.Workflow\FastSQL.Sync.Workflow.csproj">
+      <Project>{4c2762de-a443-410a-8763-4cc7549ea3cb}</Project>
+      <Name>FastSQL.Sync.Workflow</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vendors\Magento1\FastSQL.Magento1.Integration\FastSQL.Magento1.Integration.csproj">
       <Project>{4c2d1d9b-dbfc-4412-b756-7e823ea50102}</Project>
@@ -456,6 +516,24 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Migrations\1.0.0\1528054404-AddTableScheduleItem.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1528054413-OptionEntityIdNVarchar.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1528054412-AddTableMessageDeliveryChannel.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1528054411-AddTableReporter.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1528054410-Reporter_LinkChannel.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1528054409-MessageItem_LinkReporter.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Migrations\1.0.0\1528054407-QueueItem_AddRetryCount.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Migrations\1.0.0\1528054406-AddTableMessageItems.sql">

@@ -16,10 +16,13 @@ namespace FastSQL.Core
         }
 
         public string ApplicationName => resourceManager.GetString("ApplicationName");
+        public string Domain => resourceManager.GetString("Domain");
 
         public string BasePath => Path.Combine(
                                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                                "Beehexa",
+                                Domain,
                                 ApplicationName);
+
+        public string SettingFile => Path.Combine(BasePath, "appsettings.json");
     }
 }

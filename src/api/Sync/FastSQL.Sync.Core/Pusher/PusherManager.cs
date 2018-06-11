@@ -1,4 +1,5 @@
-﻿using FastSQL.Core;
+﻿using DateTimeExtensions;
+using FastSQL.Core;
 using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.Models;
@@ -28,6 +29,8 @@ namespace FastSQL.Sync.Core.Pusher
         private readonly EntityRepository entityRepository;
         private readonly AttributeRepository attributeRepository;
         private readonly ConnectionRepository connectionRepository;
+        private readonly MessageRepository messageRepository;
+        private readonly QueueItemRepository queueItemRepository;
 
         public void SetIndex(IIndexModel model)
         {
@@ -69,7 +72,9 @@ namespace FastSQL.Sync.Core.Pusher
             ResolverFactory resolverFactory,
             EntityRepository entityRepository,
             AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository)
+            ConnectionRepository connectionRepository,
+            MessageRepository messageRepository,
+            QueueItemRepository queueItemRepository)
         {
             this.eventAggregator = eventAggregator;
             this.entityPullers = entityPullers;
@@ -78,6 +83,8 @@ namespace FastSQL.Sync.Core.Pusher
             this.entityRepository = entityRepository;
             this.attributeRepository = attributeRepository;
             this.connectionRepository = connectionRepository;
+            this.messageRepository = messageRepository;
+            this.queueItemRepository = queueItemRepository;
             _messages = new List<string>();
         }
         
@@ -93,9 +100,8 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
                 {
                     entityRepository.BeginTransaction();
                     attributeRepository.BeginTransaction();
-
-                    _pusher
-                    .SetItem(item);
+                    messageRepository.BeginTransaction();
+                    _pusher.SetItem(item);
                     var destinationId = item.GetDestinationId();
                     if (!string.IsNullOrWhiteSpace(destinationId))
                     {
@@ -144,7 +150,7 @@ to destination. Please make sure that the Pusher of {_indexerModel.Name} works c
 
                     // Signal to tell that the item is success
                     entityRepository.UpdateIndexItemStatus(_indexerModel, item.GetId(), true);
-
+                    
                     entityRepository.Commit();
                     attributeRepository.Commit();
                 }

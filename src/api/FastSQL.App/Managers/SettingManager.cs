@@ -22,16 +22,6 @@ namespace FastSQL.App.Managers
         
         public SettingManager(IEnumerable<ISettingProvider> settingProviders)
         {
-            if (!Directory.Exists(BasePath))
-            {
-                Directory.CreateDirectory(BasePath);
-            }
-            if (!File.Exists(SettingFile))
-            {
-                File.Create(SettingFile).Dispose();
-                File.WriteAllText(SettingFile, "{}");
-            }
-
             this.settingProviders = settingProviders;
         }
 

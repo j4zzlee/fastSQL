@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\3rd\Castle.Windsor.InstallerPriority\Castle.Windsor.InstallerPriority.csproj" />
     <ProjectReference Include="..\3rd\Castle.Windsor.ServiceCollection\Castle.Windsor.ServiceCollection.csproj" />
   </ItemGroup>
 

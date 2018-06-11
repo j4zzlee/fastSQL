@@ -24,7 +24,12 @@
                 </MenuItem>
                 <MenuItem Header="_Schedulers" Command="{Binding OpenPageCommand}" CommandParameter="LI5b--=23f8oVnMUqTxSHIgNj6wQ"/>
                 <MenuItem Header="_Queues" Command="{Binding OpenPageCommand}" CommandParameter="Queues"/>
-                <MenuItem Header="_Settings" Command="{Binding OpenSettingsCommand}" CommandParameter="LI5b8oVnMUqTxSHIgNj6wQ"/>
+                <MenuItem Header="_Settings">
+                    <MenuItem Header="_Application Settings" Command="{Binding OpenSettingsCommand}" CommandParameter="LI5b8oVnMUqTxSHIgNj6wQ"/>
+                    <MenuItem Header="_Reports" Command="{Binding OpenPageCommand}" CommandParameter="LI5b8oVnM))#(@(#($UqTxSHIgNj6wQ"/>
+                    <MenuItem Header="_Message Delivery Channels" Command="{Binding OpenPageCommand}" CommandParameter="LI5b8oVnMU@%#))qTxSHIgNj6wQ"/>
+                </MenuItem>
+                
                 <MenuItem Header="_Help"  Command="{Binding OpenHelpCommand}" CommandParameter="Help"/>
             </Menu>
             <Grid>

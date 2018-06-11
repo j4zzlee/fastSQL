@@ -16,8 +16,10 @@ using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.IndexExporters;
 using FastSQL.Sync.Core.Mapper;
+using FastSQL.Sync.Core.MessageDeliveryChannels;
 using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Pusher;
+using FastSQL.Sync.Core.Reporters;
 using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Core.Settings;
 using FastSQL.Sync.Workflow;
@@ -186,6 +188,20 @@ namespace FastSQL.App
                 .WithServiceSelf()
                 .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
+            container.Register(assemblyDescriptor
+                .BasedOn<IReporter>()
+                .WithService.Select(new Type[] { typeof(IReporter) })
+                .WithServiceAllInterfaces()
+                .WithServiceSelf()
+                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
+            container.Register(assemblyDescriptor
+                .BasedOn<IMessageDeliveryChannel>()
+                .WithService.Select(new Type[] { typeof(IMessageDeliveryChannel) })
+                .WithServiceAllInterfaces()
+                .WithServiceSelf()
+                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+
             container.Register(Component.For<JsonSerializer>().UsingFactoryMethod(() => new JsonSerializer()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
@@ -248,29 +264,14 @@ namespace FastSQL.App
                .WithServiceSelf()
                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
 
-            container.Register(Component.For<ILogger>().UsingFactoryMethod(() => container.Resolve<LoggerFactory>()
-               .WriteToFile("SyncService")
-               .WriteToConsole()
-               .CreateApplicationLogger())
-               .Named("SyncService")
-               .LifestyleSingleton());
-
-            container.Register(Component.For<ILogger>().UsingFactoryMethod(() => container.Resolve<LoggerFactory>()
-               .WriteToFile("Workflow")
-               .WriteToConsole()
-               .CreateApplicationLogger())
-               .Named("Workflow")
-               .LifestyleSingleton());
-
-
             var services = new WindsorServiceCollection(container);
             services.AddLogging(c => c.AddSerilog(dispose: true));
-            services.AddWorkflow(o =>
+            services.AddWorkflow(/* o =>
             {
                 var conf = container.Resolve<IConfiguration>();
                 var connectionString = conf.GetConnectionString("__MigrationDatabase");
                 o.UseSqlServer(connectionString, false, true);
-            });
+            }*/);
         }
     }
 }

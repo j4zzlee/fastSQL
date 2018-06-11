@@ -61,11 +61,20 @@ namespace FastSQL.App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to AllInOne.
+        ///   Looks up a localized string similar to Fabric RMS Magento Sync.
         /// </summary>
         internal static string ApplicationName {
             get {
                 return ResourceManager.GetString("ApplicationName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to HexaSync.
+        /// </summary>
+        internal static string Domain {
+            get {
+                return ResourceManager.GetString("Domain", resourceCulture);
             }
         }
     }

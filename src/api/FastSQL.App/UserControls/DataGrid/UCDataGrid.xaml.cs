@@ -129,6 +129,18 @@ namespace FastSQL.App.UserControls.DataGrid
         private void DgrData_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
             //throw new NotImplementedException();
+            //if (e.PropertyType == typeof(bool?))
+            //{
+            //    DataGridCheckBoxColumn checkBoxColumn = new DataGridCheckBoxColumn
+            //    {
+            //        Header = e.Column.Header,
+            //        Binding = new Binding(e.PropertyName),
+            //        IsThreeState = true
+            //    };
+
+            //    // Replace the auto-generated column with the checkBoxColumn.
+            //    e.Column = checkBoxColumn;
+            //}
         }
 
         private void UCDataGrid_Loaded(object sender, RoutedEventArgs e)

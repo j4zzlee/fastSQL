@@ -26,6 +26,25 @@ namespace FastSQL.Sync.Core.Models
         public string NewValueTableName { get; set; }
         public string ValueTableName { get; set; }
 
+
+        [NotMapped]
+        public bool Enabled
+        {
+            get => !HasState(EntityState.Disabled);
+            set
+            {
+                if (value)
+                {
+                    RemoveState(EntityState.Disabled);
+                }
+                else
+                {
+                    AddState(EntityState.Disabled);
+                }
+            }
+        }
+
+
         [NotMapped]
         public EntityType EntityType => EntityType.Attribute;
 

@@ -13,7 +13,7 @@ CREATE TABLE core_index_dependency (
 	[TargetEntityType] INT NOT NULL,
 	[DependOnStep] INT NOT NULL,
 	[StepToExecute] INT NOT NULL,
-	[ExecuteImmediately] BIT NOT NULL DEFAULT 0
+	[ExecuteImmediately] BIT NOT NULL
 );
 --Down--
 ----------------------------

@@ -35,7 +35,7 @@ namespace FastSQL.App.Managers
             this.content.ControlName = "attribute_detail_management";
             this.content.ControlHeader = "Manage Attribute";
             this.content.Description = "Manage Attribute Detail";
-            this.listView.ActivatedById = "QzqMws4HH0GfDcDn/K8JRQ==";
+            this.content.ActivatedById = "QzqMws4HH0GfDcDn/K8JRQ==";
 
             this.listView.SetIndexType(EntityType.Attribute);
             this.content.SetIndexType(EntityType.Attribute);

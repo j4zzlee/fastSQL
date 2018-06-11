@@ -123,7 +123,7 @@ namespace FastSQL.Sync.Core.Mapper
 SELECT * FROM [{EntityModel.ValueTableName}]
 WHERE {string.Join(" AND ", conditions)}
 ", queryParams)
-.Select(i => IndexItemModel.FromObject(i))
+.Select(i => IndexItemModel.FromJObject(JObject.FromObject(i)))
 .FirstOrDefault();
                
                 if (indexedItem != null)

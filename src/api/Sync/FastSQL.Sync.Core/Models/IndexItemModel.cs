@@ -4,70 +4,47 @@ using DateTimeExtensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace FastSQL.Sync.Core.Models
 {
-    public class IndexItemModel: Dictionary<string, object>
+    public class IndexItemModel: JObject
     {
-        public static IndexItemModel FromObject(object i)
+        public static IndexItemModel FromJObject(JObject j)
         {
-            if (i.GetType() == typeof(IndexItemModel))
+            var r = new IndexItemModel();
+            foreach (var p in j.Properties())
             {
-                return i as IndexItemModel;
+                r.Add(p.Name, j.GetValue(p.Name));
             }
-            if (i.GetType() == typeof(JObject))
-            {
-                return FromJObject(i as JObject);
-            }
-            return FromJObject(JObject.FromObject(i));
+            r.BuildProperties();
+            return r;
         }
-
-        public static IndexItemModel FromJObject(JObject i)
+        public IndexItemModel BuildProperties()
         {
-            var result = new IndexItemModel();
-            foreach (var key in i.Properties())
+            if (ContainsKey("LastUpdated") && !ContainsKey("Last Updated Date"))
             {
-                result.Add(key.Name, i.GetValue(key.Name).ToString());
-            }
-            return result.BuildProperties();
-        }
-
-        public static IndexItemModel FromDictionary(IDictionary<string, object> i)
-        {
-            var result = new IndexItemModel();
-            foreach (var key in i.Keys)
-            {
-                result.Add(key, i[key]?.ToString());
-            }
-            return result.BuildProperties();
-            
-        }
-
-        private IndexItemModel BuildProperties()
-        {
-            if (this.ContainsKey("LastUpdated") && !this.ContainsKey("Last Updated Date"))
-            {
-                this.Add("Last Updated Date", long.Parse(this["LastUpdated"]?.ToString() ?? "0").UnixTimeToTime());
+                Add("Last Updated Date", long.Parse(this["LastUpdated"]?.ToString() ?? "0").UnixTimeToTime());
             }
 
-            if (this.ContainsKey("State"))
+            if (ContainsKey("State"))
             {
                 ItemState state = (ItemState)int.Parse(this["State"].ToString()); // (ItemState)Enum.Parse(typeof(ItemState), result["State"].ToString());
-                if (!this.ContainsKey("Changed"))
+                if (!ContainsKey("Changed"))
                 {
-                    this.Add("Changed", ((state & ItemState.Changed) > 0).ToString());
+                    Add("Changed", ((state & ItemState.Changed) > 0).ToString());
                 }
-                if (!this.ContainsKey("Removed"))
+                if (!ContainsKey("Removed"))
                 {
-                    this.Add("Removed", ((state & ItemState.Removed) > 0).ToString());
+                    Add("Removed", ((state & ItemState.Removed) > 0).ToString());
                 }
-                if (!this.ContainsKey("Invalid"))
+                if (!ContainsKey("Invalid"))
                 {
-                    this.Add("Invalid", ((state & ItemState.Invalid) > 0).ToString());
+                    Add("Invalid", ((state & ItemState.Invalid) > 0).ToString());
                 }
-                if (!this.ContainsKey("Processed"))
+                if (!ContainsKey("Processed"))
                 {
-                    this.Add("Processed", ((state & ItemState.Processed) > 0).ToString());
+                    Add("Processed", ((state & ItemState.Processed) > 0).ToString());
                 }
             }
             return this;
@@ -90,7 +67,7 @@ namespace FastSQL.Sync.Core.Models
 
         public bool HasState(ItemState state)
         {
-            if (!this.ContainsKey("State"))
+            if (!(ContainsKey("State")))
             {
                 return false;
             }
@@ -101,26 +78,26 @@ namespace FastSQL.Sync.Core.Models
 
         public void SetState(ItemState state)
         {
-            if (!this.ContainsKey("State"))
+            if (!(ContainsKey("State")))
             {
                 return;
             }
 
             var s = (ItemState)int.Parse(this["State"].ToString());
 
-            this["State"] = s == 0 ? state : s | state;
+            this["State"] = JToken.FromObject(s == 0 ? state : s | state);
         }
 
         public void RemoveState(ItemState state)
         {
-            if (!this.ContainsKey("State"))
+            if (!(ContainsKey("State") == true))
             {
                 return;
             }
 
             var s = (ItemState)int.Parse(this["State"].ToString());
 
-            this["State"] = s == 0 ? s : (s | state) ^ state;
+            this["State"] = JToken.FromObject(s == 0 ? s : (s | state) ^ state);
         }
     }
 }

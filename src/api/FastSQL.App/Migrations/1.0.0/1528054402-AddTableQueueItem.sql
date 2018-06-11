@@ -11,11 +11,11 @@ CREATE TABLE core_queue_items (
 	[TargetEntityType] INT NOT NULL,
 	[TargetItemId] NVARCHAR(4000) NOT NULL,
 	[Status] INT NOT NULL,
-	[MessageId] UNIQUEIDENTIFIER,
+	[MessageId] UNIQUEIDENTIFIER NULL,
 	[CreatedAt] INT NOT NULL,
 	[UpdatedAt] INT NOT NULL,
-	[ExecuteAt] INT NOT NULL,
-	[ExecutedAt] INT NOT NULL
+	[ExecuteAt] INT NULL,
+	[ExecutedAt] INT NULL
 );
 --Down--
 ----------------------------

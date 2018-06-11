@@ -8,5 +8,6 @@ namespace FastSQL.Core
     {
         string ApplicationName { get; }
         string BasePath { get; }
+        string SettingFile { get; }
     }
 }

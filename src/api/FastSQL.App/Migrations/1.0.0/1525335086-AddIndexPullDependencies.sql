@@ -15,7 +15,7 @@ CREATE TABLE core_pull_dependencies (
 	[DependsOnEntityType] INT NOT NULL,
 	[DependsOnItemId] NVARCHAR(255) NOT NULL,
 	[CreatedAt] INT NOT NULL,
-	[IsProcessed] BIT NOT NULL DEFAULT 0
+	[IsProcessed] BIT NOT NULL
 );
 --Down--
 ----------------------------

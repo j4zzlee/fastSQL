@@ -40,9 +40,36 @@ namespace FastSQL.Sync.Core.Indexer
                 },
                 new OptionItem
                 {
+                    Name = "indexer_report_alias_name",
+                    DisplayName = "@Report Alias Column",
+                    Description = "A comma separated list of columns alias name which might be useful when reporting.",
+                    Value = string.Empty,
+                    Example = "Sku",
+                    OptionGroupNames = new List<string>{ "Indexer" },
+                },
+                new OptionItem
+                {
+                    Name = "indexer_report_main_column_name",
+                    DisplayName = "@Report Main Column",
+                    Description = "A comma separated list of columns which aliased by [@Report Alias Column].",
+                    Value = string.Empty,
+                    Example = "Sku",
+                    OptionGroupNames = new List<string>{ "Indexer" },
+                },
+                new OptionItem
+                {
                     Name = "indexer_alias_name",
                     DisplayName = "@Alias Column",
-                    Description = "An alias name which might be useful when export to CSV, Excel files.",
+                    Description = "A comma separated list of columns alias name which might be useful when export to CSV, Excel files.",
+                    Value = string.Empty,
+                    Example = "Sku",
+                    OptionGroupNames = new List<string>{ "Indexer" },
+                },
+                new OptionItem
+                {
+                    Name = "indexer_main_column_name",
+                    DisplayName = "@Main Column",
+                    Description = "A comma separated list of columns which aliased by [@Alias Column].",
                     Value = string.Empty,
                     Example = "Sku",
                     OptionGroupNames = new List<string>{ "Indexer" },

@@ -16,6 +16,7 @@ using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
+using Newtonsoft.Json.Linq;
 using Prism.Events;
 using Serilog;
 using System;
@@ -96,7 +97,7 @@ namespace FastSQL.App.UserControls.Indexes
         private async void DataGridViewModel_OnEvent(object sender, Events.DataGridCommandEventArgument args)
         {
             var selectedItems = args.SelectedItems
-                .Select(i => IndexItemModel.FromObject(i));
+                .Select(i => IndexItemModel.FromJObject(JObject.FromObject(i)));
             var selectedItemIds = selectedItems.Select(i => i["Id"].ToString());
             switch (args.CommandName)
             {

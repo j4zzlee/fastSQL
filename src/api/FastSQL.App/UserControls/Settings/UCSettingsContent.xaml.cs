@@ -25,28 +25,45 @@ namespace FastSQL.App.UserControls
     /// </summary>
     public partial class UCSettingsContent : UserControl, IControlDefinition
     {
-        private readonly UCSettingContentViewModel viewModel;
-        private readonly IEnumerable<ISettingProvider> settingProviders;
+        public UCSettingContentViewModel ViewModel { get; set; }
+        public IEnumerable<ISettingProvider> SettingProviders { get; set; }
+        public IEventAggregator EventAggregator { get; set; }
         private string _currentSettingId = string.Empty;
-        public UCSettingsContent(
-            UCSettingContentViewModel viewModel,
-            IEventAggregator eventAggregator,
-            IEnumerable<ISettingProvider> settingProviders)
+
+        public UCSettingsContent()
         {
             InitializeComponent();
-            eventAggregator.GetEvent<SelectSettingEvent>().Subscribe(OnSelectSetting);
-            this.viewModel = viewModel;
-            this.settingProviders = settingProviders;
-            this.DataContext = viewModel;
+            Loaded += (s, e) => OnLoaded();
+        }
+
+        public void SetViewModel(UCSettingContentViewModel viewModel)
+        {
+            ViewModel = viewModel;
+        }
+
+        public void SetSettingProviders (IEnumerable<ISettingProvider> settingProviders)
+        {
+            SettingProviders = settingProviders;
+        }
+
+        public void SetEventAggregator(IEventAggregator eventAggregator)
+        {
+            EventAggregator = eventAggregator;
+        }
+
+        public void OnLoaded()
+        {
+            DataContext = ViewModel;
+            EventAggregator?.GetEvent<SelectSettingEvent>().Subscribe(OnSelectSetting);
         }
 
         private void OnSelectSetting(SelectSettingEventArgument obj)
         {
             _currentSettingId = obj.SettingId;
-            var currentSetting = settingProviders.FirstOrDefault(s => s.Id == _currentSettingId);
-            viewModel.SetOptions(currentSetting.Options);
-            viewModel.SetCommands(currentSetting.Commands.Concat(new List<string> { "Save", "Validate" }));
-            viewModel.SetProvider(currentSetting);
+            var currentSetting = SettingProviders.FirstOrDefault(s => s.Id == _currentSettingId);
+            ViewModel.SetOptions(currentSetting.Options);
+            ViewModel.SetCommands(currentSetting.Commands.Concat(new List<string> { "Save", "Validate" }));
+            ViewModel.SetProvider(currentSetting);
         }
 
         public string Id { get => "NZWVJgnbIEOxA5UU8r8tNA=="; set { } }

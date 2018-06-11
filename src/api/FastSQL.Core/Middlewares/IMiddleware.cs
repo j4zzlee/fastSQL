@@ -4,8 +4,9 @@ using System.Text;
 
 namespace FastSQL.Core.Middlewares
 {
-    public interface IMiddleware
+    public interface IMiddleware: IDisposable
     {
-        bool Start(out string message);
+        int Priority { get; }
+        bool Apply(out string message);
     }
 }

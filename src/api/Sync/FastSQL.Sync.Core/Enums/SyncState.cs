@@ -7,8 +7,8 @@ namespace FastSQL.Sync.Core.Enums
     [Flags]
     public enum SyncState
     {
-        None = 1,
-        HasData = 2,
-        Invalid = 4
+        None = 0,
+        HasData = 1,
+        Invalid = 2
     }
 }

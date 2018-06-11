@@ -32,7 +32,16 @@ namespace FastSQL.Core
             }
             return container.ResolveAll<T>(alias);
         }
-        
+
+        public Array ResolveAll(Type t, object alias = null)
+        {
+            if (alias == null)
+            {
+                return container.ResolveAll(t);
+            }
+            return container.ResolveAll(t, alias);
+        }
+
         public IDisposable BeginScope()
         {
             return container.BeginScope();

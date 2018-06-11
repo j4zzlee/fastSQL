@@ -8,6 +8,13 @@ using System.Windows.Threading;
 using FastSQL.Core.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using FastSQL.Core.ExtensionMethods;
+using Castle.MicroKernel.Registration;
+using Serilog;
+using FastSQL.Core.Middlewares;
+using System.Linq;
+using FastSQL.Core;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace FastSQL.App
 {
@@ -69,37 +76,80 @@ namespace FastSQL.App
             // TODO: Force License Module and Configuration (appsettings.json) Module 
 
             //this.Shutdown();
+            _container.Register(Component.For<ILogger>().UsingFactoryMethod(() => 
+                    _container.Resolve<LoggerFactory>()
+                    .WriteToApplication("Error")
+                    .WriteToFile()
+                    .CreateErrorLogger())
+                .Named("Error")
+                .LifestyleSingleton());
+
+            _container.Register(Component.For<ILogger>().UsingFactoryMethod(() => _container.Resolve<LoggerFactory>()
+                .WriteToFile("SyncService")
+                .WriteToApplication("Error")
+                .CreateApplicationLogger())
+                .Named("SyncService")
+                .LifestyleSingleton());
+
+            _container.Register(Component.For<ILogger>().UsingFactoryMethod(() => _container.Resolve<LoggerFactory>()
+               .WriteToFile("Workflow")
+               .WriteToApplication("Sync Service")
+               .CreateApplicationLogger())
+               .Named("Workflow")
+               .LifestyleSingleton());
+
+            var appResourceManager = _container.Resolve<IApplicationManager>();
+            if (!Directory.Exists(appResourceManager.BasePath))
+            {
+                Directory.CreateDirectory(appResourceManager.BasePath);
+            }
+
+            Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var middlewares = _container.ResolveAll<IMiddleware>().OrderBy(o => o.Priority);
+            foreach (var middleware in middlewares)
+            {
+                try
+                {
+                    if (!middleware.Apply(out string message))
+                    {
+                        MessageBox.Show(
+                           message,
+                           "Error",
+                           MessageBoxButton.OK,
+                           MessageBoxImage.Error);
+                        Shutdown();
+                        return;
+                    }
+                }
+                finally
+                {
+                    middleware.Dispose();
+                    _container.Release(middleware);
+                }
+            }
 
             _scope = _container.BeginScope();
             _mainWindow = _container.Resolve<MainWindow>();
-            _mainWindow.Closed += OnShutDown;
-            Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
             Current.MainWindow = _mainWindow;
             _mainWindow.Show();
-        }
-
-        private void OnShutDown(object sender, EventArgs e)
-        {
-            this.Shutdown();
         }
         
         private void OnApplicationRestart(ApplicationRestartEventArgument obj)
         {
-            _mainWindow.Dispatcher.Invoke(new Action(delegate ()
+            _mainWindow?.Dispatcher.Invoke(new Action(delegate ()
             {
                 var oldScope = _scope;
                 var oldWindow = _mainWindow;
 
-                oldWindow.Closed -= OnShutDown;
-                oldScope?.Dispose();
-                oldWindow.Close();
-
                 _scope = _container.BeginScope();
                 _mainWindow = _container.Resolve<MainWindow>();
-                _mainWindow.Closed += OnShutDown;
-                Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
                 Current.MainWindow = _mainWindow;
                 _mainWindow.Show();
+
+                oldWindow.Close();
+                oldScope?.Dispose();
             }));
         }
 

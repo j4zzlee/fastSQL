@@ -317,9 +317,14 @@ namespace FastSQL.App.UserControls.DataGrid
             ShowPagingControls();
         }
 
+        public IEnumerable<T> GetData<T>()
+        {
+            return Data?.Select(d => (d as JObject).ToObject<T>()) ?? new List<T>();
+        }
+
         public void SetData(IEnumerable<object> data)
         {
-            Data = new ObservableCollection<object>(data.Select(d => JObject.FromObject(d)));
+            Data = new ObservableCollection<object>(data);
             if (data?.Count() > 0)
             {
                 var first = data.First();

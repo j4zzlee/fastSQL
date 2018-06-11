@@ -4,9 +4,27 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FastSQL.App.UserControls.Schedulers"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
+             xmlns:datagrid="clr-namespace:FastSQL.App.UserControls.DataGrid"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+    <Grid Grid.Row="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+        <datagrid:UCDataGrid Grid.Column="0" DataContext="{Binding SchedulerOptions}" UseFilter="True" UsePaging="True"></datagrid:UCDataGrid>
+        <Grid Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Button Grid.Row="0" Margin="5" Padding="5" Command="{Binding SaveCommand}">
+                <TextBlock Text="Init/Save"></TextBlock>
+            </Button>
+            <Button Grid.Row="1" Margin="5" Padding="5" Command="{Binding RunWorkflowCommand}">
+                <TextBlock Text="Run Workflow"></TextBlock>
+            </Button>
+        </Grid>
     </Grid>
 </UserControl>

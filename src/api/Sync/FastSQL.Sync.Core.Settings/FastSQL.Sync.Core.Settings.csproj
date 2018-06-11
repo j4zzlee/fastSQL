@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCSolutions.Commands" Version="1.0.0" />
+    <PackageReference Include="BCSolutions.Migrations" Version="2.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.0" />
+    <PackageReference Include="Prism.Core" Version="7.0.0.396" />
+    <PackageReference Include="System.Security.Permissions" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Vendors\MsSql\FastSQL.MsSql\FastSQL.MsSql.csproj" />
+    <ProjectReference Include="..\FastSQL.Sync.Core\FastSQL.Sync.Core.csproj" />
+  </ItemGroup>
+
+</Project>

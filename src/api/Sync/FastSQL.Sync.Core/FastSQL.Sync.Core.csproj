@@ -15,6 +15,8 @@
     <PackageReference Include="BCSolutions.StringExtensions" Version="1.0.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
     <PackageReference Include="Prism.Core" Version="7.0.0.396" />
+    <PackageReference Include="Serilog.Sinks.Slack" Version="1.2.63" />
+    <PackageReference Include="Slack.Webhooks" Version="1.0.5" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
   </ItemGroup>

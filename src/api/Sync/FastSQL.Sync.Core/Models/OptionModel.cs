@@ -11,7 +11,7 @@ namespace FastSQL.Sync.Core.Models
         [Key]
         public Guid Id { get; set; }
 
-        public Guid EntityId { get; set; }
+        public string EntityId { get; set; }
         
         public EntityType EntityType { get; set; }
 
