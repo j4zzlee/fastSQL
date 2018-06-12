@@ -22,9 +22,14 @@ namespace FastSQL.App.UserControls.Reporters
     /// </summary>
     public partial class UCReporterContent : UserControl, IControlDefinition
     {
-        public UCReporterContent()
+        private readonly UCReporterContentViewModel viewModel;
+
+        public UCReporterContent(UCReporterContentViewModel viewModel)
         {
             InitializeComponent();
+            this.viewModel = viewModel;
+            DataContext = viewModel;
+            Loaded += (s, e) => viewModel.Loaded();
         }
 
         public string Id

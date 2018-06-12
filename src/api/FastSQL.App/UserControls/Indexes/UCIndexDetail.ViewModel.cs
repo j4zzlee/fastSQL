@@ -398,7 +398,7 @@ namespace FastSQL.App.UserControls.Indexes
             SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
             DestinationConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
 
-            //Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete", "Preview" }); // , "Manage"
+            Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete", "Preview" }); // , "Manage"
 
             eventAggregator.GetEvent<SelectIndexEvent>().Subscribe(OnSelectIndex);
             eventAggregator.GetEvent<RefreshConnectionListEvent>().Subscribe(OnConnectionsChanged);
@@ -446,11 +446,6 @@ namespace FastSQL.App.UserControls.Indexes
             TransformationConfigureViewModel.SetIndex(_indexModel);
 
             Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete", "Preview", "Manage" });
-
-            //if (!IsAttribute)
-            //{
-            //    Commands.Add("Map");
-            //}
         }
 
         private void OnApplyCommand(object obj)

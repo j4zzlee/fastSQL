@@ -112,8 +112,8 @@ namespace FastSQL.App.UserControls.Schedulers
             {
                 try
                 {
+                    // It is harder than you think!!!
                     scheduleOptionRepository.BeginTransaction();
-                    scheduleOptionRepository.CleanAll();
                     var entities = entityRepository.GetAll().Select(e => e as IIndexModel);
                     var attributes = attributeRepository.GetAll().Select(e => e as IIndexModel);
                     var allIndexes = entities.Union(attributes);
@@ -126,9 +126,31 @@ namespace FastSQL.App.UserControls.Schedulers
                         TargetEntityType = i.EntityType,
                         WorkflowId = w.Id
                     }));
-                    var items = SchedulerOptions.GetData<ScheduleOptionModel>()
+
+                    // Only get the option that fits available options
+                    var changedItems = SchedulerOptions.GetData<ScheduleOptionModel>()
+                        .Where(i => allOptions.Any(o => {
+                            return i.WorkflowId == o.WorkflowId && i.TargetEntityId == o.TargetEntityId && i.TargetEntityType == o.TargetEntityType;
+                        }))
+                        .ToList(); 
+
+                    var items = scheduleOptionRepository
+                        .GetAll()
                         .Where(i => allOptions.Any(o => i.WorkflowId == o.WorkflowId && i.TargetEntityId == o.TargetEntityId && i.TargetEntityType == o.TargetEntityType))
-                        .ToList(); // Only get the option that fits available options
+                        .Select(o =>
+                        {
+                            // Update with old values
+                            var changedItem = changedItems.FirstOrDefault(i => i.Id == o.Id);
+                            if (changedItem != null)
+                            {
+                                changedItem.TargetEntityName = allIndexes.FirstOrDefault(i => i.Id == o.TargetEntityId && i.EntityType == changedItem.TargetEntityType)?.Name;
+                                return changedItem;
+                            }
+                            o.TargetEntityName = allIndexes.FirstOrDefault(i => i.Id == o.TargetEntityId && i.EntityType == o.TargetEntityType)?.Name;
+                            return o;
+                        })
+                        .ToList();
+                    
                     foreach (var o in allOptions)
                     {
                         var exists = items.Any(i => i.WorkflowId == o.WorkflowId && i.TargetEntityId == o.TargetEntityId && i.TargetEntityType == o.TargetEntityType);
@@ -137,7 +159,9 @@ namespace FastSQL.App.UserControls.Schedulers
                             items.Add(o);
                         }
                     }
-                    
+                    scheduleOptionRepository.DeleteByIds<ScheduleOptionModel>(items
+                        .Where(i => !allOptions.Any(o => i.WorkflowId == o.WorkflowId && i.TargetEntityId == o.TargetEntityId && i.TargetEntityType == o.TargetEntityType))
+                        .Select(i => i.Id.ToString()));
                     scheduleOptionRepository.BuildOptions(items);
                     scheduleOptionRepository.Commit();
                 }

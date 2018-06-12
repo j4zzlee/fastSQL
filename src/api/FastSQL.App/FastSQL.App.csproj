@@ -457,6 +457,10 @@
       <Project>{021f3080-78c2-4817-8b23-0a5bbdec4264}</Project>
       <Name>FastSQL.Magento2</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Vendors\MsAccess\FastSQL.MsAccess.Integration\FastSQL.MsAccess.Integration.csproj">
+      <Project>{8fd32458-5cff-44be-a031-e6b2d2b0ed74}</Project>
+      <Name>FastSQL.MsAccess.Integration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Vendors\MsAccess\FastSQL.MsAccess\FastSQL.MsAccess.csproj">
       <Project>{f02699c3-c154-4a3b-8869-8fc08f5e9c25}</Project>
       <Name>FastSQL.MsAccess</Name>

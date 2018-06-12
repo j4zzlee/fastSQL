@@ -93,9 +93,9 @@ namespace FastSQL.Core
                                 writer.WriteStartObject();
                                 for (int i = 0; i < reader.FieldCount; i++)
                                 {
+                                    writer.WritePropertyName(reader.GetName(i));
                                     if (!reader.IsDBNull(i))
                                     {
-                                        writer.WritePropertyName(reader.GetName(i));
                                         writer.WriteValue(reader.GetValue(i));
                                     }
                                 }

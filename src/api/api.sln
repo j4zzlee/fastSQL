@@ -65,6 +65,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastSQL.Sync.Core.Settings"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastSQL.Sync.Workflow", "Sync\FastSQL.Sync.Workflow\FastSQL.Sync.Workflow.csproj", "{4C2762DE-A443-410A-8763-4CC7549EA3CB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastSQL.MsAccess.Integration", "Vendors\MsAccess\FastSQL.MsAccess.Integration\FastSQL.MsAccess.Integration.csproj", "{8FD32458-5CFF-44BE-A031-E6B2D2B0ED74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +153,10 @@ Global
 		{4C2762DE-A443-410A-8763-4CC7549EA3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C2762DE-A443-410A-8763-4CC7549EA3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C2762DE-A443-410A-8763-4CC7549EA3CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FD32458-5CFF-44BE-A031-E6B2D2B0ED74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FD32458-5CFF-44BE-A031-E6B2D2B0ED74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FD32458-5CFF-44BE-A031-E6B2D2B0ED74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FD32458-5CFF-44BE-A031-E6B2D2B0ED74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -180,6 +186,7 @@ Global
 		{5EA55567-A6D8-43EB-9F1D-A0DCA3BF7CE6} = {6928798A-A8E4-4768-9665-3651226903B1}
 		{8984C65B-E4C2-44D3-A96D-C5C9604FBF7D} = {5D885AB1-DFB2-410F-82A8-A8490E8FFFD4}
 		{4C2762DE-A443-410A-8763-4CC7549EA3CB} = {5D885AB1-DFB2-410F-82A8-A8490E8FFFD4}
+		{8FD32458-5CFF-44BE-A031-E6B2D2B0ED74} = {64D0DEDA-4623-4E06-914C-4EB4AE181263}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D1161694-1EBB-4E3D-B311-89EE8666CAE8}

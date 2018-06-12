@@ -92,7 +92,7 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
             {
                 _selectedChannel = value;
                 IEnumerable<OptionModel> options = null;
-                if (_selectedChannel != null)
+                if (_channelModel != null)
                 {
                     options = _messageDeliveryChannelRepository.LoadOptions(_channelModel.Id.ToString());
                 }

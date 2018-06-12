@@ -65,7 +65,7 @@
                 <TextBlock Text="Reporter" Grid.Row="0"></TextBlock>
                 <ComboBox ItemsSource="{Binding Reporters}"
                     SelectedItem="{Binding SelectedReporter}"
-                    DisplayMemberPath="DisplayName"
+                    DisplayMemberPath="Name"
                     IsSynchronizedWithCurrentItem="True"
                     Grid.Row="1"
                     Padding="5" Margin="0,0,0,10"></ComboBox>
@@ -122,7 +122,7 @@
                             <TextBlock Text="Add"></TextBlock>
                         </Button>
                     </Grid>
-                    <ItemsControl ItemsSource="{Binding Path=SelectedChannels}" Grid.Row="1" Margin="0,20,0,0">
+                    <ItemsControl ItemsSource="{Binding ElementName=grdContainer, Path=DataContext.SelectedChannels}" Grid.Row="1" Margin="0,20,0,0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid VerticalAlignment="Center">
@@ -130,7 +130,7 @@
                                         <ColumnDefinition/>
                                         <ColumnDefinition Width="200"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding Name, Mode=OneWay}" Grid.Column="0" Padding="5">
+                                    <TextBlock Text="{Binding Name, Mode=OneWay}" Grid.Column="0" Padding="5" VerticalAlignment="Center">
                                     </TextBlock>
                                     <Button Command="{Binding ElementName=grdContainer, Path=DataContext.RemoveSelectedChannelCommand}"
                                         CommandParameter="{Binding}"

@@ -132,18 +132,25 @@ namespace FastSQL.Sync.Core
             IEnumerable<string> allColumns,
             IEnumerable<DynamicParameters> data)
         {
-            var schemaSQL = string.Join(",\n\t", allColumns.Select(c => $"[{c}]"));
-            var paramsSQL = string.Join(",\n\t", allColumns.Select(c => $"@{c}"));
+            var schemaSQL = string.Join(", ", allColumns.Select(c => $"[{c}]"));
+            var paramsSQL = string.Join(", ", allColumns.Select(c => $"@{c}"));
+            var insertValueSQL = string.Join(", ", allColumns.Select(c => $"s.[{c}]"));
             var indexer = GetIndexModel();
+            var mergeCondition = primaryColumns == null || primaryColumns.Count() <= 0
+                ? $"s.[Id] = t.[Id]"
+                : string.Join(" AND ", primaryColumns.Select(c => $"s.[{c}] = t.[{c}]").Union(new List<string> { $"s.[Id] = t.[Id]" }));
             var sql = $@"
-INSERT INTO [{indexer.NewValueTableName}](
-    [Id],
-    {schemaSQL})
-VALUES (
-    @Id,
-    {paramsSQL})
+MERGE INTO [{indexer.NewValueTableName}] as t
+USING (
+    VALUES (@Id, {paramsSQL})
+)
+AS s([Id], {string.Join(", ", allColumns.Select(c => $"[{c}]"))})
+ON {mergeCondition}
+WHEN NOT MATCHED THEN
+	INSERT ([Id], {schemaSQL})
+    VALUES(s.[Id], {insertValueSQL});
 ";
-            foreach(var d in data) // don't worry about performance
+            foreach (var d in data) // don't worry about performance
             {
                 Connection.Execute(sql, param: d, transaction: Transaction);
             }
@@ -165,7 +172,7 @@ VALUES (
             var comparePrimarySQL = $@"o.[Id] = n.[Id]";
             if (primaryColumns?.Count() > 0)
             {
-                comparePrimarySQL = string.Join(" AND ", primaryColumns.Select(c => $@"o.[{c}] = n.[{c}]"));
+                comparePrimarySQL = string.Join(" AND ", primaryColumns.Select(c => $@"o.[{c}] = n.[{c}]").Union(new List<string> { $"o.[Id] = n.[Id]" }));
             }
 
             var newItemsSQL = $@"
@@ -176,10 +183,10 @@ WHERE o.[Id] IS NULL
 ORDER BY n.[Id]
 ";
 
-            var mergeCondition = $@"s.[Id] = t.[Id]";
-            if (primaryColumns?.Count() > 0)
+            var mergeCondition = $@"s.[Id] = t.[SourceId]"; // column Id in NewTable is [SourceId] in ValueTable
+            if (primaryColumns?.Count() > 0) // Both tables have same Primary Columns and Value Columns
             {
-                mergeCondition = string.Join(" AND ", primaryColumns.Select(c => $@"s.[{c}] = t.[{c}]"));
+                mergeCondition = string.Join(" AND ", primaryColumns.Select(c => $@"s.[{c}] = t.[{c}]").Union(new List<string> { $"s.[Id] = t.[SourceId]" }));
             }
             var mergeSQL = $@"
 MERGE INTO [{indexer.ValueTableName}] as t
@@ -248,7 +255,7 @@ WHEN NOT MATCHED THEN
             string comparePrimarySQL = $@"o.[Id] = n.[Id]";
             if (primaryColumns?.Count() > 0)
             {
-                comparePrimarySQL = string.Join(" AND ", primaryColumns.Select(c => $@"o.[{c}] = n.[{c}]"));
+                comparePrimarySQL = string.Join(" AND ", primaryColumns.Select(c => $@"o.[{c}] = n.[{c}]").Union(new List<string> { $"o.[Id] = n.[Id]" }));
             }
             var compareValueSQL = string.Join(" AND ", valueColumns.Select(c => $@"o.[{c}] <> n.[{c}]"));
             var changedItemsSQL = $@"
@@ -266,7 +273,7 @@ ORDER BY n.[Id];
             var mergeCondition = $@"s.[Id] = t.[Id]";
             if (primaryColumns?.Count() > 0)
             {
-                mergeCondition = string.Join(" AND ", primaryColumns.Select(c => $@"s.[{c}] = t.[{c}]"));
+                mergeCondition = string.Join(" AND ", primaryColumns.Select(c => $@"s.[{c}] = t.[{c}]").Union(new List<string> { $"s.[Id] = t.[Id]" }));
             }
             var mergeSQL = $@"
 MERGE INTO [{indexer.ValueTableName}] as t
@@ -321,7 +328,7 @@ WHEN MATCHED THEN
             var indexer = GetIndexModel();
             string comparePrimarySQL = $@"o.[Id] = n.[Id]";
             if (primaryColumns?.Count() > 0) {
-                comparePrimarySQL = string.Join(" AND ", primaryColumns.Select(c => $@"o.[{c}] = n.[{c}]"));
+                comparePrimarySQL = string.Join(" AND ", primaryColumns.Select(c => $@"o.[{c}] = n.[{c}]").Union(new List<string> { $"o.[Id] = n.[Id]" }));
             }
             
             var oldItemsSQL = $@"

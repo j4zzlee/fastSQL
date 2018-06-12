@@ -319,7 +319,13 @@ namespace FastSQL.App.UserControls.DataGrid
 
         public IEnumerable<T> GetData<T>()
         {
-            return Data?.Select(d => (d as JObject).ToObject<T>()) ?? new List<T>();
+            return Data?.Select(d => {
+                if (d is JObject)
+                {
+                    return (d as JObject).ToObject<T>();
+                }
+                return (T)d;
+            }) ?? new List<T>();
         }
 
         public void SetData(IEnumerable<object> data)

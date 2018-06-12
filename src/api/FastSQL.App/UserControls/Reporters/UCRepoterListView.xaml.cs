@@ -22,9 +22,11 @@ namespace FastSQL.App.UserControls.Reporters
     /// </summary>
     public partial class UCRepoterListView : UserControl, IControlDefinition
     {
-        public UCRepoterListView()
+        public UCRepoterListView(UCRepoterListViewViewModel viewModel)
         {
             InitializeComponent();
+            DataContext = viewModel;
+            Loaded += (s, e) => viewModel.Loaded();
         }
 
         public string Id

@@ -76,7 +76,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Source Processor" Grid.Row="0"></TextBlock>
+                                <TextBlock Text="Entity" Grid.Row="0"></TextBlock>
                                 <ComboBox ItemsSource="{Binding Entities}"
                                 SelectedItem="{Binding SelectedEntity}"
                                 DisplayMemberPath="Name"
@@ -298,7 +298,7 @@
             </TabControl>
         </Grid>
         <Grid Grid.Column="1">
-            <ItemsControl ItemsSource="{Binding Path=Commands}" Grid.Row="7" Grid.Column="0" VerticalAlignment="Top" Padding="10" HorizontalAlignment="Stretch">
+            <ItemsControl ItemsSource="{Binding Path=Commands}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" Padding="10" HorizontalAlignment="Stretch">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button 

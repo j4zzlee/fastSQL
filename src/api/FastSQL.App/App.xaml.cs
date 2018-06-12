@@ -104,6 +104,11 @@ namespace FastSQL.App
                 Directory.CreateDirectory(appResourceManager.BasePath);
             }
 
+            Start();
+        }
+        
+        private void Start()
+        {
             Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var middlewares = _container.ResolveAll<IMiddleware>().OrderBy(o => o.Priority);
             foreach (var middleware in middlewares)
@@ -134,22 +139,19 @@ namespace FastSQL.App
             Current.MainWindow = _mainWindow;
             _mainWindow.Show();
         }
-        
+
         private void OnApplicationRestart(ApplicationRestartEventArgument obj)
         {
             _mainWindow?.Dispatcher.Invoke(new Action(delegate ()
             {
+                Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
                 var oldScope = _scope;
                 var oldWindow = _mainWindow;
 
-                _scope = _container.BeginScope();
-                _mainWindow = _container.Resolve<MainWindow>();
-                Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-                Current.MainWindow = _mainWindow;
-                _mainWindow.Show();
-
                 oldWindow.Close();
                 oldScope?.Dispose();
+
+                Start();
             }));
         }
 

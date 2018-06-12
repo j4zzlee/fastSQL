@@ -1,9 +1,11 @@
 ﻿using Dapper;
+using DateTimeExtensions;
 using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Text;
 
 namespace FastSQL.Sync.Core.Repositories
@@ -28,6 +30,43 @@ param: new
     ReporterIds = reporterIds
 },
 transaction: _transaction);
+        }
+
+        public void LinkDeliveryChannels(string reporterId, IEnumerable<string> channelIds)
+        {
+        var updateOptionsSql = $@"
+MERGE [core_rel_reporters_delivery_channels] AS [Target]
+USING (
+    VALUES (@ReporterId, @DeliveryChannelId, @CreatedAt)
+) AS [Source]([ReporterId], [DeliveryChannelId], [CreatedAt])
+ON [Target].[ReporterId] = [Source].[ReporterId] AND [Target].[DeliveryChannelId] = [Source].[DeliveryChannelId]
+WHEN NOT MATCHED THEN
+    INSERT ([ReporterId], [DeliveryChannelId], [CreatedAt])
+    VALUES([Source].[ReporterId], [Source].[DeliveryChannelId], [Source].[CreatedAt]);
+";
+            _connection.Execute(
+                updateOptionsSql,
+                param: channelIds.Select(c => new {
+                    ReporterId = reporterId,
+                    DeliveryChannelId = c,
+                    CreatedAt = DateTime.Now.ToUnixTimestamp()
+                }),
+                transaction: _transaction);
+        }
+
+        public void UnlinkDeliveryChannels(string reporterId)
+        {
+            var unlinkSql = $@"
+DELETE FROM [core_rel_reporters_delivery_channels]
+WHERE [ReporterId] = @ReporterId;
+";
+            
+            _connection.Execute(
+                unlinkSql, param: new
+                {
+                    ReporterId = reporterId
+                },
+                transaction: _transaction);
         }
     }
 }

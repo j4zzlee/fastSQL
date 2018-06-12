@@ -65,6 +65,31 @@ namespace FastSQL.Sync.Core.Queuers
                     {
                         var relatedItemNotSynced = false;
                         var relatedItemNotFound = false;
+                        if (_indexerModel.EntityType == EntityType.Attribute)
+                        {
+                            var attributeModel = (AttributeModel)_indexerModel;
+                            var entityModel = entityRepository.GetById(attributeModel.EntityId.ToString());
+                            var entityIndexItem = entityRepository.GetIndexedItemBySourceId(entityModel, item.GetSourceId());
+                            if (entityIndexItem == null || !entityIndexItem.HasValues)
+                            {
+                                relatedItemNotFound = true;
+                            }
+                            else if (string.IsNullOrWhiteSpace(entityIndexItem.GetDestinationId()))
+                            {
+                                relatedItemNotSynced = true;
+                            }
+
+                            if (relatedItemNotSynced)
+                            {
+                                /**
+                                 * Adding these status only for reporting
+                                 */
+                                entityRepository.AddIndexItemState(
+                                    _indexerModel.ValueTableName,
+                                    item.GetId(), relatedItemNotFound ? ItemState.RelatedItemNotFound : ItemState.RelatedItemNotSynced);
+                                continue;
+                            }
+                        }
                         // Items that has dependencies that are not resolved/synced should not be queued
                         foreach (var dependence in dependencies) {
                             var model = dependsOnIndexes.FirstOrDefault(d => d.Id == dependence.TargetEntityId && d.EntityType == dependence.TargetEntityType);
@@ -94,16 +119,15 @@ namespace FastSQL.Sync.Core.Queuers
                             entityRepository.AddIndexItemState(
                                 _indexerModel.ValueTableName,
                                 item.GetId(), relatedItemNotFound ? ItemState.RelatedItemNotFound : ItemState.RelatedItemNotSynced);
+                            continue;
                         }
-                        else
-                        {
-                            entityRepository.RemoveIndexItemState(
+
+                        entityRepository.RemoveIndexItemState(
                                 _indexerModel.ValueTableName,
                                 item.GetId(), ItemState.RelatedItemNotFound | ItemState.RelatedItemNotSynced);
 
-                            // only valid item can be queued
-                            entityRepository.QueueItem(_indexerModel, item.GetId());
-                        }
+                        // only valid item can be queued
+                        entityRepository.QueueItem(_indexerModel, item.GetId());
                     }
                     offset += limit;
                 }

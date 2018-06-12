@@ -257,6 +257,18 @@ FETCH NEXT {limit} ROWS ONLY;";
                 transaction: _transaction);
         }
 
+        public virtual int DeleteByIds<T>(IEnumerable<string> ids)
+            where T : class, new()
+        {
+            var tableName = typeof(T).GetTableName();
+            var keyColumnName = typeof(T).GetKeyColumnName();
+            var sql = $@"DELETE FROM [{tableName}] WHERE [{keyColumnName}] IN @Ids";
+            return _connection.Execute(
+                sql,
+                param: new { Ids = ids },
+                transaction: _transaction);
+        }
+
         public virtual string Create<T>(object @params)
             where T : class, new()
         {
@@ -486,7 +498,7 @@ END;
         {
             var createTableSQL = $@"
 CREATE TABLE {model.NewValueTableName} (
-	[Id] {sourceColumnType} NOT NULL PRIMARY KEY,
+	[Id] {sourceColumnType} NOT NULL, -- Although it is a primary key but it should not be NOT NULL, there is multiple options attribute
     {string.Join(",\n\t", columns)}
 )
 ";
@@ -497,7 +509,7 @@ CREATE TABLE {model.NewValueTableName} (
         {
             var createTableSQL = $@"
 CREATE TABLE {model.OldValueTableName} (
-	[Id] {sourceColumnType} NOT NULL PRIMARY KEY,
+	[Id] {sourceColumnType} NOT NULL, -- Although it is a primary key but it should not be NOT NULL, there is multiple options attribute
     {string.Join(",\n\t", columns)}
 )
 ";

@@ -2,6 +2,7 @@
 using FastSQL.Sync.Core.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -10,7 +11,7 @@ namespace FastSQL.Sync.Core.Models
 {
     [Table("core_schedule_options")]
     [EntityType(EntityType.ScheduleOption)]
-    public class ScheduleOptionModel
+    public class ScheduleOptionModel : INotifyPropertyChanged
     {
         [Key]
         public Guid Id { get; set; }
@@ -22,11 +23,41 @@ namespace FastSQL.Sync.Core.Models
         public EntityType TargetEntityType { get; set; }
 
         public string WorkflowId { get; set; }
-        public int Interval { get; set; }
-        public int Priority { get; set; }
-        public ScheduleStatus Status { get; set; }
+        private int _inteval;
+        public int Interval {
+            get => _inteval;
+            set
+            {
+                _inteval = value;
+                OnPropertyChanged(nameof(Interval));
+            }
+        }
 
-        
+        private int _priority;
+        public int Priority
+        {
+            get => _priority;
+            set
+            {
+                _priority = value;
+                OnPropertyChanged(nameof(Priority));
+            }
+        }
+
+        private ScheduleStatus _status;
+        public ScheduleStatus Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                OnPropertyChanged(nameof(Status));
+                OnPropertyChanged(nameof(Enabled));
+                OnPropertyChanged(nameof(IsParallel));
+            }
+        }
+
+
         [NotMapped]
         public bool Enabled
         {
@@ -41,6 +72,7 @@ namespace FastSQL.Sync.Core.Models
                 {
                     RemoveStatus(ScheduleStatus.Enabled);
                 }
+                OnPropertyChanged(nameof(Status));
             }
         }
 
@@ -58,12 +90,19 @@ namespace FastSQL.Sync.Core.Models
                 {
                     RemoveStatus(ScheduleStatus.RunsInParallel);
                 }
+                OnPropertyChanged(nameof(Status));
             }
         }
-        
+
         [NotMapped]
         public EntityType EntityType => EntityType.ScheduleOption;
-        
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
         public void AddStatus(ScheduleStatus state)
         {
             Status = Status != 0 ? (Status | state) : state;

@@ -31,7 +31,7 @@ namespace FastSQL.App.UserControls.Reporters
         private string _description;
         private List<MessageDeliveryChannelModel> _channels;
         private MessageDeliveryChannelModel _selectedChannel;
-        private List<MessageDeliveryChannelModel> _selectedChannels;
+        private ObservableCollection<MessageDeliveryChannelModel> _selectedChannels;
         private readonly ReporterRepository _reporterRepository;
 
         public string Name
@@ -87,6 +87,10 @@ namespace FastSQL.App.UserControls.Reporters
             }
         }
 
+        public BaseCommand AddSelectedChannelCommand => new BaseCommand(o => true, OnAddChannel);
+        
+        public BaseCommand RemoveSelectedChannelCommand => new BaseCommand(o => true, OnRemoveChannel);
+        
         [DoNotWire]
         public IReporter SelectedReporter
         {
@@ -95,7 +99,7 @@ namespace FastSQL.App.UserControls.Reporters
             {
                 _selectedReporter = value;
                 IEnumerable<OptionModel> options = null;
-                if (_selectedReporter != null)
+                if (_reporterModel != null)
                 {
                     options = _reporterRepository.LoadOptions(_reporterModel.Id.ToString());
                 }
@@ -130,11 +134,11 @@ namespace FastSQL.App.UserControls.Reporters
 
         public ObservableCollection<MessageDeliveryChannelModel> SelectedChannels
         {
-            get => new ObservableCollection<MessageDeliveryChannelModel>(_selectedChannels);
+            get => _selectedChannels ?? (_selectedChannels = new ObservableCollection<MessageDeliveryChannelModel>());
             set
             {
-                _selectedChannels = value?.ToList() ?? new List<MessageDeliveryChannelModel>();
-                OnPropertyChanged(nameof(_reporters));
+                _selectedChannels = value ?? new ObservableCollection<MessageDeliveryChannelModel>();
+                OnPropertyChanged(nameof(SelectedChannels));
             }
         }
 
@@ -151,8 +155,14 @@ namespace FastSQL.App.UserControls.Reporters
 
             Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete" });
             eventAggregator.GetEvent<SelectReporterEvent>().Subscribe(OnSelectReporter);
+            eventAggregator.GetEvent<RefreshChannelListEvent>().Subscribe(OnChannelsRefresh);
             Reporters = new ObservableCollection<IReporter>(_reporters);
-            Channels = new ObservableCollection<MessageDeliveryChannelModel>(messageDeliveryChannelRepository.GetAll());
+            Channels = new ObservableCollection<MessageDeliveryChannelModel>(_messageDeliveryChannelRepository.GetAll());
+        }
+
+        private void OnChannelsRefresh(RefreshChannelListEventArgument obj)
+        {
+            Channels = new ObservableCollection<MessageDeliveryChannelModel>(_messageDeliveryChannelRepository.GetAll());
         }
 
         private void OnSelectReporter(SelectReporterEventArgument obj)
@@ -162,7 +172,7 @@ namespace FastSQL.App.UserControls.Reporters
             Description = _reporterModel.Description;
             SelectedReporter = Reporters?.FirstOrDefault(p => p.Id == _reporterModel.ReporterId);
             var selectedChannels = _reporterRepository.GetLinkedDeliveryChannels(new List<string> { _reporterModel.Id.ToString() });
-            SelectedChannels = new ObservableCollection<MessageDeliveryChannelModel>(Channels.Where(c => selectedChannels.Any(sc => sc.ReporterId == _reporterModel.Id)));
+            SelectedChannels = new ObservableCollection<MessageDeliveryChannelModel>(Channels.Where(c => selectedChannels.Any(sc => sc.DeliveryChannelId == c.Id && sc.ReporterId == _reporterModel.Id)));
         }
 
         public void SetOptions(IEnumerable<OptionItem> options)
@@ -195,7 +205,9 @@ namespace FastSQL.App.UserControls.Reporters
 
                 SelectedReporter.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
 
-                _reporterRepository.LinkOptions(_reporterModel.Id.ToString(), SelectedReporter.Options);
+                _reporterRepository.LinkOptions(_reporterModel.Id.ToString(), SelectedReporter.Options); // no need to unlink, they can be reuse
+                _reporterRepository.UnlinkDeliveryChannels(_reporterModel.Id.ToString());
+                _reporterRepository.LinkDeliveryChannels(_reporterModel.Id.ToString(), SelectedChannels.Select(c => c.Id.ToString()));
                 _reporterRepository.Commit();
                 _eventAggregator.GetEvent<RefreshReporterListEvent>().Publish(new RefreshReporterListEventArgument
                 {
@@ -227,7 +239,9 @@ namespace FastSQL.App.UserControls.Reporters
 
                 SelectedReporter.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
 
-                _reporterRepository.LinkOptions(result, SelectedReporter.Options);
+                _reporterRepository.LinkOptions(result, SelectedReporter.Options); // no need to unlink, they can be reuse
+                _reporterRepository.UnlinkDeliveryChannels(result);
+                _reporterRepository.LinkDeliveryChannels(result, SelectedChannels.Select(c => c.Id.ToString()));
                 _reporterRepository.Commit();
 
                 message = "Success";
@@ -244,6 +258,21 @@ namespace FastSQL.App.UserControls.Reporters
             }
         }
 
+        private void OnAddChannel(object obj)
+        {
+            if (SelectedChannels.Any(c => c.Id == SelectedChannel?.Id))
+            {
+                return;
+            }
+            SelectedChannels.Add(SelectedChannel);
+        }
+
+        private void OnRemoveChannel(object obj)
+        {
+            var channel = (MessageDeliveryChannelModel)obj;
+            SelectedChannels.Remove(channel);
+        }
+
         private bool Delete(out string message)
         {
             if (_reporterModel == null)
@@ -256,6 +285,7 @@ namespace FastSQL.App.UserControls.Reporters
                 _reporterRepository.BeginTransaction();
                 _reporterRepository.DeleteById(_reporterModel.Id.ToString());
                 _reporterRepository.UnlinkOptions(_reporterModel.Id.ToString());
+                _reporterRepository.UnlinkDeliveryChannels(_reporterModel.Id.ToString());
                 _reporterRepository.Commit();
 
                 _eventAggregator.GetEvent<RefreshReporterListEvent>().Publish(new RefreshReporterListEventArgument

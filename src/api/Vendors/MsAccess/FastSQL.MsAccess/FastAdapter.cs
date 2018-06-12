@@ -1,4 +1,5 @@
-﻿using FastSQL.Core;
+﻿using Dapper;
+using FastSQL.Core;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -61,6 +62,25 @@ namespace FastSQL.MsAccess
                 conn.Open();
                 var schema = conn.GetSchema("Views");
                 return schema.Rows.Cast<DataRow>().Select(r => r["TABLE_NAME"].ToString());
+            }
+        }
+
+        public DataRow GetView(string viewName)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                var schema = conn.GetSchema("Views");
+                return schema.Rows.Cast<DataRow>().Where(r => r["TABLE_NAME"].ToString() == viewName).FirstOrDefault();
+            }
+        }
+
+        public void DropView(string viewName)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                conn.Execute($@"DROP VIEW {viewName};");
             }
         }
     }
