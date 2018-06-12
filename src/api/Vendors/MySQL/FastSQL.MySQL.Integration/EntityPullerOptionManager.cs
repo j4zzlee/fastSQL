@@ -31,7 +31,7 @@ LIMIT @Limit OFFSET @Offset"
                     Name = "puller_page_limit",
                     DisplayName= "@Limit",
                     OptionGroupNames = new List<string>{ "Puller" },
-                    Type = OptionType.Sql,
+                    Type = OptionType.Text,
                     Description = @"A maximum limitation per page when pull data",
                     Example = $@"100",
                     Value = $@"100"

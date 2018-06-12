@@ -381,6 +381,9 @@
     <PackageReference Include="Serilog.Sinks.Slack">
       <Version>1.2.63</Version>
     </PackageReference>
+    <PackageReference Include="Syncfusion.Edit.WPF">
+      <Version>16.1.0.37</Version>
+    </PackageReference>
     <PackageReference Include="Syncfusion.SfSkinManager.Wpf">
       <Version>16.1.0.37</Version>
     </PackageReference>

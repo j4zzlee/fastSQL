@@ -1,5 +1,6 @@
 ﻿using FastSQL.App.UserControls.OptionItems;
 using Microsoft.Win32;
+using Syncfusion.Windows.Edit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,14 +50,31 @@ namespace FastSQL.App.UserControls
                     val.Margin = new Thickness(0, 0, 0, 10);
                     break;
                 case Core.OptionType.TextArea:
-                case Core.OptionType.Sql:
-                    val = new TextBox {
+                    val = new TextBox
+                    {
                         VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                         AcceptsReturn = true,
-                        TextWrapping = TextWrapping.Wrap
+                        TextWrapping = TextWrapping.Wrap,
                     };
                     val.SetBinding(TextBox.TextProperty, binding);
                     val.Padding = new Thickness(5);
+                    val.Margin = new Thickness(0, 0, 0, 10);
+                    break;
+                case Core.OptionType.Sql:
+                    val = new EditControl {
+                        VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                        AcceptsReturn = true,
+                        DocumentLanguage = Languages.SQL,
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        BorderThickness = new Thickness(1),
+                        BorderBrush = new SolidColorBrush(Colors.LightGray)
+                    };
+                    val.PreviewKeyUp += (s, ee) =>
+                    {
+                        viewModel.Value = (s as EditControl)?.GetValue(EditControl.TextProperty).ToString();
+                    };
+                    val.SetBinding(EditControl.TextProperty, binding);
+                    val.Padding = new Thickness(20);
                     val.Margin = new Thickness(0, 0, 0, 10);
                     break;
                 case Core.OptionType.Password:
