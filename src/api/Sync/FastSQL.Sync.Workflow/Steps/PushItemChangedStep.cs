@@ -67,39 +67,32 @@ namespace FastSQL.Sync.Workflow.Steps
             IndexItemModel itemModel = null;
             IIndexer indexer = null;
             IPusher pusher = null;
-
+            IEnumerable<OptionItem> options = null;
             if (firstQueuedItem.TargetEntityType == EntityType.Entity)
             {
-                var model = entityRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
-                var options = entityRepository.LoadOptions(model.Id.ToString()).Select(o => new OptionItem { Name = o.Key, Value = o.Value });
-                var sourceConnection = connectionRepository.GetById(model.SourceConnectionId.ToString());
-                var destinationConnection = connectionRepository.GetById(model.DestinationConnectionId.ToString());
-                indexer = entityIndexers.FirstOrDefault(i => i.IsImplemented(model.SourceProcessorId, sourceConnection.ProviderId));
-                indexer.SetIndex(model);
-                indexer.SetOptions(options);
-                pusher = entityPushers.FirstOrDefault(p => p.IsImplemented(model.DestinationProcessorId, destinationConnection.ProviderId));
-                pusher.SetIndex(model);
-                pusher.SetOptions(options);
-                pusher.SetItem(itemModel);
-                indexModel = model;
+                indexModel = entityRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
+                options = entityRepository.LoadOptions(indexModel.Id.ToString()).Select(o => new OptionItem { Name = o.Key, Value = o.Value });
+                var sourceConnection = connectionRepository.GetById(indexModel.SourceConnectionId.ToString());
+                var destinationConnection = connectionRepository.GetById(indexModel.DestinationConnectionId.ToString());
+                indexer = entityIndexers.FirstOrDefault(i => i.IsImplemented(indexModel.SourceProcessorId, sourceConnection.ProviderId));
+                pusher = entityPushers.FirstOrDefault(p => p.IsImplemented(indexModel.DestinationProcessorId, destinationConnection.ProviderId));
             }
             else
             {
-                var model = attributeRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
-                var entityModel = entityRepository.GetById(model.EntityId.ToString());
-                var options = attributeRepository.LoadOptions(model.Id.ToString()).Select(o => new OptionItem { Name = o.Key, Value = o.Value });
-                var sourceConnection = connectionRepository.GetById(model.SourceConnectionId.ToString());
-                var destinationConnection = connectionRepository.GetById(model.DestinationConnectionId.ToString());
-                indexer = attributeIndexers.FirstOrDefault(i => i.IsImplemented(model.SourceProcessorId, entityModel.SourceProcessorId, sourceConnection.ProviderId));
-                indexer.SetIndex(model);
-                indexer.SetOptions(options);
-                pusher = attributePushers.FirstOrDefault(p => p.IsImplemented(model.DestinationProcessorId, entityModel.DestinationProcessorId, destinationConnection.ProviderId));
-                pusher.SetIndex(model);
-                pusher.SetOptions(options);
-                pusher.SetItem(itemModel);
-                indexModel = model;
+                var attributeModel = attributeRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
+                indexModel = attributeModel;
+                var entityModel = entityRepository.GetById(attributeModel.EntityId.ToString());
+                options = attributeRepository.LoadOptions(attributeModel.Id.ToString()).Select(o => new OptionItem { Name = o.Key, Value = o.Value });
+                var sourceConnection = connectionRepository.GetById(attributeModel.SourceConnectionId.ToString());
+                var destinationConnection = connectionRepository.GetById(attributeModel.DestinationConnectionId.ToString());
+                indexer = attributeIndexers.FirstOrDefault(i => i.IsImplemented(attributeModel.SourceProcessorId, entityModel.SourceProcessorId, sourceConnection.ProviderId));
+                pusher = attributePushers.FirstOrDefault(p => p.IsImplemented(attributeModel.DestinationProcessorId, entityModel.DestinationProcessorId, destinationConnection.ProviderId));
             }
 
+            indexer.SetIndex(indexModel);
+            indexer.SetOptions(options);
+            pusher.SetIndex(indexModel);
+            pusher.SetOptions(options);
             pusherManager.SetIndex(indexModel);
             pusherManager.OnReport(s => Logger.Information(s));
             pusherManager.SetIndexer(indexer);
@@ -107,6 +100,8 @@ namespace FastSQL.Sync.Workflow.Steps
 
             try
             {
+                var queueItem = queueItemRepository.GetItemToPush();
+                itemModel = entityRepository.GetIndexedItemById(indexModel, queueItem.TargetItemId.ToString());
                 await pusherManager.PushItem(itemModel);
                 
                 var messageId = messageRepository.Create(new

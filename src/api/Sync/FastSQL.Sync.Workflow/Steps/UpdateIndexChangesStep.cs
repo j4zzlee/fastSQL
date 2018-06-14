@@ -47,52 +47,66 @@ namespace FastSQL.Sync.Workflow.Steps
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
-            Logger.Information($@"Updating index changes of {IndexModel.Name}/{IndexModel.Id}...");
-            var sourceConnection = connectionRepository.GetById(IndexModel.SourceConnectionId.ToString());
-            //var destConnection = connectionRepository.GetById(IndexModel.DestinationConnectionId.ToString());
-            IPuller puller = null;
-            IIndexer indexer = null;
-            if (IndexModel.EntityType == EntityType.Entity)
+            try
             {
-                puller = pullers.Where(p => typeof(IEntityPuller).IsAssignableFrom(p.GetType()))
-                        .Select(p => (IEntityPuller)p)
-                        .FirstOrDefault(p => p.IsImplemented(
-                            IndexModel?.SourceProcessorId,
-                            sourceConnection?.ProviderId));
+                Logger.Information($@"Updating index changes of {IndexModel.Name}/{IndexModel.Id}...");
+                var sourceConnection = connectionRepository.GetById(IndexModel.SourceConnectionId.ToString());
+                //var destConnection = connectionRepository.GetById(IndexModel.DestinationConnectionId.ToString());
+                IPuller puller = null;
+                IIndexer indexer = null;
+                if (IndexModel.EntityType == EntityType.Entity)
+                {
+                    puller = pullers.Where(p => typeof(IEntityPuller).IsAssignableFrom(p.GetType()))
+                            .Select(p => (IEntityPuller)p)
+                            .FirstOrDefault(p => p.IsImplemented(
+                                IndexModel?.SourceProcessorId,
+                                sourceConnection?.ProviderId));
 
-                indexer = indexers.Where(p => typeof(IEntityIndexer).IsAssignableFrom(p.GetType()))
-                        .Select(p => (IEntityIndexer)p)
-                        .FirstOrDefault(p => p.IsImplemented(
-                            IndexModel?.SourceProcessorId,
-                            sourceConnection?.ProviderId));
+                    indexer = indexers.Where(p => typeof(IEntityIndexer).IsAssignableFrom(p.GetType()))
+                            .Select(p => (IEntityIndexer)p)
+                            .FirstOrDefault(p => p.IsImplemented(
+                                IndexModel?.SourceProcessorId,
+                                sourceConnection?.ProviderId));
+                }
+                else
+                {
+                    var entity = entityRepository.GetById((IndexModel as AttributeModel).EntityId.ToString());
+                    puller = pullers.Where(p => typeof(IAttributePuller).IsAssignableFrom(p.GetType()))
+                            .Select(p => (IAttributePuller)p)
+                            .FirstOrDefault(p => p.IsImplemented(
+                                IndexModel.SourceProcessorId,
+                                entity?.SourceProcessorId,
+                                sourceConnection?.ProviderId));
+
+                    indexer = indexers.Where(p => typeof(IAttributeIndexer).IsAssignableFrom(p.GetType()))
+                            .Select(p => (IAttributeIndexer)p)
+                            .FirstOrDefault(p => p.IsImplemented(
+                                IndexModel.SourceProcessorId,
+                                entity?.SourceProcessorId,
+                                sourceConnection?.ProviderId));
+                }
+                var options = entityRepository.LoadOptions(IndexModel.Id.ToString(), IndexModel.EntityType)
+                    .Select(o => new OptionItem { Name = o.Key, Value = o.Value });
+                puller.SetIndex(IndexModel);
+                puller.SetOptions(options);
+                indexer.SetIndex(IndexModel);
+                indexer.SetOptions(options);
+                indexerManager.SetIndex(IndexModel);
+                indexerManager.SetPuller(puller);
+                indexerManager.SetIndexer(indexer);
+                indexerManager.OnReport(s =>
+                {
+                    Logger.Information(s);
+                });
+
+                await indexerManager.PullNext();
+                Logger.Information($@"Updated index changes of {IndexModel.Name}/{IndexModel.Id}");
             }
-            else
+            catch (Exception ex)
             {
-                var entity = entityRepository.GetById((IndexModel as AttributeModel).EntityId.ToString());
-                puller = pullers.Where(p => typeof(IAttributePuller).IsAssignableFrom(p.GetType()))
-                        .Select(p => (IAttributePuller)p)
-                        .FirstOrDefault(p => p.IsImplemented(
-                            IndexModel.SourceProcessorId,
-                            entity?.SourceProcessorId,
-                            sourceConnection?.ProviderId));
-
-                indexer = indexers.Where(p => typeof(IAttributeIndexer).IsAssignableFrom(p.GetType()))
-                        .Select(p => (IAttributeIndexer)p)
-                        .FirstOrDefault(p => p.IsImplemented(
-                            IndexModel.SourceProcessorId,
-                            entity?.SourceProcessorId,
-                            sourceConnection?.ProviderId));
+                ErrorLogger.Error(ex, ex.Message);
+                throw;
             }
-            indexerManager.SetIndex(IndexModel);
-            indexerManager.SetPuller(puller);
-            indexerManager.SetIndexer(indexer);
-            indexerManager.OnReport(s =>
-            {
-                Logger.Information(s);
-            });
-
-            await indexerManager.PullNext();
-            Logger.Information($@"Updated index changes of {IndexModel.Name}/{IndexModel.Id}");
         }
     }
 }

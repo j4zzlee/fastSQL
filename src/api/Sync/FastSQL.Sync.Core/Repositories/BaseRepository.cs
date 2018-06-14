@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace FastSQL.Sync.Core.Repositories
 {
@@ -48,21 +49,22 @@ namespace FastSQL.Sync.Core.Repositories
             var optionParams = options.Select(o => new
             {
                 Key = o.Name,
-                o.Value,
+                Val = o.Value,
                 EntityId = id,
-                EntityType = entityType
+                EntityType = (int)entityType
             });
 
-            var updateOptionsSql = $@"MERGE [core_options] AS [Target]
-USING (VALUES (@EntityId, @EntityType, @Key, @Value)) AS [Source]([EntityId], [EntityType], [Key], [Value])
+            var updateOptionsSql = $@"
+MERGE [core_options] AS [Target]
+USING (VALUES (@EntityId, @EntityType, @Key, @Val)) AS [Source]([EntityId], [EntityType], [Key], [Val])
 ON [Target].[EntityId] = [Source].[EntityId] AND [Target].[EntityType] = [Source].[EntityType] AND [Target].[Key] = [Source].[Key]
 WHEN MATCHED THEN
-    UPDATE SET [Target].[Value] = [Source].[Value]
+    UPDATE SET [Value] = [Source].[Val]
 WHEN NOT MATCHED THEN
     INSERT ([EntityId], [EntityType], [Key], [Value])
-    VALUES([Source].[EntityId], [Source].[EntityType], [Source].[Key], [Source].[Value]);
+    VALUES([Source].[EntityId], [Source].[EntityType], [Source].[Key], [Source].[Val]);
 ";
-            _connection.Execute(
+            var affectedRows = _connection.Execute(
                 updateOptionsSql,
                 param: optionParams,
                 transaction: _transaction);
@@ -71,15 +73,16 @@ WHEN NOT MATCHED THEN
             var optionGroupParams = options.Where(o => o.OptionGroupNames?.Count > 0).SelectMany(o => o.OptionGroupNames.Select(g => new
             {
                 Key = o.Name,
-                o.Value,
+                Val = o.Value,
                 EntityId = id,
                 EntityType = entityType,
                 GroupName = g
             }));
-            var updateOptionGroupsSql = $@"MERGE [core_rel_option_option_group] AS [Target]
+            var updateOptionGroupsSql = $@"
+MERGE [core_rel_option_option_group] AS [Target]
 USING (
     SELECT DISTINCT v.GroupName, o.Id as OptionId
-    FROM (VALUES (@EntityId, @EntityType, @Key, @Value, @GroupName)) AS v([EntityId], [EntityType], [Key], [Value], [GroupName])
+    FROM (VALUES (@EntityId, @EntityType, @Key, @Val, @GroupName)) AS v([EntityId], [EntityType], [Key], [Val], [GroupName])
     INNER JOIN [core_option_groups] og ON og.[Name] = v.GroupName
     LEFT JOIN [core_options] o ON o.EntityId = v.EntityId AND o.EntityType = v.EntityType AND o.[Key] = v.[Key]
 ) AS [Source]([GroupName], [OptionId])
@@ -400,8 +403,8 @@ VALUES (
 @{nameof(DependencyItemModel.StepToExecute)},
 @{nameof(DependencyItemModel.DependOnStep)},
 @{nameof(DependencyItemModel.ExecuteImmediately)},
-@{nameof(DependencyItemModel.ReferenceKeys)},
-@{nameof(DependencyItemModel.ForeignKeys)})",
+@{nameof(DependencyItemModel.ForeignKeys)},
+@{nameof(DependencyItemModel.ReferenceKeys)})",
 dependencies
     .Select(d =>
     {
@@ -455,40 +458,25 @@ END;
 ";
                 _connection.Execute(truncateSQL, transaction: _transaction);
             }
-            var idColumn = options.GetValue("indexer_key_column");
-            var idColumnWithType = idColumn.Split(':');
-            var idColumnType = "NVARCHAR(MAX)";
-            var idColumnName = idColumn.Trim();
-            if (idColumnWithType.Length > 1)
-            {
-                if (!string.IsNullOrWhiteSpace(idColumnWithType[1]))
-                {
-                    idColumnType = idColumnWithType[1].ToUpper().Trim();
-                }
-                idColumnName = idColumnWithType[0].Trim(); // TODO: THINK OF A WAY TO USE IT
-            }
-            var primaryColumns = options.GetValue("indexer_primary_key_columns");
-            var valueColumns = options.GetValue("indexer_value_columns");
-            var allColumns = new List<string>(); // without ID Column
-            allColumns.AddRange(Regex.Split(primaryColumns, "[|;,]"));
-            allColumns.AddRange(Regex.Split(valueColumns, "[|;,]"));
-            var sqlColumns = allColumns.Where(c => !string.IsNullOrWhiteSpace(c)).Select(c =>
-            {
-                var result = c;
-                var columnWithType = c.Split(':'); // ID:int
-                if (columnWithType.Length > 1)
-                {
-                    if (!string.IsNullOrWhiteSpace(columnWithType[1]))
+            var mappingOptionStr = options.GetValue("indexer_mapping_columns");
+            var columnMappings = !string.IsNullOrWhiteSpace(mappingOptionStr) 
+                ? JsonConvert.DeserializeObject<List<IndexColumnMapping>>(mappingOptionStr) 
+                : new List<IndexColumnMapping>();
+            var idColumn = columnMappings.FirstOrDefault(m => m.Primary);
+            var idColumnName = idColumn.MappingName;
+            var idColumnType = !string.IsNullOrWhiteSpace(idColumn.DataType) 
+                ? idColumn.DataType
+                : "NVARCHAR(MAX)";
+            var sqlColumns = columnMappings.Where(m => !m.Primary)
+                .Select(c => {
+                    var dType = c.DataType;
+                    if (string.IsNullOrWhiteSpace(dType))
                     {
-                        result = $"{columnWithType[0].Trim()} {columnWithType[1].ToUpper().Trim()}";
+                        dType = "NVARCHAR(MAX)";
                     }
-                    else
-                    {
-                        result = columnWithType[0].Trim();
-                    }
-                }
-                return result;
-            });
+                    return $@"[{c.MappingName}] {dType.ToUpper()}";
+                });
+            
             CreateValueTable(entity, idColumnType, sqlColumns);
             CreateOldValueTable(entity, idColumnType, sqlColumns);
             CreateNewValueTable(entity, idColumnType, sqlColumns);
@@ -498,7 +486,7 @@ END;
         {
             var createTableSQL = $@"
 CREATE TABLE {model.NewValueTableName} (
-	[Id] {sourceColumnType} NOT NULL, -- Although it is a primary key but it should not be NOT NULL, there is multiple options attribute
+	[Id] {sourceColumnType} NOT NULL, -- Although it is a primary key but it should not be UNIQUE, there is multiple options attribute
     {string.Join(",\n\t", columns)}
 )
 ";
@@ -509,7 +497,7 @@ CREATE TABLE {model.NewValueTableName} (
         {
             var createTableSQL = $@"
 CREATE TABLE {model.OldValueTableName} (
-	[Id] {sourceColumnType} NOT NULL, -- Although it is a primary key but it should not be NOT NULL, there is multiple options attribute
+	[Id] {sourceColumnType} NOT NULL, -- Although it is a primary key but it should not be UNIQUE, there is multiple options attribute
     {string.Join(",\n\t", columns)}
 )
 ";

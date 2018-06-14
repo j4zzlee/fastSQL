@@ -79,10 +79,6 @@ transaction: _transaction);
         public int LinkToReporter(string messageId, ReporterModel reporterModel)
         {
             return _connection.Execute($@"
-[Id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-	[MessageId] UNIQUEIDENTIFIER DEFAULT NULL,
-	[ReporterId] TEXT NOT NULL,
-	[CreatedAt] INT NOT NULL
 MERGE INTO [core_rel_messages_reporters] as t
 USING (
     VALUES (@MessageId, @ReporterId, @CreatedAt)

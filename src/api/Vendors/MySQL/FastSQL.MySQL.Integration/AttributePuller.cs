@@ -6,6 +6,7 @@ using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Processors;
 using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Repositories;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,16 +40,14 @@ namespace FastSQL.MySQL.Integration
 SELECT * 
 FROM [{EntityModel.SourceViewName}]";
             }
-            var idColumn = options.GetValue("indexer_key_column");
-            var primaryKeysColumns = options.GetValue("indexer_primary_key_columns");
-            if (string.IsNullOrEmpty(idColumn))
-            {
-                idColumn = primaryKeysColumns;
-            }
-            idColumn = Regex.Replace(idColumn, @"[|;,]", ", ", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-            idColumn = Regex.Replace(idColumn, @":[a-zA-Z0-9\(\)]+", "", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            var mappingOptionStr = options.GetValue("indexer_mapping_columns");
+            var columnMappings = !string.IsNullOrWhiteSpace(mappingOptionStr)
+                ? JsonConvert.DeserializeObject<List<IndexColumnMapping>>(mappingOptionStr)
+                : new List<IndexColumnMapping>();
+            var orderColumns = string.Join(", ", columnMappings.Where(c => c.Primary || c.Key)
+                .Select(c => c.SourceName));
             var pageSqlScript = $@"{sqlScript}
-ORDER BY {idColumn}
+ORDER BY {orderColumns}
 LIMIT @Limit OFFSET @Offset;";
             return pageSqlScript;
         }

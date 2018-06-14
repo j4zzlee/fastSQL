@@ -15,7 +15,12 @@ namespace FastSQL.Sync.Core.Repositories
 
         protected override EntityType EntityType => EntityType.QueueItem;
 
-        public IEnumerable<QueueItemModel> GetQueuedItemByStatus(QueueItemState success)
+        public IEnumerable<QueueItemModel> GetQueuedItemsByStatus(QueueItemState success)
+        {
+            throw new NotImplementedException();
+        }
+
+        public QueueItemModel GetItemToPush()
         {
             throw new NotImplementedException();
         }

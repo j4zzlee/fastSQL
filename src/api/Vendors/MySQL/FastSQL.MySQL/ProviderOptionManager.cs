@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace FastSQL.MySQL
 {
-    public class ProviderOptionManager : BaseOptionMananger
+    public class ProviderOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

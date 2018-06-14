@@ -6,7 +6,7 @@ using FastSQL.Sync.Core.Repositories;
 
 namespace FastSQL.Sync.Core.IndexExporters
 {
-    public class CsvIndexExporterOptionManager : BaseOptionMananger
+    public class CsvIndexExporterOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

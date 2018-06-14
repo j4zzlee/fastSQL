@@ -6,7 +6,7 @@ using System.Text;
 
 namespace FastSQL.Core
 {
-    public abstract class BaseOptionMananger : IOptionManager
+    public abstract class BaseOptionManager : IOptionManager
     {
         protected IEnumerable<OptionItem> InstanceOptions = new List<OptionItem>();
         public IEnumerable<OptionItem> Options

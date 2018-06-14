@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FastSQL.Magento1.Integration.Pullers
 {
-    public class OrderPullerOptionManager : BaseOptionMananger
+    public class OrderPullerOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

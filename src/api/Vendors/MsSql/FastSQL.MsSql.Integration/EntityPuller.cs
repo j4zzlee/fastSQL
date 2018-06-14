@@ -6,6 +6,7 @@ using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Processors;
 using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Repositories;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -38,16 +39,14 @@ SELECT *
 FROM [{EntityModel.SourceViewName}]";
             }
             var isSql2008 = options.GetValue("puller_is_sql_2008", true);
-            var idColumn = options.GetValue("indexer_key_column");
-            var primaryKeysColumns = options.GetValue("indexer_primary_key_columns");
-            if (string.IsNullOrEmpty(idColumn))
-            {
-                idColumn = primaryKeysColumns;
-            }
-            idColumn = Regex.Replace(idColumn, @"[|;,]", ", ", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-            idColumn = Regex.Replace(idColumn, @":[a-zA-Z0-9\(\)]+", "", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            var mappingOptionStr = options.GetValue("indexer_mapping_columns");
+            var columnMappings = !string.IsNullOrWhiteSpace(mappingOptionStr)
+                ? JsonConvert.DeserializeObject<List<IndexColumnMapping>>(mappingOptionStr)
+                : new List<IndexColumnMapping>();
+            var orderColumns = string.Join(", ", columnMappings.Where(c => c.Primary || c.Key)
+                .Select(c => c.SourceName));
             var pageSqlScript = $@"{sqlScript}
-ORDER BY {idColumn}
+ORDER BY {orderColumns}
 OFFSET @Offset ROWS
 FETCH NEXT @Limit ROWS ONLY;";
 
@@ -55,7 +54,7 @@ FETCH NEXT @Limit ROWS ONLY;";
             {
                 pageSqlScript = $@";WITH Results_CTE AS
 (
-    SELECT [s].*, ROW_NUMBER() OVER(ORDER BY {idColumn}) AS RowNum
+    SELECT [s].*, ROW_NUMBER() OVER(ORDER BY {orderColumns}) AS RowNum
     FROM ({sqlScript}) AS [s]
 )
 SELECT *

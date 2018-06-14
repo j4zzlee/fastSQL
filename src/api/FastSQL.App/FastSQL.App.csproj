@@ -132,6 +132,12 @@
     <Compile Include="UserControls\MessageDeliveryChannels\UCMessageDeliveryChannelListView.xaml.cs">
       <DependentUpon>UCMessageDeliveryChannelListView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\OptionItems\UCGridOptions.ViewModel.cs">
+      <DependentUpon>UCGridOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\OptionItems\UCGridOptions.xaml.cs">
+      <DependentUpon>UCGridOptions.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\OptionItems\UCOpenFileDialog.xaml.cs">
       <DependentUpon>UCOpenFileDialog.xaml</DependentUpon>
     </Compile>
@@ -237,6 +243,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\MessageDeliveryChannels\UCMessageDeliveryChannelListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\OptionItems\UCGridOptions.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

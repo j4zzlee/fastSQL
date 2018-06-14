@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FastSQL.Sync.Core.MessageDeliveryChannels.SlackChannel
 {
-    public class SlackMessageDeliverChannelOptionManager : BaseOptionMananger
+    public class SlackMessageDeliverChannelOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

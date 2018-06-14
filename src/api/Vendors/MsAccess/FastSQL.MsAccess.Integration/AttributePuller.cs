@@ -6,6 +6,7 @@ using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Processors;
 using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Repositories;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,18 +74,15 @@ FROM (
 SELECT * 
 FROM [{AttributeModel.SourceViewName}]";
             }
-            var idColumn = options.GetValue("indexer_key_column");
-            idColumn = Regex.Replace(idColumn, @":[a-zA-Z0-9\(\)]+", "", RegexOptions.Multiline | RegexOptions.IgnoreCase);//;
-            var primaryKeysColumns = options.GetValue("indexer_primary_key_columns");
-            primaryKeysColumns = Regex.Replace(primaryKeysColumns, @":[a-zA-Z0-9\(\)]+", "", RegexOptions.Multiline | RegexOptions.IgnoreCase);//;
-            var orderColumns = idColumn;
-            if (string.IsNullOrEmpty(idColumn))
-            {
-                orderColumns = primaryKeysColumns;
-            }
-            var idColumns = Regex.Split(orderColumns, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-            var descIdColumn = string.Join(", ", idColumns.Select(i => $"o.[{i}] DESC"));
-            var ascIdColumn = string.Join(", ", idColumns.Select(i => $"f.[{i}] ASC"));
+            var mappingOptionStr = options.GetValue("indexer_mapping_columns");
+            var columnMappings = !string.IsNullOrWhiteSpace(mappingOptionStr)
+                ? JsonConvert.DeserializeObject<List<IndexColumnMapping>>(mappingOptionStr)
+                : new List<IndexColumnMapping>();
+            var orderColumns = columnMappings
+                .Where(c => c.Primary || c.Key)
+                .Select(c => c.SourceName);
+            var descIdColumn = string.Join(", ", orderColumns.Select(i => $"ooooo.[{i}] DESC"));
+            var ascIdColumn = string.Join(", ", orderColumns.Select(i => $"fffff.[{i}] ASC"));
 
             var pageSqlScript = $@"
 SELECT * FROM
@@ -94,9 +92,9 @@ SELECT * FROM
     (
         SELECT TOP {offset} *
         FROM ({sqlScript})
-    ) o 
+    ) ooooo 
     ORDER BY {descIdColumn}
-) f ORDER BY {ascIdColumn}
+) fffff ORDER BY {ascIdColumn}
 ";
             return pageSqlScript;
         }

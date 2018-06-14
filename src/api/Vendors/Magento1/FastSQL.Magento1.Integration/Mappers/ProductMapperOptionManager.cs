@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FastSQL.Magento1.Integration.Mappers
 {
-    public class ProductMapperOptionManager : BaseOptionMananger
+    public class ProductMapperOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

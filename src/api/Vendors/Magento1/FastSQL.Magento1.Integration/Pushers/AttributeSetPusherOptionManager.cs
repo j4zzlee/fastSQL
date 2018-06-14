@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FastSQL.Magento1.Integration.Pushers
 {
-    public class AttributeSetPusherOptionManager : BaseOptionMananger
+    public class AttributeSetPusherOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

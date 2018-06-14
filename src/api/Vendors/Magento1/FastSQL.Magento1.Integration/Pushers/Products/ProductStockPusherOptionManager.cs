@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FastSQL.Magento1.Integration.Pushers.Products
 {
-    public class ProductStockPusherOptionManager : BaseOptionMananger
+    public class ProductStockPusherOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

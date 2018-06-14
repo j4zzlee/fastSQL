@@ -107,12 +107,24 @@ namespace FastSQL.App.UserControls
                     val.Padding = new Thickness(5);
                     val.Margin = new Thickness(0, 0, 0, 10);
                     break;
+                case Core.OptionType.Grid:
+                    var grid = new UCGridOptions();
+                    grid.OnValueUpdated(s => {
+                        viewModel.Value = s;
+                    });
+                    grid.SetContext(viewModel);
+                    val = grid;
+                    //val.SetBinding(UCGridOptions.TextProperty, new Binding("Value"));
+                    //val.SetBinding(UCGridOptions.SourceTypeProperty, new Binding("SourceType"));
+                    val.Padding = new Thickness(5);
+                    val.Margin = new Thickness(0, 0, 0, 10);
+                    break;
             }
             if (val != null)
             {
                 val.SetValue(Grid.RowProperty, 2);
                 val.SetValue(Grid.ColumnProperty, 0);
-
+                //val.DataContext = viewModel;
                 grdContainer.Children.Add(val);
             }
         }

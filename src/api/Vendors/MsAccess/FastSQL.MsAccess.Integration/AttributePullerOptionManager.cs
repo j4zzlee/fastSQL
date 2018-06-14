@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FastSQL.MsAccess.Integration
 {
-    public class AttributePullerOptionManager : BaseOptionMananger
+    public class AttributePullerOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

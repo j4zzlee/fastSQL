@@ -7,7 +7,7 @@ using FastSQL.Core;
 
 namespace FastSQL.Sync.Core.Transformers
 {
-    public class StringDateTimeTransformerOptionManager : BaseOptionMananger
+    public class StringDateTimeTransformerOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

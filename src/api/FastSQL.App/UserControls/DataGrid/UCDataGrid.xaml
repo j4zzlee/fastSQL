@@ -87,8 +87,8 @@
             </ItemsControl.ItemsPanel>
         </ItemsControl>
         <DataGrid Name="dgrData" 
-                  ItemsSource="{Binding Data}"
-                  SelectedItem="{Binding SelectedItem}"
+                  ItemsSource="{Binding Data, Mode=TwoWay}"
+                  SelectedItem="{Binding SelectedItem, UpdateSourceTrigger=PropertyChanged}"
                   Grid.Row="2"
                   AutoGenerateColumns="True"
                   ScrollViewer.CanContentScroll="True" 
@@ -178,10 +178,7 @@
                 Margin="5">
                 <TextBlock Text="&lt;" VerticalAlignment="Center"></TextBlock>
             </Button>
-            <TextBlock Grid.Column="3" Padding="5" Margin="5"
-                       Visibility="{Binding Path=DataContext.HasPaging, 
-                       ElementName=grdContainer,
-                       Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock Grid.Column="3" Padding="5" Margin="5">
                 <Run Text="Page: "></Run>
                 <Run Text="{Binding ElementName=grdContainer, Path=DataContext.PageNumber, Mode=TwoWay}"></Run>
                 <Run Text="/"></Run>

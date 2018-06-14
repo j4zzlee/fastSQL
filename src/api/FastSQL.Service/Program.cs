@@ -2,6 +2,7 @@
 using Castle.Windsor;
 using FastSQL.Core.ExtensionMethods;
 using FastSQL.Core.Loggers;
+using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Workflow;
 using Serilog;
 using System;
@@ -59,7 +60,11 @@ namespace FastSQL.Service
                 {
                     x.Service<SyncService>(service =>
                     {
-                        service.ConstructUsing(s => _container.Resolve<SyncService>());
+                        service.ConstructUsing(s => {
+                            var svc = _container.Resolve<SyncService>();
+                            svc.SetMode(WorkflowMode.None);
+                            return svc;
+                        });
                         service.WhenStarted(s => s.Start());
                         service.WhenStopped(s =>
                         {

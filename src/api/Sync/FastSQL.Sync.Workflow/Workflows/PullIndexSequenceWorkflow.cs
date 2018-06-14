@@ -1,4 +1,5 @@
 ﻿using FastSQL.Core;
+using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
@@ -45,6 +46,13 @@ namespace FastSQL.Sync.Workflow.Workflows
                .While(d => true)
                .Do(x =>
                {
+                   if ((Mode & WorkflowMode.Test) > 0 && IndexModel != null)
+                   {
+                       x.StartWith<UpdateIndexChangesStep>()
+                               .Input(s => s.IndexModel, d => IndexModel);
+                       return;
+                   }
+
                    var scheduleOptions = scheduleOptionRepository
                         .GetByWorkflow(Id)
                         .Where(o => !o.IsParallel && o.Enabled);

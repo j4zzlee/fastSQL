@@ -22,5 +22,6 @@ namespace FastSQL.Core
         public string Value { get; set; }
         public List<string> OptionGroupNames { get; set; }
         public List<string> Source { get; set; }
+        public Type SourceType { get; set; }
     }
 }

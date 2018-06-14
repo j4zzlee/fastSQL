@@ -22,6 +22,7 @@ namespace FastSQL.App.UserControls
             this.Description = item.Description;
             this.Value = item.Value;
             this.Source = item.Source != null ? new ObservableCollection<string>(item.Source) : new ObservableCollection<string>();
+            this.SourceType = item.SourceType;
             this.OptionGroupNames = item.OptionGroupNames;
         }
 
@@ -97,6 +98,16 @@ namespace FastSQL.App.UserControls
             {
                 item.Source = value?.ToList() ?? new List<string>();
                 OnPropertyChanged(nameof(Source));
+            }
+        }
+
+        public Type SourceType
+        {
+            get => item.SourceType;
+            set
+            {
+                item.SourceType = value;
+                OnPropertyChanged(nameof(SourceType));
             }
         }
 

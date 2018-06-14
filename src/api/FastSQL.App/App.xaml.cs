@@ -86,7 +86,7 @@ namespace FastSQL.App
 
             _container.Register(Component.For<ILogger>().UsingFactoryMethod(() => _container.Resolve<LoggerFactory>()
                 .WriteToFile("SyncService")
-                .WriteToApplication("Error")
+                .WriteToApplication("Application")
                 .CreateApplicationLogger())
                 .Named("SyncService")
                 .LifestyleSingleton());

@@ -1,5 +1,6 @@
 ﻿using FastSQL.App.Interfaces;
 using FastSQL.App.UserControls.DataGrid;
+using FastSQL.Core;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Constants;
 using FastSQL.Sync.Core.Enums;
@@ -7,6 +8,7 @@ using FastSQL.Sync.Core.Filters;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Core.Workflows;
+using FastSQL.Sync.Workflow;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,10 +24,13 @@ namespace FastSQL.App.UserControls.Schedulers
         private readonly EntityRepository entityRepository;
         private readonly AttributeRepository attributeRepository;
         private readonly IEnumerable<IBaseWorkflow> workflows;
+        private readonly SyncService syncService;
+        private readonly ResolverFactory resolverFactory;
 
         public BaseCommand SaveCommand => new BaseCommand(o => true, OnSaveOptions);
 
         public BaseCommand RunWorkflowCommand => new BaseCommand(o => true, OnRunWorkflow);
+        public BaseCommand StopWorkflowCommand => new BaseCommand(o => true, OnStopWorkflow);
 
         public DataGridViewModel SchedulerOptions
         {
@@ -34,7 +39,8 @@ namespace FastSQL.App.UserControls.Schedulers
             {
                 dataGridViewModel = value;
                 dataGridViewModel.SetGridContextMenus(new List<string> {
-                    "Run"
+                    "Run",
+                    "Stop"
                 });
                 dataGridViewModel.OnFilter += DataGridViewModel_OnFilter;
                 dataGridViewModel.OnEvent += DataGridViewModel_OnEvent;
@@ -46,13 +52,16 @@ namespace FastSQL.App.UserControls.Schedulers
             ScheduleOptionRepository scheduleOptionRepository,
             EntityRepository entityRepository,
             AttributeRepository attributeRepository,
-            IEnumerable<IBaseWorkflow> workflows
+            IEnumerable<IBaseWorkflow> workflows,
+            SyncService syncService
         )
         {
             this.scheduleOptionRepository = scheduleOptionRepository;
             this.entityRepository = entityRepository;
             this.attributeRepository = attributeRepository;
             this.workflows = workflows;
+            this.syncService = syncService;
+            syncService.SetMode(WorkflowMode.Test);
         }
 
         private async void DataGridViewModel_OnFilter(object sender, FilterArguments args)
@@ -60,7 +69,7 @@ namespace FastSQL.App.UserControls.Schedulers
             await LoadData(args.Filters, args.Limit, args.Offset, false);
         }
 
-        private async void DataGridViewModel_OnEvent(object sender, Events.DataGridCommandEventArgument args)
+        private void DataGridViewModel_OnEvent(object sender, Events.DataGridCommandEventArgument args)
         {
             var selectedItem = args.SelectedItems
                 .Select(i => (ScheduleOptionModel)i)
@@ -68,13 +77,17 @@ namespace FastSQL.App.UserControls.Schedulers
             switch (args.CommandName)
             {
                 case "Run":
+                    syncService.StartTest(selectedItem);
                     //entityRepository.ChangeIndexedItems(_indexModel,
                     //    ItemState.Changed,
                     //    ItemState.Removed | ItemState.Invalid | ItemState.Processed,
                     //    selectedItemIds.ToArray());
                     break;
+                case "Stop":
+                    syncService.Stop();
+                    break;
             }
-            await LoadData(null, SchedulerOptions.GetLimit(), SchedulerOptions.GetOffset(), true);
+            //await LoadData(null, SchedulerOptions.GetLimit(), SchedulerOptions.GetOffset(), true);
         }
 
         private async Task LoadData(IEnumerable<FilterArgument> filters, int limit, int offset, bool reset)
@@ -103,7 +116,12 @@ namespace FastSQL.App.UserControls.Schedulers
 
         private void OnRunWorkflow(object obj)
         {
-            throw new NotImplementedException();
+            syncService.Start();
+        }
+
+        private void OnStopWorkflow(object obj)
+        {
+            syncService.Stop();
         }
 
         private async void OnSaveOptions(object obj)

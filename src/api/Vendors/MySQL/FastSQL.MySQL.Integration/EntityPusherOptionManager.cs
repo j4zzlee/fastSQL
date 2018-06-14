@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FastSQL.MySQL.Integration
 {
-    public class EntityPusherOptionManager : BaseOptionMananger
+    public class EntityPusherOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

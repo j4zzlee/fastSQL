@@ -5,7 +5,7 @@ using FastSQL.Core;
 
 namespace FastSQL.Sync.Core.Transformers
 {
-    public class StringTrimTransformerOptionManager : BaseOptionMananger
+    public class StringTrimTransformerOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

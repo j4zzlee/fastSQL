@@ -8,8 +8,4 @@
     <PackageReference Include="Prism.Core" Version="7.0.0.396" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>

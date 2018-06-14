@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace FastSQL.MsAccess
 {
-    public class ProviderOptionManager : BaseOptionMananger
+    public class ProviderOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FastSQL.Sync.Core.Mapper
 {
-    public class EntityMapperOptionManager : BaseOptionMananger
+    public class EntityMapperOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {

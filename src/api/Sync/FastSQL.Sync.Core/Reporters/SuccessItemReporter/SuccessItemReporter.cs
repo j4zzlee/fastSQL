@@ -56,7 +56,7 @@ namespace FastSQL.Sync.Core.Reporters
                 while (true)
                 {
                     // Create success message (MessageType = Information)
-                    var successItems = queueItemRepository.GetQueuedItemByStatus(QueueItemState.Success);
+                    var successItems = queueItemRepository.GetQueuedItemsByStatus(QueueItemState.Success);
                     foreach (var item in successItems)
                     {
                         var messageText = string.Empty;

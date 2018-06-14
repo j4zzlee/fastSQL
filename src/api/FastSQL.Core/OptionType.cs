@@ -12,6 +12,7 @@ namespace FastSQL.Core
         Password,
         Boolean,
         File,
-        List
+        List,
+        Grid
     }
 }

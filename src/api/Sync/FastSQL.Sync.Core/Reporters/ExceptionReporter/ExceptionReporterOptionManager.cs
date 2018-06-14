@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FastSQL.Sync.Core.Reporters
 {
-    public class ExceptionReporterOptionManager : BaseOptionMananger
+    public class ExceptionReporterOptionManager : BaseOptionManager
     {
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {
