@@ -162,12 +162,17 @@ SELECT COUNT(*) FROM {model.ValueTableName}
                 .Select((fk, i) => new { fk, i })
                 .Select(fk => new KeyValuePair<string, string>(referenceKeyParams[fk.i], item[fk.fk].ToString()))
                 .ToDictionary(fk => fk.Key, fk => fk.Value);
-
-            //var dependsOnItem = entityRepository.GetIndexedItemByUniqueParams(_indexerModel, @params);
-            var dependsOnItem = _connection.Query<object>($@"
+            var dynamicParams = new DynamicParameters();
+            foreach (var p in @params)
+            {
+                dynamicParams.Add(p.Key, p.Value);
+            }
+            var sql = $@"
 SELECT TOP 1 * FROM {valueTableName}
 WHERE {string.Join(" AND ", @params.Select(p => $@"[{p.Key}] = @{p.Key}"))}
-", param: @params, transaction: _transaction).Select(d => IndexItemModel.FromJObject(JObject.FromObject(d))).FirstOrDefault();
+";
+            var dependsOnItem = _connection.Query<object>(sql, param: dynamicParams, transaction: _transaction)
+                .Select(d => IndexItemModel.FromJObject(JObject.FromObject(d))).FirstOrDefault();
             return dependsOnItem;
         }
 
@@ -185,36 +190,31 @@ WHERE {string.Join(" AND ", @params.Select(p => $@"[{p.Key}] = @{p.Key}"))}
              * Do not ignore RelatedItemNotFound and RelatedItemNotSync, 
              * These items should be checked in code logic
              */
-            @params.Add("InvalidState", ItemState.Invalid | ItemState.Processed);
+            @params.Add("ExcludeStates", ItemState.Invalid | ItemState.Processed);
             var sql = $@"
 SELECT * FROM {model.ValueTableName}
 WHERE [DestinationId] IS NULL
     OR [State] IS NULL
     OR (
         ([State] & @ChangedState) > 0
-        AND 
+        AND (
+            ([State] & @ExcludeStates) = 0
+        )
     )
-
-(
-    ([State] IS NOT NULL AND ([State] & @ChangedState) > 0) -- The item has been changed
-    OR [DestinationId] IS NULL -- The item is not synced yet
-) AND (
-    [State] IS NULL
-    OR ([State] & @InvalidState) = 0 -- The item should not be invalid
-)
-ORDER BY [Id]
+ORDER BY [Id], [RetryCount]
 OFFSET @Offset ROWS
 FETCH NEXT @Limit ROWS ONLY;
 ";
             var countSql = $@"
 SELECT COUNT(*) FROM {model.ValueTableName}
-WHERE (
-    ([State] IS NOT NULL AND ([State] & @ChangedState) > 0) -- The item has been changed
-    OR [DestinationId] IS NULL -- The item is not synced yet
-) AND (
-    [State] IS NULL
-    OR ([State] & @InvalidState) = 0 -- The item should not be invalid
-)
+WHERE [DestinationId] IS NULL
+    OR [State] IS NULL
+    OR (
+        ([State] & @ChangedState) > 0
+        AND (
+            ([State] & @ExcludeStates) = 0
+        )
+    );
 ";
             totalCount = _connection
                 .Query<int>(countSql, param: @params, transaction: _transaction)
@@ -263,6 +263,8 @@ WHERE [DestinationId] = @Id", param: new { Id = id }, transaction: _transaction)
                     TargetItemId = itemId,
                     CreatedAt = DateTime.Now.ToUnixTimestamp(),
                     UpdatedAt = DateTime.Now.ToUnixTimestamp(),
+                    RetryCount = 0,
+                    Status = QueueItemState.None
                 });
             }
             // Get the newest
@@ -294,6 +296,8 @@ transaction: _transaction).FirstOrDefault();
                 TargetItemId = itemId,
                 CreatedAt = DateTime.Now.ToUnixTimestamp(),
                 UpdatedAt = DateTime.Now.ToUnixTimestamp(),
+                RetryCount = 0,
+                Status = QueueItemState.None
             });
         }
 
@@ -302,13 +306,10 @@ transaction: _transaction).FirstOrDefault();
             return _connection.Query<QueueItemModel>($@"
 SELECT TOP 1 * 
 FROM [core_queue_items]
-WHERE [TargetEntityId] = @TargetEntityId 
-    AND [TargetEntityType] = @TargetEntityType 
-    AND [TargetItemId] = @TargetItemId
-    AND (
-        [Status] IS NULL 
-        OR [Status] = 0
-    )
+WHERE (
+    [Status] IS NULL 
+    OR [Status] = 0
+)
 ORDER BY [CreatedAt] ASC -- always first in first out
 ",
  transaction: _transaction).FirstOrDefault();

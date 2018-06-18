@@ -91,7 +91,8 @@ namespace FastSQL.Sync.Core.Queuers
                             }
                         }
                         // Items that has dependencies that are not resolved/synced should not be queued
-                        foreach (var dependence in dependencies) {
+                        foreach (var dependence in dependencies)
+                        {
                             var model = dependsOnIndexes.FirstOrDefault(d => d.Id == dependence.TargetEntityId && d.EntityType == dependence.TargetEntityType);
                             var dependsOnItem = entityRepository.GetDependsOnItem(model.ValueTableName, dependence, item);
                             if (dependsOnItem == null || !dependsOnItem.HasValues)

@@ -207,27 +207,27 @@ WHERE EntityId IN @EntityIds AND EntityType = @EntityType";
 
         public virtual IEnumerable<T> GetByIds<T>(params string[] ids) where T : class, new()
         {
-            if (ids == null)
+            if (ids == null || ids.Count() <= 0)
             {
                 return new List<T>();
             }
             var tableName = typeof(T).GetTableName();
             var keyColumnName = typeof(T).GetKeyColumnName();
-            var @conditions = new List<string>();
-            var @params = new DynamicParameters();
-            var random = new Random();
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            foreach (var id in ids)
-            {
-                var randomId = new string(Enumerable.Repeat(chars, 10).Select(s => s[random.Next(s.Length)]).ToArray());
-                var paramKey = $"id_{randomId}";
-                @params.Add(paramKey, id);
-                conditions.Add($"[{keyColumnName}] = @{paramKey}");
-            }
+            //var @conditions = new List<string>();
+            //var @params = new DynamicParameters();
+            //var random = new Random();
+            //const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            //foreach (var id in ids)
+            //{
+            //    var randomId = new string(Enumerable.Repeat(chars, 10).Select(s => s[random.Next(s.Length)]).ToArray());
+            //    var paramKey = $"id_{randomId}";
+            //    @params.Add(paramKey, id);
+            //    conditions.Add($"[{keyColumnName}] = @{paramKey}");
+            //}
             var items = _connection
                 .Query<T>(
-                    $@"SELECT DISTINCT * FROM [{tableName}] WHERE {string.Join(" OR ", conditions)}",
-                    param: @params,
+                    $@"SELECT DISTINCT * FROM [{tableName}] WHERE [{keyColumnName}] IN @Ids",
+                    param: new { Ids = ids },
                     transaction: _transaction
                 );
             return items;

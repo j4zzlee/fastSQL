@@ -42,8 +42,20 @@ namespace FastSQL.Sync.Workflow.Steps
                 {
                     CreatedAt = DateTime.Now.ToUnixTimestamp(),
                     Message = runner?.Exception != null ? runner.Exception.ToString() : ex.ToString(),
-                    MessageType = MessageType.Exception
+                    MessageType = MessageType.Exception,
+                    Status = MessageStatus.None
                 });
+                if (ex.InnerException != null)
+                {
+                    ErrorLogger.Error(ex.InnerException, ex.InnerException.Message);
+                    MessageRepository.Create(new
+                    {
+                        CreatedAt = DateTime.Now.ToUnixTimestamp(),
+                        Message = ex.InnerException.ToString(),
+                        MessageType = MessageType.Exception,
+                        Status = MessageStatus.None
+                    });
+                }
             }
             return ExecutionResult.Next();
         }

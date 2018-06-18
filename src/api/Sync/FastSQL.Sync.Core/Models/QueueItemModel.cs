@@ -14,7 +14,7 @@ namespace FastSQL.Sync.Core.Models
         public Guid Id { get; set; }
         public Guid TargetEntityId { get; set; }
         public EntityType TargetEntityType { get; set; }
-        public Guid TargetItemId { get; set; }
+        public string TargetItemId { get; set; }
         public QueueItemState Status { get; set; }
         public Guid MessageId { get; set; }
         public long CreatedAt { get; set; }

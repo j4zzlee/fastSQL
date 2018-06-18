@@ -53,10 +53,14 @@ namespace FastSQL.MySQL
                     DisplayName = "SslMode",
                     Type = OptionType.List,
                     Value = "",
-                    Source = Enum.GetValues(typeof(MySqlSslMode))
-                        .Cast<MySqlSslMode>()
-                        .Select(v => v.ToString())
-                        .ToList()
+                    Source = new OptionItemSource
+                    {
+                        Source = Enum.GetValues(typeof(MySqlSslMode))
+                            .Cast<MySqlSslMode>()
+                            .Select(v => new { Key = v.ToString(), Value = v.ToString()}),
+                        KeyColumnName = "Key",
+                        DisplayColumnName = "Value"
+                    }
                 }
             };
         }

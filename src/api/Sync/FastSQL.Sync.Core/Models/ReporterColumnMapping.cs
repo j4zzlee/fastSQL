@@ -9,6 +9,8 @@ namespace FastSQL.Sync.Core.Models
     {
         private string _sourceName;
         private string _mappingName;
+        private bool _isValue;
+        private bool _isKey;
 
         public string SourceName {
             get => _sourceName;
@@ -24,6 +26,25 @@ namespace FastSQL.Sync.Core.Models
             {
                 _mappingName = value;
                 OnPropertyChanged(nameof(MappingName));
+            }
+        }
+
+        public bool Value
+        {
+            get => _isValue;
+            set
+            {
+                _isValue = value;
+                OnPropertyChanged(nameof(Value));
+            }
+        }
+        public bool Key
+        {
+            get => _isKey;
+            set
+            {
+                _isKey = value;
+                OnPropertyChanged(nameof(Key));
             }
         }
 

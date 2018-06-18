@@ -6,6 +6,7 @@ using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Workflow.Steps;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using WorkflowCore.Interface;
@@ -41,28 +42,43 @@ namespace FastSQL.Sync.Workflow.Workflows
 
         public override void Build(IWorkflowBuilder<object> builder)
         {
-            
             builder.StartWith(x => { })
                .While(d => true)
                .Do(x =>
                {
-                   if ((Mode & WorkflowMode.Test) > 0 && IndexModel != null)
-                   {
-                       x.StartWith<UpdateIndexChangesStep>()
-                               .Input(s => s.IndexModel, d => IndexModel);
-                       return;
-                   }
-
+                   IEnumerable<IIndexModel> indexes = null;
+                   //if ((Mode & WorkflowMode.Test) > 0 && IndexModel != null)
+                   //{
+                   //    indexes = new List<IIndexModel> { IndexModel };
+                   //}
+                   //else
+                   //{
+                   //    var scheduleOptions = scheduleOptionRepository
+                   //     .GetByWorkflow(Id)
+                   //     .Where(o => o.IsParallel && o.Enabled);
+                   //    var entities = entityRepository
+                   //        .GetAll()
+                   //        .Where(e => e.Enabled && scheduleOptions.Any(o => o.TargetEntityId == e.Id && o.TargetEntityType == e.EntityType));
+                   //    var attributes = attributeRepository
+                   //        .GetAll()
+                   //        .Where(e => e.Enabled && scheduleOptions.Any(o => o.TargetEntityId == e.Id && o.TargetEntityType == e.EntityType));
+                   //    indexes = entities
+                   //        .Select(e => e as IIndexModel)
+                   //        .Union(attributes.Select(a => a as IIndexModel));
+                   //}
+                   /**
+                    * WORKFLOW is pre-built, we can only test via settings Enable/Disable in the form
+                    **/
                    var scheduleOptions = scheduleOptionRepository
-                        .GetByWorkflow(Id)
-                        .Where(o => o.IsParallel && o.Enabled);
+                       .GetByWorkflow(Id)
+                       .Where(o => o.IsParallel && o.Enabled);
                    var entities = entityRepository
                        .GetAll()
                        .Where(e => e.Enabled && scheduleOptions.Any(o => o.TargetEntityId == e.Id && o.TargetEntityType == e.EntityType));
                    var attributes = attributeRepository
                        .GetAll()
                        .Where(e => e.Enabled && scheduleOptions.Any(o => o.TargetEntityId == e.Id && o.TargetEntityType == e.EntityType));
-                   var indexes = entities
+                   indexes = entities
                        .Select(e => e as IIndexModel)
                        .Union(attributes.Select(a => a as IIndexModel));
                    if (indexes.Count() <= 0)

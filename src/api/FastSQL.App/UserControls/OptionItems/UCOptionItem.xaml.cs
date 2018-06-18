@@ -102,8 +102,12 @@ namespace FastSQL.App.UserControls
                     val.SetBinding(UCOpenFileDialog.TextProperty, binding);
                     break;
                 case Core.OptionType.List:
-                    val = new ComboBox();
-                    val.SetBinding(ComboBox.ItemsSourceProperty, binding);
+                    var combobox = new ComboBox();
+                    combobox.SetValue(ComboBox.ItemsSourceProperty, viewModel.Source.Source);
+                    combobox.SetValue(ComboBox.SelectedValuePathProperty, viewModel.Source.KeyColumnName);
+                    combobox.SetValue(ComboBox.DisplayMemberPathProperty, viewModel.Source.DisplayColumnName);
+                    val = combobox;
+                    val.SetBinding(ComboBox.SelectedValueProperty, binding);
                     val.Padding = new Thickness(5);
                     val.Margin = new Thickness(0, 0, 0, 10);
                     break;

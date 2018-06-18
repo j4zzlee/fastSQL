@@ -43,7 +43,7 @@ namespace FastSQL.API.Controllers
             {
                 var jConnection = JObject.FromObject(c, serializer);
                 var provider = _providers.FirstOrDefault(p => p.Id == c.ProviderId);
-                var cOptions = options.Where(o => o.EntityId == c.Id && o.EntityType == EntityType.Connection);
+                var cOptions = options.Where(o => o.EntityId == c.Id.ToString() && o.EntityType == EntityType.Connection);
                 var optionItems = new List<OptionItem>();
                 foreach (var po in provider.Options)
                 {

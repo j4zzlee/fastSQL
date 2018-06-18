@@ -79,8 +79,20 @@ namespace FastSQL.Sync.Workflow.Steps
                     delieveryChannel.OnReport(s => Logger.Information(s));
                     foreach (var dict in messageDic)
                     {
-                        // send bulk messages in sequence because of MessageType is different
-                        await delieveryChannel.DeliverMessage(string.Join("\n", dict.Value.Select(v => v.Message)), dict.Key);
+                        if (dict.Value == null || dict.Value.Count == 0)
+                        {
+                            continue;
+                        }
+                        try
+                        {
+                            // send bulk messages in sequence because of MessageType is different
+                            await delieveryChannel.DeliverMessage(string.Join("\n", dict.Value.Select(v => v.Message)), dict.Key);
+                        }
+                        finally
+                        {
+                            // Update the message as repotered no matter what
+                            messageRepository.SetMessagesAsReported(dict.Value.Select(v => v.Id));
+                        }
                     }
                 }
             }));

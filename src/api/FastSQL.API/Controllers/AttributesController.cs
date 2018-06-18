@@ -257,7 +257,7 @@ namespace FastSQL.API.Controllers
             templateOpts.AddRange(GetIndexerTemplateOptions(entity, a));
             var destConnection = connectionRepository.GetById(a.DestinationConnectionId.ToString());
 
-            var cOptions = options.Where(o => o.EntityId == a.Id && o.EntityType == EntityType.Attribute);
+            var cOptions = options.Where(o => o.EntityId == a.Id.ToString() && o.EntityType == EntityType.Attribute);
             var optionItems = new List<OptionItem>();
             foreach (var po in templateOpts)
             {
@@ -288,7 +288,7 @@ namespace FastSQL.API.Controllers
                 templateOpts.AddRange(GetIndexerTemplateOptions(entity, a));
                 var destConnection = connectionRepository.GetById(a.DestinationConnectionId.ToString());
 
-                var cOptions = options.Where(o => o.EntityId == a.Id && o.EntityType == EntityType.Attribute);
+                var cOptions = options.Where(o => o.EntityId == a.Id.ToString() && o.EntityType == EntityType.Attribute);
                 var optionItems = new List<OptionItem>();
                 foreach (var po in templateOpts)
                 {

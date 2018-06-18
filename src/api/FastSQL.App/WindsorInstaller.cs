@@ -19,6 +19,7 @@ using FastSQL.Sync.Core.Mapper;
 using FastSQL.Sync.Core.MessageDeliveryChannels;
 using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Pusher;
+using FastSQL.Sync.Core.Queuers;
 using FastSQL.Sync.Core.Reporters;
 using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Core.Settings;
@@ -237,6 +238,7 @@ namespace FastSQL.App
             container.Register(Component.For<IndexerManager>().ImplementedBy<IndexerManager>().LifestyleTransient());
             container.Register(Component.For<PusherManager>().ImplementedBy<PusherManager>().LifestyleTransient());
             container.Register(Component.For<MapperManager>().ImplementedBy<MapperManager>().LifestyleTransient());
+            container.Register(Component.For<QueueChangesManager>().ImplementedBy<QueueChangesManager>().LifestyleTransient());
             container.Register(Component.For<IEventAggregator>().ImplementedBy<EventAggregator>().LifestyleSingleton());
             container.Register(Component.For<IApplicationManager>().ImplementedBy<ApplicationManager>().LifestyleSingleton());
             container.Register(Component.For<LoggerFactory>().ImplementedBy<LoggerFactory>().LifestyleTransient());

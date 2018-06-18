@@ -56,33 +56,19 @@ namespace FastSQL.Sync.Core.Reporters
                 while (true)
                 {
                     // Create success message (MessageType = Information)
-                    var successItems = queueItemRepository.GetQueuedItemsByStatus(QueueItemState.Success);
+                    var successItems = queueItemRepository.GetQueuedItemsByStatus(
+                        QueueItemState.Success,
+                        QueueItemState.Failed | QueueItemState.ByPassed | QueueItemState.Reported, // exclude items that are reported, failed...
+                        limit,
+                        offset);
+
                     foreach (var item in successItems)
                     {
                         var messageText = string.Empty;
-                        IIndexModel indexModel = null;
-                        IndexItemModel itemModel = null; // indexer_report_alias_name, indexer_report_main_column_name
-                        IEnumerable<OptionModel> options = null;
-                        if (item.TargetEntityType == EntityType.Entity)
-                        {
-                            indexModel = entityRepository.GetById(item.TargetEntityId.ToString());
-                            options = entityRepository.LoadOptions(indexModel.Id.ToString(), new List<string> { "Indexer" });
-                            itemModel = entityRepository.GetIndexedItemById(indexModel, item.TargetItemId.ToString());
-                        }
-                        else
-                        {
-                            indexModel = attributeRepository.GetById(item.TargetEntityId.ToString());
-                            options = attributeRepository.LoadOptions(indexModel.Id.ToString(), new List<string> { "Indexer" });
-                            itemModel = attributeRepository.GetIndexedItemById(indexModel, item.TargetItemId.ToString());
-                        }
-                        var columnAliases = Regex.Split(options.FirstOrDefault(o => o.Key == "indexer_report_alias_name").Value ?? string.Empty, 
-                            "[,;|]", 
-                            RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                        var columnNames = Regex.Split(options.FirstOrDefault(o => o.Key == "indexer_report_main_column_name").Value ?? string.Empty, 
-                            "[,;|]", 
-                            RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                        var valueMessages = columnAliases.Select((c, i) => $@"_{c}_: {itemModel.GetValue(columnNames[i])?.ToString() ?? "(empty)"}");
-                        messageText = $@"*{indexModel.Name}* ({string.Join(", ", valueMessages)}):";
+                        messageText = item.TargetEntityType == EntityType.Entity
+                            ? GetEntityMessage(item, out IIndexModel indexModel, out IndexItemModel itemModel)
+                            : GetAttributeMessage(item, out indexModel, out itemModel);
+
                         if (showDebugInfo == bool.TrueString)
                         {
                             //var message = messageRepository.GetById(item.MessageId.ToString());
@@ -114,6 +100,82 @@ namespace FastSQL.Sync.Core.Reporters
                     offset += limit;
                 }
             });
+        }
+
+        private string GetAttributeMessage(QueueItemModel item, out IIndexModel indexModel, out IndexItemModel itemModel)
+        {
+            var attributeModel = attributeRepository.GetById(item.TargetEntityId.ToString());
+            var entityModel = entityRepository.GetById(attributeModel.EntityId.ToString());
+            
+            var entityOptions = entityRepository.LoadOptions(entityModel.Id.ToString(), new List<string> { "Indexer" });
+            var attributeOptions = attributeRepository.LoadOptions(attributeModel.Id.ToString(), new List<string> { "Indexer" });
+
+            var attributeItemModel = attributeRepository.GetIndexedItemById(attributeModel, item.TargetItemId);
+            var entityItemModel = entityRepository.GetIndexedItemBySourceId(entityModel, attributeItemModel.GetSourceId());
+            itemModel = attributeItemModel;
+            
+            var entityReporterMappingOption = entityOptions.FirstOrDefault(o => o.Key == "indexer_reporter_columns");
+            var entityReporterMappingColumns = !string.IsNullOrWhiteSpace(entityReporterMappingOption?.Value)
+                ? JsonConvert.DeserializeObject<List<ReporterColumnMapping>>(entityReporterMappingOption.Value)
+                : new List<ReporterColumnMapping> { new ReporterColumnMapping {
+                                    SourceName = "Value",
+                                    MappingName = "Name",
+                                    Key = true,
+                                    Value = true
+                                }};
+
+            var attributeReporterMappingOption = attributeOptions.FirstOrDefault(o => o.Key == "indexer_reporter_columns");
+            var attributeReporterMappingColumns = !string.IsNullOrWhiteSpace(attributeReporterMappingOption?.Value)
+                ? JsonConvert.DeserializeObject<List<ReporterColumnMapping>>(attributeReporterMappingOption.Value)
+                : new List<ReporterColumnMapping> { new ReporterColumnMapping {
+                                    SourceName = "Value",
+                                    MappingName = "Name",
+                                    Key = true,
+                                    Value = true
+                                }};
+            var keys = entityReporterMappingColumns.Where(r => r.Key)
+                .Select(r => $@"_{r.MappingName}_: {entityItemModel.GetValue(r.SourceName)?.ToString() ?? "(empty)"}");
+            var vals = attributeReporterMappingColumns.Where(r => r.Value)
+                .Select(r => $@"_{r.MappingName}_: {attributeItemModel.GetValue(r.SourceName)?.ToString() ?? "(empty)"}");
+            if (attributeReporterMappingColumns.Count == 1)
+            {
+                vals = attributeReporterMappingColumns.Where(r => r.Value)
+                .Select(r => $@"{attributeItemModel.GetValue(r.SourceName)?.ToString() ?? "(empty)"}");
+            }
+            var executed = item.ExecutedAt.UnixTimeToTime().ToString("G");
+            var executedIn = item.ExecutedAt - item.ExecuteAt;
+            indexModel = attributeModel;
+            return $@"*{indexModel.Name}* ({string.Join(", ", keys)}): {vals} {executed} in {executedIn} second(s)";
+        }
+
+        private string GetEntityMessage(QueueItemModel item, out IIndexModel indexModel, out IndexItemModel itemModel)
+        {
+            indexModel = entityRepository.GetById(item.TargetEntityId.ToString());
+            var options = entityRepository.LoadOptions(indexModel.Id.ToString(), new List<string> { "Indexer" });
+            var reporterMappingColumnOption = options.FirstOrDefault(o => o.Key == "indexer_reporter_columns");
+            var reporterMappingColumns = !string.IsNullOrWhiteSpace(reporterMappingColumnOption?.Value)
+                ? JsonConvert.DeserializeObject<List<ReporterColumnMapping>>(reporterMappingColumnOption.Value)
+                : new List<ReporterColumnMapping> { new ReporterColumnMapping {
+                                    SourceName = "Value",
+                                    MappingName = "Name",
+                                    Key = true,
+                                    Value = true
+                                }};
+            var entityModel = entityRepository.GetIndexedItemById(indexModel, item.TargetItemId);
+            itemModel = entityModel;
+            var keys = reporterMappingColumns.Where(r => r.Key)
+                .Select(r => $@"_{r.MappingName}_: {entityModel.GetValue(r.SourceName)?.ToString() ?? "(empty)"}");
+            var vals = reporterMappingColumns.Where(r => r.Value)
+                .Select(r => $@"_{r.MappingName}_: {entityModel.GetValue(r.SourceName)?.ToString() ?? "(empty)"}");
+            if (reporterMappingColumns.Count == 1)
+            {
+                vals = reporterMappingColumns.Where(r => r.Value)
+                .Select(r => $@"{entityModel.GetValue(r.SourceName)?.ToString() ?? "(empty)"}");
+            }
+            var executed = item.ExecutedAt.UnixTimeToTime().ToString("G");
+            var executedIn = item.ExecutedAt - item.ExecuteAt;
+            
+            return $@"*{indexModel.Name}* ({string.Join(", ", keys)}): {vals} {executed} in {executedIn} second(s)";
         }
     }
 }

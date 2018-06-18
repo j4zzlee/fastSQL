@@ -105,5 +105,24 @@ param: new
 },
 transaction: _transaction);
         }
+
+        public void SetMessagesAsReported(IEnumerable<Guid> messageIds)
+        {
+            var sql = $@"
+UPDATE [core_messages]
+SET [Status] = CASE  
+                WHEN [Status] = 0 THEN @Status
+                WHEN [Status] IS NULL THEN @Status 
+                ELSE [Status] | @Status
+            END
+WHERE [Id] IN @Ids";
+            _connection.Execute(sql,
+param: new
+{
+    Status = MessageStatus.Delievered,
+    Ids = messageIds
+},
+transaction: _transaction);
+        }
     }
 }

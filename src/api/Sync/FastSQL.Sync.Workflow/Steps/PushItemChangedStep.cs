@@ -108,7 +108,8 @@ namespace FastSQL.Sync.Workflow.Steps
                 {
                     Message = string.Join("\n", pusherManager.GetReportMessages()),
                     CreatedAt = DateTime.Now.ToUnixTimestamp(),
-                    MessageType = MessageType.Information
+                    MessageType = MessageType.Information,
+                    Status = MessageStatus.None
                 });
 
                 queueItemRepository.Update(firstQueuedItem.Id.ToString(), new
@@ -134,7 +135,8 @@ Exception:
                 {
                     Message = messages,
                     CreatedAt = DateTime.Now.ToUnixTimestamp(),
-                    MessageType = MessageType.Error
+                    MessageType = MessageType.Error,
+                    Status = MessageStatus.None
                 });
 
                 queueItemRepository.Update(firstQueuedItem.Id.ToString(), new
@@ -146,6 +148,7 @@ Exception:
                     Status = (firstQueuedItem.Status | QueueItemState.Failed | QueueItemState.Success) ^ QueueItemState.Success, // remove success
                     RetryCount = firstQueuedItem.RetryCount + 1
                 });
+                throw;
             }
         }
     }
