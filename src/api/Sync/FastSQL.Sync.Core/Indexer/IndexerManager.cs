@@ -101,8 +101,8 @@ namespace FastSQL.Sync.Core.Indexer
 
         private bool PullByLastToken(bool cleanAll)
         {
-            _indexer.BeginTransaction();
-            indexTokenRepository.BeginTransaction();
+            //_indexer.BeginTransaction();
+            //indexTokenRepository.BeginTransaction();
             try
             {
                 var pullToken = indexTokenRepository.GetLastPullToken(_indexerModel.Id.ToString(), _indexerModel.EntityType);
@@ -130,15 +130,15 @@ namespace FastSQL.Sync.Core.Indexer
                     indexTokenRepository.CleanUp(_indexerModel.Id.ToString(), _indexerModel.EntityType);
                 }
 
-                _indexer.Commit();
-                indexTokenRepository.Commit();
+                //_indexer.Commit();
+                //indexTokenRepository.Commit();
 
                 return isValid;
             }
             catch
             {
-                _indexer.RollBack();
-                indexTokenRepository.RollBack();
+                //_indexer.RollBack();
+                //indexTokenRepository.RollBack();
                 throw; // never let the while loop runs forever
             }
         }

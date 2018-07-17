@@ -88,20 +88,21 @@ namespace FastSQL.Sync.Core.Pusher
             _messages = new List<string>();
         }
         
-        public async Task PushItem(IndexItemModel item)
+        public async Task<PushState> PushItem(IndexItemModel item)
         {
             Report($@"
 ---------------------------------------------------------------------------------
 Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)}...");
             _pusher.SetIndex(_indexerModel);
-            await Task.Run(() =>
+            _pusher.SetItem(item);
+            var result = await Task.Run(() =>
             {
                 try
                 {
                     entityRepository.BeginTransaction();
                     attributeRepository.BeginTransaction();
                     messageRepository.BeginTransaction();
-                    _pusher.SetItem(item);
+                    var pushState = PushState.Success;
                     var destinationId = item.GetDestinationId();
                     if (!string.IsNullOrWhiteSpace(destinationId))
                     {
@@ -130,29 +131,25 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
                         }
                         else // still cannot find a destinationId, which means the entity/attribute does not exists
                         {
-                            destinationId = _pusher.Create();
+                            pushState = _pusher.Create(out destinationId);
                         }
                     }
-
-                    if (string.IsNullOrWhiteSpace(destinationId))
+                    
+                    if (!string.IsNullOrWhiteSpace(destinationId) && (pushState & PushState.Success) > 0)
                     {
-                        throw new NotSupportedException($@"There is something wrong when pushing data of
-{JsonConvert.SerializeObject(item, Formatting.Indented)}
-to destination. Please make sure that the Pusher of {_indexerModel.Name} works correctly and got Destination ID after synced.");
+                        entityRepository.UpdateItemDestinationId(_indexerModel, item.GetSourceId(), destinationId);
+                        // Detect dependencies that depends on "Synced" step
+                        UpdateDependencies(item, destinationId);
                     }
-
-                    // Update Changed from Yes to No
-                    // Update DestinationId
-                    UpdateDestinationId(item, destinationId);
-
-                    // Detect dependencies that depends on "Synced" step
-                    UpdateDependencies(item, destinationId);
-
-                    // Signal to tell that the item is success
-                    entityRepository.UpdateIndexItemStatus(_indexerModel, item.GetId(), true);
+                    else
+                    {
+                        // Signal to tell that the item is success or not
+                        entityRepository.Retry(_indexerModel, item.GetId(), pushState);
+                    }
                     
                     entityRepository.Commit();
                     attributeRepository.Commit();
+                    return pushState;
                 }
                 catch
                 {
@@ -161,7 +158,7 @@ to destination. Please make sure that the Pusher of {_indexerModel.Name} works c
                     // Update invalid item
                     // Increate retry count
                     // Next time when queue items, it will be put behind because of the retry count
-                    entityRepository.UpdateIndexItemStatus(_indexerModel, item.GetId(), false);
+                    entityRepository.Retry(_indexerModel, item.GetId(), PushState.Failed);
                     throw;
                 }
                 finally
@@ -172,7 +169,7 @@ Ended synchronizing...
 ");
                 }
             });
-            
+            return result;
         }
 
         public async Task Push(params IndexItemModel[] items)
@@ -186,11 +183,9 @@ Ended synchronizing...
                 await PushItem(item);
             }
         }
-
-        private void UpdateDestinationId(IndexItemModel item, string destinationId)
+        
+        private void UpdateDependencies(IndexItemModel item, string destinationId)
         {
-            entityRepository.UpdateItemDestinationId(_indexerModel, item.GetSourceId(), destinationId, true);
-
             if (_indexerModel.EntityType == EntityType.Entity)
             {
                 // Update Attribute Mapping (DestinationId) if _indexerModel is Entity
@@ -210,15 +205,11 @@ Ended synchronizing...
                         continue;
                     }
 
-                    attributeRepository.UpdateItemDestinationId(attr, item.GetSourceId(), destinationId, false);
+                    attributeRepository.UpdateItemDestinationId(attr, item.GetSourceId(), destinationId);
                     Report($"Done updating destination ID for attribute {attr.Name}.");
                 }
             }
 
-        }
-
-        private void UpdateDependencies(IndexItemModel item, string destinationId)
-        {
             var dependencies = entityRepository.GetDependenciesOn(_indexerModel.Id, _indexerModel.EntityType);
             foreach (var dependency in dependencies)
             {

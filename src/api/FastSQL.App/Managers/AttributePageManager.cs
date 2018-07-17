@@ -21,6 +21,7 @@ namespace FastSQL.App.Managers
 
         public AttributePageManager(
             IEventAggregator eventAggregator,
+            // TODO: SHOULD LOAD VIEWS ON DEMANDS
             UCIndexesListView listView,
             UCIndexDetail content)
         {

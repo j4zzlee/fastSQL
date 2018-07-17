@@ -192,29 +192,33 @@ WHERE {string.Join(" AND ", @params.Select(p => $@"[{p.Key}] = @{p.Key}"))}
              */
             @params.Add("ExcludeStates", ItemState.Invalid | ItemState.Processed);
             var sql = $@"
-SELECT * FROM {model.ValueTableName}
-WHERE [DestinationId] IS NULL
-    OR [State] IS NULL
+SELECT v.* 
+FROM {model.ValueTableName} v
+WHERE 
+    v.[DestinationId] IS NULL
+    OR v.[State] IS NULL
     OR (
-        ([State] & @ChangedState) > 0
+        (v.[State] & @ChangedState) > 0
         AND (
-            ([State] & @ExcludeStates) = 0
+            (v.[State] & @ExcludeStates) = 0
         )
     )
-ORDER BY [Id], [RetryCount]
+ORDER BY v.[Id], v.[RetryCount]
 OFFSET @Offset ROWS
 FETCH NEXT @Limit ROWS ONLY;
 ";
             var countSql = $@"
-SELECT COUNT(*) FROM {model.ValueTableName}
-WHERE [DestinationId] IS NULL
-    OR [State] IS NULL
+SELECT COUNT(v.Id) 
+FROM {model.ValueTableName} v
+WHERE 
+    v.[DestinationId] IS NULL
+    OR v.[State] IS NULL
     OR (
-        ([State] & @ChangedState) > 0
+        (v.[State] & @ChangedState) > 0
         AND (
-            ([State] & @ExcludeStates) = 0
+            (v.[State] & @ExcludeStates) = 0
         )
-    );
+    )
 ";
             totalCount = _connection
                 .Query<int>(countSql, param: @params, transaction: _transaction)
@@ -264,7 +268,7 @@ WHERE [DestinationId] = @Id", param: new { Id = id }, transaction: _transaction)
                     CreatedAt = DateTime.Now.ToUnixTimestamp(),
                     UpdatedAt = DateTime.Now.ToUnixTimestamp(),
                     RetryCount = 0,
-                    Status = QueueItemState.None
+                    Status = PushState.None
                 });
             }
             // Get the newest
@@ -284,7 +288,7 @@ param: new
 },
 transaction: _transaction).FirstOrDefault();
 
-            if (exists != null && (exists.Status == 0 || exists.HasState(QueueItemState.ByPassed | QueueItemState.Failed)))
+            if (exists != null && (exists.Status == 0 || exists.HasState(PushState.ByPassed | PushState.Failed | PushState.UnexpectedError)))
             {
                 return null; // no row inserted
             }
@@ -297,7 +301,7 @@ transaction: _transaction).FirstOrDefault();
                 CreatedAt = DateTime.Now.ToUnixTimestamp(),
                 UpdatedAt = DateTime.Now.ToUnixTimestamp(),
                 RetryCount = 0,
-                Status = QueueItemState.None
+                Status = PushState.None
             });
         }
 

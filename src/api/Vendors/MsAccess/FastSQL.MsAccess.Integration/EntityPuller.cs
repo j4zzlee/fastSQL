@@ -119,7 +119,7 @@ SELECT * FROM
             {
                 return new PullResult
                 {
-                    Status = SyncState.Invalid,
+                    Status = PullState.Invalid,
                     LastToken = new
                     {
                         Limit = limit,
@@ -139,7 +139,7 @@ SELECT * FROM
             var results = set?.Rows;
             return new PullResult
             {
-                Status = results?.Count() > 0 ? SyncState.HasData : SyncState.Invalid,
+                Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
                 LastToken = new
                 {
                     Limit = limit,
@@ -187,7 +187,7 @@ AS
             var results = set?.Rows;
             return new PullResult
             {
-                Status = results?.Count() > 0 ? SyncState.HasData : SyncState.Invalid,
+                Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
                 LastToken = new
                 {
                     Limit = limit,

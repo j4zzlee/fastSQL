@@ -5,7 +5,7 @@ using System.Text;
 namespace FastSQL.Sync.Core.Enums
 {
     [Flags]
-    public enum SyncState
+    public enum PullState
     {
         None = 0,
         HasData = 1,

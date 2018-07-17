@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using FastSQL.Core;
+using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 
@@ -52,7 +53,7 @@ namespace FastSQL.Sync.Core.Pusher
             return OptionManager.SetOptions(options);
         }
 
-        public abstract string Create();
+        public abstract PushState Create(out string destinationId);
         public abstract string GetDestinationId();
         public abstract string Remove(string destinationId = null);
         public abstract string Update(string destinationId = null);

@@ -1,6 +1,7 @@
 ﻿using FastSQL.Core;
 using FastSQL.Sync.Workflow.Steps;
 using Serilog;
+using System;
 using System.ComponentModel;
 using WorkflowCore.Interface;
 
@@ -23,7 +24,7 @@ namespace FastSQL.Sync.Workflow.Workflows
         {
             builder
                 .StartWith(x => { })
-                .Then<PushItemChangedStep>(p => p.Then(p)); // deal with it :)
+                .Then<PushItemChangedStep>(p => p.Delay(d => TimeSpan.FromMilliseconds(500)).Then(p)); // deal with it :)
         }
     }
 }

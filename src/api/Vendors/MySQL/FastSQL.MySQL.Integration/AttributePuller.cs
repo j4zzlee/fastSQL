@@ -78,7 +78,7 @@ LIMIT @Limit OFFSET @Offset;";
             var results = set?.Rows;
             return new PullResult
             {
-                Status = results?.Count() > 0 ? SyncState.HasData : SyncState.Invalid,
+                Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
                 LastToken = new
                 {
                     Limit = limit,
@@ -136,7 +136,7 @@ WHERE [name] = N'{AttributeModel.SourceViewName}'
             var results = set?.Rows;
             return new PullResult
             {
-                Status = results?.Count() > 0 ? SyncState.HasData : SyncState.Invalid,
+                Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
                 LastToken = new
                 {
                     Limit = limit,

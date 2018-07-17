@@ -1,9 +1,11 @@
 ﻿using Dapper;
 using FastSQL.Sync.Core.Enums;
+using FastSQL.Sync.Core.Filters;
 using FastSQL.Sync.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Text;
 
 namespace FastSQL.Sync.Core.Repositories
@@ -16,9 +18,62 @@ namespace FastSQL.Sync.Core.Repositories
 
         protected override EntityType EntityType => EntityType.QueueItem;
 
+        public IEnumerable<QueueItemModel> FilterQueueItems(IEnumerable<FilterArgument> filters,
+            int limit,
+            int offset,
+            out int totalCount)
+        {
+            var @params = new DynamicParameters();
+            @params.Add("Limit", limit > 0 ? limit : 100);
+            @params.Add("Offset", offset);
+            var filterStrs = new List<string>();
+            var @where = string.Empty;
+            if (filters != null && filters.Count() > 0)
+            {
+                foreach (var filter in filters)
+                {
+                    if (filter.FilterType == FilterType.Expression)
+                    {
+                        var paramName = StringExtensions.StringExtensions.Random(10);
+                        filterStrs.Add($@"({filter.Field}) {filter.Op} @Param_{paramName}");
+                        @params.Add($@"Param_{paramName}", filter.Target);
+                    } else
+                    {
+                        var paramName = StringExtensions.StringExtensions.Random(10);
+                        filterStrs.Add($@"[{filter.Field}] {filter.Op} @Param_{paramName}");
+                        @params.Add($@"Param_{paramName}", filter.Target);
+                    }
+                    
+                }
+                //var condition = string.Join(" AND ", filters.Select(f => $@"[{f.Field}] {f.Op} {}"));
+                @where = string.Join(" AND ", filterStrs);
+                if (!string.IsNullOrWhiteSpace(@where))
+                {
+                    @where = $"WHERE {@where}";
+                }
+            }
+            var sql = $@"
+SELECT * FROM [core_queue_items]
+{@where}
+ORDER BY [CreatedAt], [Id]
+OFFSET @Offset ROWS
+FETCH NEXT @Limit ROWS ONLY;
+";
+            var countSql = $@"
+SELECT COUNT(*) FROM [core_queue_items]
+{@where}
+";
+            totalCount = _connection
+                .Query<int>(countSql, param: @params, transaction: _transaction)
+                .FirstOrDefault();
+            var result = _connection
+                .Query<QueueItemModel>(sql, param: @params, transaction: _transaction);
+            return result;
+        }
+
         public IEnumerable<QueueItemModel> GetQueuedItemsByStatus(
-            QueueItemState state, 
-            QueueItemState exclude, 
+            PushState state, 
+            PushState exclude, 
             int limit, 
             int offset,
             bool includeEmptyStatus = false,
@@ -49,11 +104,6 @@ param: new
     ExcludeEmptyStatus = excludeEmptyStatus ? 1 : 0
 },
 transaction: _transaction);
-        }
-
-        public QueueItemModel GetItemToPush()
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -17,10 +17,10 @@ namespace FastSQL.App.UserControls.Previews
     {
         private IIndexModel _index;
         private IPuller _puller;
-        private SyncState _status;
+        private PullState _status;
         private DataGridViewModel _dataGridViewModel;
         
-        public SyncState Status
+        public PullState Status
         {
             get => _status;
             set
@@ -33,10 +33,10 @@ namespace FastSQL.App.UserControls.Previews
 
         public bool HasData
         {
-            get => _status.HasFlag(SyncState.HasData);
+            get => _status.HasFlag(PullState.HasData);
             set
             {
-                _status = value ? _status | SyncState.HasData : (_status | SyncState.HasData) ^ SyncState.HasData;
+                _status = value ? _status | PullState.HasData : (_status | PullState.HasData) ^ PullState.HasData;
                 OnPropertyChanged(nameof(HasData));
             }
         }

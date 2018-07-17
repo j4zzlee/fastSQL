@@ -98,6 +98,10 @@ namespace FastSQL.Core
                                     {
                                         writer.WriteValue(reader.GetValue(i));
                                     }
+                                    else
+                                    {
+                                        writer.WriteNull();
+                                    }
                                 }
                                 writer.WriteEndObject();
                             }

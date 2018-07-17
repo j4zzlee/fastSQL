@@ -104,6 +104,7 @@ namespace FastSQL.Sync.Workflow.Workflows
                                    .Input(s => s.IndexModel, d => i);
                            }
                        }
+                       ip.Delay(d => TimeSpan.FromSeconds(1));
                    }
                });
         }

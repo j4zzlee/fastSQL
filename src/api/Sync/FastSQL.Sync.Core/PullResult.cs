@@ -5,21 +5,21 @@ namespace FastSQL.Sync.Core
 {
     public class PullResult
     {
-        public SyncState Status { get; set; } = SyncState.Invalid;
+        public PullState Status { get; set; } = PullState.Invalid;
         public object LastToken { get; set; }
         public IEnumerable<object> Data { get; set; }
 
         public bool IsValid()
         {
-            return (Status & SyncState.Invalid) == 0;
+            return (Status & PullState.Invalid) == 0;
         }
 
-        public PullResult AddState(SyncState state)
+        public PullResult AddState(PullState state)
         {
             Status = Status | state;
             return this;
         }
-        public PullResult RemoveState(SyncState state)
+        public PullResult RemoveState(PullState state)
         {
             Status = (Status | state) ^ state;
             return this;

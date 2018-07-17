@@ -5,11 +5,17 @@ using System.Text;
 
 namespace FastSQL.Sync.Core.Filters
 {
+    public enum FilterType
+    {
+        None = 0, // normal
+        Expression = 1
+    }
     public class FilterArgument
     {
         public string Field { get; set; }
         public string @Op { get; set; }
         public string Target { get; set; }
+        public FilterType FilterType { get; set; }
     }
 
     public class ObservableFilterArgument: INotifyPropertyChanged

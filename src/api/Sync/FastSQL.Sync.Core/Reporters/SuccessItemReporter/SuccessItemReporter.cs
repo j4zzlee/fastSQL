@@ -57,8 +57,8 @@ namespace FastSQL.Sync.Core.Reporters
                 {
                     // Create success message (MessageType = Information)
                     var successItems = queueItemRepository.GetQueuedItemsByStatus(
-                        QueueItemState.Success,
-                        QueueItemState.Failed | QueueItemState.ByPassed | QueueItemState.Reported, // exclude items that are reported, failed...
+                        PushState.Success,
+                        PushState.Failed | PushState.ByPassed | PushState.Reported, // exclude items that are reported, failed...
                         limit,
                         offset);
 

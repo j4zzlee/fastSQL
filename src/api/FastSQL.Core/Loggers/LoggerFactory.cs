@@ -73,7 +73,7 @@ namespace FastSQL.Core.Loggers
                     .WriteTo.ApplicationOutput(resolverFactory, _channel);
             }
 
-            // todo middlewares
+            // TODO: middlewares
 
             _container = loggerConfiguration.CreateLogger();
             return _container;

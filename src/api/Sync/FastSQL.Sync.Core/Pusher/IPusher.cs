@@ -1,4 +1,5 @@
 ﻿using FastSQL.Core;
+using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
 using System;
 
@@ -6,7 +7,7 @@ namespace FastSQL.Sync.Core.Pusher
 {
     public interface IPusher: IOptionManager
     {
-        string Create();
+        PushState Create(out string destinationId);
         string Remove(string destinationId = null);
         string Update(string destinationId = null);
         string GetDestinationId();

@@ -100,10 +100,9 @@ namespace FastSQL.Sync.Workflow.Steps
 
             try
             {
-                var queueItem = queueItemRepository.GetItemToPush();
-                itemModel = entityRepository.GetIndexedItemById(indexModel, queueItem.TargetItemId.ToString());
-                await pusherManager.PushItem(itemModel);
-                
+                itemModel = entityRepository.GetIndexedItemById(indexModel, firstQueuedItem.TargetItemId.ToString());
+                var pushState = await pusherManager.PushItem(itemModel);
+                var queueItemStatus = firstQueuedItem.Status == PushState.None ? PushState.Success : firstQueuedItem.Status;
                 var messageId = messageRepository.Create(new
                 {
                     Message = string.Join("\n", pusherManager.GetReportMessages()),
@@ -111,15 +110,18 @@ namespace FastSQL.Sync.Workflow.Steps
                     MessageType = MessageType.Information,
                     Status = MessageStatus.None
                 });
-
+                queueItemStatus = queueItemStatus & pushState;
+                if ((pushState & PushState.Success) <= 0)
+                {
+                    queueItemStatus = (queueItemStatus | PushState.Success) ^ (PushState.Success);
+                }
                 queueItemRepository.Update(firstQueuedItem.Id.ToString(), new
                 {
                     UpdatedAt = DateTime.Now.ToUnixTimestamp(),
                     ExecuteAt = executeAt,
                     ExecutedAt = DateTime.Now.ToUnixTimestamp(),
                     MessageId = messageId,
-                    Status = (firstQueuedItem.Status | QueueItemState.Failed | QueueItemState.Success) ^ QueueItemState.Failed, // remove Failed
-                    RetryCount = 0
+                    Status = queueItemStatus
                 });
             }
             catch (Exception ex)
@@ -145,8 +147,7 @@ Exception:
                     ExecuteAt = executeAt,
                     ExecutedAt = DateTime.Now.ToUnixTimestamp(),
                     MessageId = messageId,
-                    Status = (firstQueuedItem.Status | QueueItemState.Failed | QueueItemState.Success) ^ QueueItemState.Success, // remove success
-                    RetryCount = firstQueuedItem.RetryCount + 1
+                    Status = (firstQueuedItem.Status | PushState.UnexpectedError | PushState.Failed | PushState.Success) ^ PushState.Success, // remove success
                 });
                 throw;
             }

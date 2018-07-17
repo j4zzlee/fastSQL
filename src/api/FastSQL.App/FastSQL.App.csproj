@@ -77,6 +77,7 @@
     </Compile>
     <Compile Include="Managers\AttributePageManager.cs" />
     <Compile Include="Managers\EntityPageManager.cs" />
+    <Compile Include="Managers\QueueManager.cs" />
     <Compile Include="Managers\SchedulerPageManager.cs" />
     <Compile Include="Managers\SettingManager.cs" />
     <Compile Include="Managers\ConnectionPageManager.cs" />
@@ -158,6 +159,12 @@
     </Compile>
     <Compile Include="UserControls\Previews\WPreviewData.xaml.cs">
       <DependentUpon>WPreviewData.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Queues\UCQueueContent.ViewModel.cs">
+      <DependentUpon>UCQueueContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Queues\UCQueueContent.xaml.cs">
+      <DependentUpon>UCQueueContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\Reporters\UCReporterContent.ViewModel.cs">
       <DependentUpon>UCReporterContent.xaml</DependentUpon>
@@ -263,6 +270,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\Previews\WPreviewData.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Queues\UCQueueContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -557,5 +568,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

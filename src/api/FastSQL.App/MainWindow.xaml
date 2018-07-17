@@ -23,7 +23,7 @@
                     <MenuItem Header="_Attributes" Command="{Binding OpenPageCommand}" CommandParameter="cvQ6bdshV0OJM5QX7mr2KA=="/>
                 </MenuItem>
                 <MenuItem Header="_Schedulers" Command="{Binding OpenPageCommand}" CommandParameter="LI5b--=23f8oVnMUqTxSHIgNj6wQ"/>
-                <MenuItem Header="_Queues" Command="{Binding OpenPageCommand}" CommandParameter="Queues"/>
+                <MenuItem Header="_Queues" Command="{Binding OpenPageCommand}" CommandParameter="LI5b$%^23f8oVnMUqTxSHIgNj6wQ"/>
                 <MenuItem Header="_Settings">
                     <MenuItem Header="_Application Settings" Command="{Binding OpenSettingsCommand}" CommandParameter="LI5b8oVnMUqTxSHIgNj6wQ"/>
                     <MenuItem Header="_Reports" Command="{Binding OpenPageCommand}" CommandParameter="LI5b8oVnM))#(@(#($UqTxSHIgNj6wQ"/>

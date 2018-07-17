@@ -13,6 +13,7 @@ using FastSQL.Sync.Core.Repositories;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using DateTimeExtensions;
+using System.Data.SqlClient;
 
 namespace FastSQL.Sync.Core
 {
@@ -39,7 +40,7 @@ namespace FastSQL.Sync.Core
 
         protected abstract IIndexModel GetIndexModel();
         protected abstract BaseRepository GetRepository();
-        
+
         public virtual IEnumerable<OptionItem> GetOptionsTemplate()
         {
             return OptionManager.GetOptionsTemplate();
@@ -57,7 +58,8 @@ namespace FastSQL.Sync.Core
             if (cleanAll)
             {
                 Report($@"Initializing index ""{indexer.Name}""....");
-            } else
+            }
+            else
             {
                 Report($@"Updating index ""{indexer.Name}""....");
             }
@@ -100,33 +102,31 @@ namespace FastSQL.Sync.Core
             var keyColumns = columnMappings.Where(c => c.Key && !c.Primary);
             var valueColumns = columnMappings.Where(c => !c.Key && !c.Primary);
             var columnsNotId = columnMappings.Where(c => !c.Primary);
-            //var idColumn = FilterColumns(options.GetValue("indexer_key_column")).First();
-            //var primaryColumns = FilterColumns(options.GetValue("indexer_primary_key_columns"));
-            //var valueColumns = FilterColumns(options.GetValue("indexer_value_columns"));
-
-            //var allColumns = primaryColumns.Concat(valueColumns).ToList();
-            // The Id column MUST be hard coded
-            var insertData = data?.Select(d =>
-            {
-                var jData = JObject.FromObject(d);
-                var r = new DynamicParameters();
-                r.Add("Id", jData.GetValue(idColumn.SourceName).ToString());
-                foreach (var c in columnsNotId)
-                {
-                    r.Add(c.MappingName, jData.GetValue(c.SourceName).ToString());
-                }
-                return r;
-            }).ToList();
             
-            // Persist the data
-            Insert(idColumn, keyColumns, valueColumns, columnsNotId, insertData);
+            try
+            {
+                // create temporary table
+                var createTableSQL = $@"
+CREATE TABLE {indexer.NewValueTableName}_tmp (
+	[{idColumn.SourceName}] {idColumn.DataType} NOT NULL,
+    {string.Join(",\n\t", columnsNotId.Select(p => $"[{p.SourceName}] {p.DataType}"))}
+)
+";
+                Connection.Execute(createTableSQL, transaction: Transaction);
+                // Persist the data
+                Insert(idColumn, keyColumns, valueColumns, columnsNotId, data);
 
-            // Check items that are created
-            CheckNewItems(idColumn, keyColumns, valueColumns, columnsNotId, insertData);
+                // Check items that are created
+                CheckNewItems(idColumn, keyColumns, valueColumns, columnsNotId);
 
-            // Check items that are updated
-            CheckChangedItems(idColumn, keyColumns, valueColumns, columnsNotId, insertData);
-
+                // Check items that are updated
+                CheckChangedItems(idColumn, keyColumns, valueColumns, columnsNotId);
+            }
+            finally
+            {
+                var dropTableSql = $@"DROP TABLE {indexer.NewValueTableName}_tmp";
+                Connection.Execute(dropTableSql, transaction: Transaction);
+            }
             return this;
         }
 
@@ -138,31 +138,43 @@ namespace FastSQL.Sync.Core
             IEnumerable<IndexColumnMapping> primaryColumns,
             IEnumerable<IndexColumnMapping> valueColumns,
             IEnumerable<IndexColumnMapping> columnsNotId,
-            IEnumerable<DynamicParameters> data)
+            IEnumerable<object> data)
         {
             var schemaSQL = string.Join(", ", columnsNotId.Select(c => $"[{c.MappingName}]"));
             var paramsSQL = string.Join(", ", columnsNotId.Select(c => $"@{c.MappingName}"));
             var insertValueSQL = string.Join(", ", columnsNotId.Select(c => $"s.[{c.MappingName}]"));
             var indexer = GetIndexModel();
-            var mergeCondition = primaryColumns == null || primaryColumns.Count() <= 0
-                ? $"s.[Id] = t.[Id]"
-                : string.Join(" AND ", primaryColumns.Select(c => $"s.[{c.MappingName}] = t.[{c.MappingName}]").Union(new List<string> { $"s.[Id] = t.[Id]" }));
-            var sql = $@"
+            var createColumns = columnsNotId.Union(new List<IndexColumnMapping> { idColumn }).Select(p => p.MappingName).ToArray();
+            using (var bcp = new SqlBulkCopy(Connection as SqlConnection, SqlBulkCopyOptions.TableLock, Transaction as SqlTransaction))
+            using (var tbl = data.ToDataTable())
+            {
+
+                bcp.DestinationTableName = $"{indexer.NewValueTableName}_tmp";
+                bcp.WriteToServer(tbl);
+                
+                var mergeCondition = primaryColumns == null || primaryColumns.Count() <= 0
+                   ? $"s.[Id] = t.[Id]"
+                   : string.Join(" AND ", primaryColumns.Select(c => $"s.[{c.MappingName}] = t.[{c.MappingName}]").Union(new List<string> { $"s.[Id] = t.[Id]" }));
+                var mappingColumns = columnsNotId.Union(new List<IndexColumnMapping> { idColumn });
+                var sourceColumns = mappingColumns.Select(c => $"[{c.SourceName}] AS [{c.MappingName}]");
+                var mapColumns = mappingColumns.Select(c => $"[{c.MappingName}]");
+                var sql = $@"
 MERGE INTO [{indexer.NewValueTableName}] as t
 USING (
-    VALUES (@Id, {paramsSQL})
+    SELECT {string.Join(",\n", sourceColumns)}
+    FROM {indexer.NewValueTableName}_tmp
 )
-AS s([Id], {schemaSQL})
+AS s({string.Join(",\n", mapColumns)})
 ON {mergeCondition}
 WHEN NOT MATCHED THEN
 	INSERT ([Id], {schemaSQL})
     VALUES(s.[Id], {insertValueSQL});
 ";
-            foreach (var d in data) // don't worry about performance
-            {
-                Connection.Execute(sql, param: d, transaction: Transaction);
+                var affectedRows = Connection.Execute(sql, transaction: Transaction);
+                Report($"Inserted {affectedRows} to {indexer.NewValueTableName}");
+
             }
-            Report($"Inserted {data?.Count() ?? 0} to {indexer.NewValueTableName}");
+
         }
 
         /**
@@ -173,27 +185,17 @@ WHEN NOT MATCHED THEN
         protected virtual void CheckNewItems(IndexColumnMapping idColumn,
             IEnumerable<IndexColumnMapping> primaryColumns,
             IEnumerable<IndexColumnMapping> valueColumns,
-            IEnumerable<IndexColumnMapping> columnsNotId,
-            IEnumerable<DynamicParameters> data)
+            IEnumerable<IndexColumnMapping> columnsNotId)
         {
             var indexer = GetIndexModel();
-            var comparePrimarySQL = $@"o.[Id] = n.[Id]";
+            var comparePrimarySQL = $@"o.[Id] = n.[{idColumn.SourceName}]";
             if (primaryColumns?.Count() > 0)
             {
                 comparePrimarySQL = string.Join(" AND ", primaryColumns
-                    .Select(c => $@"o.[{c.MappingName}] = n.[{c.MappingName}]")
-                    .Union(new List<string> { $"o.[Id] = n.[Id]" }));
+                    .Select(c => $@"o.[{c.MappingName}] = n.[{c.SourceName}]")
+                    .Union(new List<string> { $"o.[Id] = n.[{idColumn.SourceName}]" }));
             }
-
-            var newItemsSQL = $@"
-SELECT n.*
-FROM (VALUES (@Id, {string.Join(", ", columnsNotId.Select(a => $"@{a.MappingName}"))})) 
-AS n([Id], {string.Join(", ", columnsNotId.Select(a => $"[{a.MappingName}]"))})
-LEFT JOIN [{indexer.OldValueTableName}] AS o ON {comparePrimarySQL}
-WHERE o.[Id] IS NULL
-ORDER BY n.[Id]
-";
-
+            
             var mergeCondition = $@"s.[Id] = t.[SourceId]"; // column Id in NewTable is [SourceId] in ValueTable
             if (primaryColumns?.Count() > 0) // Both tables have same Primary Columns and Value Columns
             {
@@ -201,12 +203,17 @@ ORDER BY n.[Id]
                     .Select(c => $@"s.[{c.MappingName}] = t.[{c.MappingName}]")
                     .Union(new List<string> { $"s.[Id] = t.[SourceId]" }));
             }
+            var mappingColumns = columnsNotId.Union(new List<IndexColumnMapping> { idColumn });
+            var sourceColumns = mappingColumns.Select(c => $"n.[{c.SourceName}] AS [{c.MappingName}]");
             var mergeSQL = $@"
 MERGE INTO [{indexer.ValueTableName}] as t
 USING (
-    VALUES (@Id, {string.Join(", ", columnsNotId.Select(a => $"@{a.MappingName}"))})
+    SELECT {string.Join(", ", sourceColumns)}
+    FROM {indexer.NewValueTableName}_tmp n
+    LEFT JOIN [{indexer.OldValueTableName}] AS o ON {comparePrimarySQL}
+    WHERE o.[Id] IS NULL
 )
-AS s([Id], {string.Join(",\n", columnsNotId.Select(c => $"[{c.MappingName}]"))})
+AS s
 ON {mergeCondition}
 WHEN NOT MATCHED THEN
 	INSERT (
@@ -214,7 +221,7 @@ WHEN NOT MATCHED THEN
         [DestinationId],
         [State],
         [LastUpdated],
-        {string.Join(",\n", columnsNotId.Select(c=> $"[{c.MappingName}]"))}
+        {string.Join(",\n", columnsNotId.Select(c => $"[{c.MappingName}]"))}
     )
     VALUES(
         s.[Id],
@@ -222,29 +229,18 @@ WHEN NOT MATCHED THEN
         @State,
         @LastUpdated,
         {string.Join(",\n", columnsNotId.Select(c => $"s.[{c.MappingName}]"))}
-    );
+    )
+WHEN MATCHED AND ([State] & {(int)ItemState.Removed}) > 0 THEN
+    UPDATE SET 
+        [State] = @State,
+        [LastUpdated] = @LastUpdated,
+        {string.Join(",\n", columnsNotId.Select(c => $"[{c.MappingName}] = s.[{c.MappingName}]"))};
 ";
-            var affectedRows = 0;
-            foreach (var d in data)
-            {
-                var newItems = Connection
-                    .Query(newItemsSQL, param: d, transaction: Transaction)
-                    .ToList();
-                if (newItems.Count <= 0)
-                {
-                    break;
-                }
-
-                var extParam = new DynamicParameters();
-                foreach(var key in d.ParameterNames)
-                {
-                    extParam.Add(key, d.Get<object>(key));
-                }
-                extParam.Add("State", ItemState.Changed);
-                extParam.Add("LastUpdated", DateTime.Now.ToUnixTimestamp());
-                affectedRows += Connection.Execute(mergeSQL, extParam, transaction: Transaction);
-            }
-            Report($@"Checked {data?.Count() ?? 0} item(s), found {affectedRows} new item(s)");
+            var affectedRows = Connection.Execute(mergeSQL, param: new {
+                State = ItemState.Changed,
+                LastUpdated = DateTime.Now.ToUnixTimestamp()
+            }, transaction: Transaction);
+            Report($@"Found {affectedRows} new item(s)");
         }
 
         /**
@@ -255,8 +251,7 @@ WHEN NOT MATCHED THEN
         protected virtual void CheckChangedItems(IndexColumnMapping idColumn,
             IEnumerable<IndexColumnMapping> primaryColumns,
             IEnumerable<IndexColumnMapping> valueColumns,
-            IEnumerable<IndexColumnMapping> columnsNotId,
-            IEnumerable<DynamicParameters> data)
+            IEnumerable<IndexColumnMapping> columnsNotId)
         {
             if (valueColumns == null || valueColumns.Count() <= 0)
             {
@@ -265,38 +260,34 @@ WHEN NOT MATCHED THEN
             }
 
             var indexer = GetIndexModel();
-            string comparePrimarySQL = $@"o.[Id] = n.[Id]";
+            string comparePrimarySQL = $@"o.[Id] = n.[{idColumn.SourceName}]";
             if (primaryColumns?.Count() > 0)
             {
                 comparePrimarySQL = string.Join(" AND ", primaryColumns
-                    .Select(c => $@"o.[{c.MappingName}] = n.[{c.MappingName}]")
-                    .Union(new List<string> { $"o.[Id] = n.[Id]" }));
+                    .Select(c => $@"o.[{c.MappingName}] = n.[{c.SourceName}]")
+                    .Union(new List<string> { $"o.[Id] = n.[{idColumn.SourceName}]" }));
             }
-            var compareValueSQL = string.Join(" AND ", valueColumns.Select(c => $@"o.[{c.MappingName}] <> n.[{c.MappingName}]"));
-            var changedItemsSQL = $@"
-SELECT n.*
-FROM (VALUES (@Id, {string.Join(", ", columnsNotId.Select(a => $"@{a.MappingName}"))})) 
-AS n([Id], {string.Join(", ", columnsNotId.Select(a => $"[{a.MappingName}]"))})
-LEFT JOIN [{indexer.OldValueTableName}] AS o ON {comparePrimarySQL}
-LEFT JOIN [{indexer.ValueTableName}] AS v ON v.SourceId = o.Id
-WHERE o.[Id] IS NOT NULL AND (
-    ({compareValueSQL}) -- Some values is not matched
-    OR (v.[State] IS NOT NULL AND (v.[State] & {(int) ItemState.Removed}) > 0) -- Item was marked as 'Removed' but now it is back again
-)
-ORDER BY n.[Id];
-";
-
-            var mergeCondition = $@"s.[Id] = t.[Id]";
+            var compareValueSQL = string.Join(" OR ", valueColumns.Select(c => $@"o.[{c.MappingName}] <> n.[{c.SourceName}]"));
+            var mergeCondition = $@"s.[Id] = t.[SourceId]";
             if (primaryColumns?.Count() > 0)
             {
-                mergeCondition = string.Join(" AND ", primaryColumns.Select(c => $@"s.[{c}] = t.[{c.MappingName}]").Union(new List<string> { $"s.[Id] = t.[Id]" }));
+                mergeCondition = string.Join(" AND ", primaryColumns.Select(c => $@"s.[{c}] = t.[{c.MappingName}]").Union(new List<string> { $"s.[Id] = t.[SourceId]" }));
             }
+            var mappingColumns = columnsNotId.Union(new List<IndexColumnMapping> { idColumn });
+            var sourceColumns = mappingColumns.Select(c => $"n.[{c.SourceName}] AS [{c.MappingName}]");
             var mergeSQL = $@"
 MERGE INTO [{indexer.ValueTableName}] as t
 USING (
-    VALUES (@Id, {string.Join(", ", columnsNotId.Select(a => $"@{a.MappingName}"))})
+    SELECT {string.Join(", ", sourceColumns)}
+    FROM {indexer.NewValueTableName}_tmp n
+    LEFT JOIN [{indexer.OldValueTableName}] AS o ON {comparePrimarySQL}
+    LEFT JOIN [{indexer.ValueTableName}] AS v ON v.SourceId = o.Id
+    WHERE o.[Id] IS NOT NULL AND (
+        ({compareValueSQL}) -- Some values is not matched
+        OR (v.[State] IS NOT NULL AND (v.[State] & {(int)ItemState.Removed}) > 0) -- Item was marked as 'Removed' but now it is back again
+    )
 )
-AS s([Id], {string.Join(",\n", columnsNotId.Select(c => $"[{c.MappingName}]"))})
+AS s
 ON {mergeCondition}
 WHEN MATCHED THEN
     UPDATE SET 
@@ -308,30 +299,16 @@ WHEN MATCHED THEN
         [LastUpdated] = @LastUpdated,
         {string.Join(",\n", valueColumns.Select(c => $"[{c.MappingName}] = s.[{c.MappingName}]"))};
 ";
-            var affectedRows = 0;
-            foreach (var d in data)
+           
+            var affectedRows = Connection.Execute(mergeSQL, param: new
             {
-                var changedItems = Connection
-                    .Query(changedItemsSQL, param: d, transaction: Transaction)
-                    .ToList();
-                if (changedItems.Count <= 0)
-                {
-                    break;
-                }
-
-                var extParam = new DynamicParameters();
-                foreach (var key in d.ParameterNames)
-                {
-                    extParam.Add(key, d.Get<object>(key));
-                }
-                extParam.Add("State", ItemState.Changed);
-                extParam.Add("StatesToExclude", ItemState.Removed);
-                extParam.Add("LastUpdated", DateTime.Now.ToUnixTimestamp());
-                affectedRows += Connection.Execute(mergeSQL, extParam, transaction: Transaction);
-            }
-            Report($@"Checked {data?.Count() ?? 0} item(s), found {affectedRows} updated item(s)");
+                State = ItemState.Changed,
+                StatesToExclude = ItemState.Removed,
+                LastUpdated = DateTime.Now.ToUnixTimestamp()
+            }, transaction: Transaction);
+            Report($@"Found {affectedRows} updated item(s)");
         }
-        
+
         /**
          * Items that appeared only in OLD Table are marked as REMOVED
          */
@@ -343,12 +320,13 @@ WHEN MATCHED THEN
             var offset = 0;
             var indexer = GetIndexModel();
             string comparePrimarySQL = $@"o.[Id] = n.[Id]";
-            if (primaryColumns?.Count() > 0) {
+            if (primaryColumns?.Count() > 0)
+            {
                 comparePrimarySQL = string.Join(" AND ", primaryColumns
                     .Select(c => $@"o.[{c.MappingName}] = n.[{c.MappingName}]")
                     .Union(new List<string> { $"o.[Id] = n.[Id]" }));
             }
-            
+
             var oldItemsSQL = $@"
 SELECT o.*
 FROM [{indexer.OldValueTableName}] AS o
@@ -359,7 +337,7 @@ OFFSET @Offset ROWS
 FETCH NEXT @Limit ROWS ONLY;
 ";
             var updateRemovedSQL = $@"
-UPDATE [{indexer.OldValueTableName}]
+UPDATE [{indexer.ValueTableName}]
 SET [State] = CASE  
                 WHEN [State] = 0 THEN @State
                 WHEN [State] IS NULL THEN @State 
@@ -375,10 +353,11 @@ WHERE [SourceId] IN @SourceIds";
                     .Select(i => i.Id).ToList();
                 if (oldItems.Count <= 0)
                 {
-                    break;
+                    break; ;
                 }
 
-                affectedRows += Connection.Execute(updateRemovedSQL, new {
+                affectedRows += Connection.Execute(updateRemovedSQL, new
+                {
                     State = ItemState.Removed | ItemState.Changed,
                     SourceIds = oldItems,
                     LastUpdated = DateTime.Now.ToUnixTimestamp(),
@@ -387,7 +366,7 @@ WHERE [SourceId] IN @SourceIds";
             }
             Report($@"Found {affectedRows} item(s) that are removed.");
         }
-        
+
         public virtual IIndexer EndIndexing()
         {
             var indexer = GetIndexModel();
@@ -411,9 +390,9 @@ WHERE [SourceId] IN @SourceIds";
             var t = Connection.ExecuteAsync($@"
 INSERT INTO [{indexer.OldValueTableName}]
 SELECT * FROM [{indexer.NewValueTableName}]
-", 
-transaction: Transaction, 
-commandTimeout: 86400); // old & new value table has exactly the same structure
+",
+transaction: Transaction,
+commandTimeout: 86400); // old & new value table has exactly the same structure - shoot the moon
             t.Wait();
             return this;
         }
@@ -452,7 +431,7 @@ commandTimeout: 86400); // old & new value table has exactly the same structure
         }
 
         public abstract IIndexer SetIndex(IIndexModel model);
-        
+
         protected virtual IIndexer SpreadOptions()
         {
             ConnectionModel = ConnectionRepository.GetById(GetIndexModel().SourceConnectionId.ToString());

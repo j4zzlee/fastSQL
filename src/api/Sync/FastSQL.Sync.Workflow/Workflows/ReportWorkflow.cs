@@ -1,4 +1,5 @@
 ﻿using FastSQL.Sync.Workflow.Steps;
+using System;
 using System.ComponentModel;
 using WorkflowCore.Interface;
 
@@ -20,7 +21,7 @@ namespace FastSQL.Sync.Workflow.Workflows
         {
             builder
                 .StartWith(x => { })
-                .Then<ReportStep>(p => p.Then(p)); // deal with it :)
+                .Then<ReportStep>(p => p.Delay(d => TimeSpan.FromSeconds(2)).Then(p)); // deal with it :)
         }
     }
 }

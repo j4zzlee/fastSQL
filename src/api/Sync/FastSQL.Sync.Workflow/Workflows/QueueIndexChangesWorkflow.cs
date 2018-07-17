@@ -45,29 +45,6 @@ namespace FastSQL.Sync.Workflow.Workflows
                .While(d => true)
                .Do(x =>
                {
-                   IEnumerable<IIndexModel> indexes = null;
-                   //if ((Mode & WorkflowMode.Test) > 0 && IndexModel != null)
-                   //{
-                   //    indexes = new List<IIndexModel> { IndexModel };
-                   //}
-                   //else
-                   //{
-                   //    var scheduleOptions = scheduleOptionRepository
-                   //     .GetByWorkflow(Id)
-                   //     .Where(o => o.Enabled);
-                   //    var entities = entityRepository
-                   //        .GetAll()
-                   //        .Where(e => e.Enabled && scheduleOptions.Any(o => o.TargetEntityId == e.Id && o.TargetEntityType == e.EntityType));
-                   //    var attributes = attributeRepository
-                   //        .GetAll()
-                   //        .Where(e => e.Enabled && scheduleOptions.Any(o => o.TargetEntityId == e.Id && o.TargetEntityType == e.EntityType));
-                   //    indexes = entities
-                   //        .Select(e => e as IIndexModel)
-                   //        .Union(attributes.Select(a => a as IIndexModel));
-                   //}
-                   /**
-                    * WORKFLOW is pre-built, we can only test via settings Enable/Disable in the form
-                    **/
                    var scheduleOptions = scheduleOptionRepository
                         .GetByWorkflow(Id)
                         .Where(o => o.Enabled);
@@ -77,7 +54,7 @@ namespace FastSQL.Sync.Workflow.Workflows
                    var attributes = attributeRepository
                        .GetAll()
                        .Where(e => e.Enabled && scheduleOptions.Any(o => o.TargetEntityId == e.Id && o.TargetEntityType == e.EntityType));
-                   indexes = entities
+                   var indexes = entities
                        .Select(e => e as IIndexModel)
                        .Union(attributes.Select(a => a as IIndexModel));
                    if (indexes == null || indexes.Count() <= 0)
@@ -99,6 +76,7 @@ namespace FastSQL.Sync.Workflow.Workflows
                                .Input(s => s.IndexModel, d => i);
                        }
                    }
+                   ip?.Delay(d => TimeSpan.FromSeconds(5));
                });
         }
     }

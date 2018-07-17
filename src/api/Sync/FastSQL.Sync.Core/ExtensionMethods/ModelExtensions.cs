@@ -1,10 +1,12 @@
 ﻿using FastSQL.Sync.Core.Attributes;
 using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 
@@ -12,6 +14,61 @@ namespace FastSQL.Sync.Core.ExtensionMethods
 {
     public static class ModelExtensions
     {
+        public static DataTable ToDataTable<T>(this IEnumerable<T> items)
+        {
+            if (items == null || items.Count() <= 0)
+            {
+                return null;
+            }
+            var tb = new DataTable();
+            var firstElem = items.ElementAt(0);
+            if (firstElem is JObject)
+            {
+                var f = firstElem as JObject;
+                foreach (var prop in f.Properties())
+                {
+                    tb.Columns.Add(prop.Name);
+                }
+
+                foreach (var item in items)
+                {
+                    var jItem = item as JObject;
+                    var values = new object[jItem.Properties().Count()];
+                    for (var i = 0; i < jItem.Properties().Count(); i++)
+                    {
+                        values[i] = jItem.GetValue(jItem.Properties().ElementAt(i).Name).ToString();
+                    }
+
+                    tb.Rows.Add(values);
+                }
+            }
+            else
+            {
+                PropertyInfo[] props = firstElem.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+                foreach (var prop in props)
+                {
+                    tb.Columns.Add(prop.Name, prop.PropertyType);
+                }
+
+                foreach (var item in items)
+                {
+                    var values = new object[props.Length];
+                    for (var i = 0; i < props.Length; i++)
+                    {
+                        values[i] = props[i].GetValue(item, null);
+                    }
+
+                    tb.Rows.Add(values);
+                }
+            }
+            
+
+            
+
+            return tb;
+        }
+
         public static string GetTableName<T>(this T model) where T : class, new()
         {
             return GetTableName(typeof(T));

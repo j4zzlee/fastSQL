@@ -25,7 +25,6 @@ namespace FastSQL.App.UserControls.Schedulers
         private readonly AttributeRepository attributeRepository;
         private readonly IEnumerable<IBaseWorkflow> workflows;
         private readonly SyncService syncService;
-        private readonly ResolverFactory resolverFactory;
 
         public BaseCommand SaveCommand => new BaseCommand(o => true, OnSaveOptions);
 

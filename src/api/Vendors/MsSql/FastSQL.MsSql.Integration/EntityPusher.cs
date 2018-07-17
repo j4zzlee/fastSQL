@@ -1,5 +1,6 @@
 ﻿using FastSQL.Core;
 using FastSQL.Sync.Core;
+using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Processors;
 using FastSQL.Sync.Core.Pusher;
 using FastSQL.Sync.Core.Repositories;
@@ -21,7 +22,7 @@ namespace FastSQL.MsSql.Integration
         {
         }
 
-        public override string Create()
+        public override PushState Create(out string destinationId)
         {
             throw new NotImplementedException();
         }

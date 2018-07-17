@@ -567,52 +567,51 @@ WHERE [name] = N'{table}' AND [type] = 'U'
             RemoveTransformations(id, EntityType);
         }
 
-        public void UpdateIndexItemStatus(IIndexModel model, string id, bool success)
+        public  void Retry(IIndexModel model, string itemId, PushState pushState)
         {
-            var sql = string.Empty;
-            if (success)
+            ItemState state = ItemState.Failed;
+            if ((pushState & PushState.RelatedItemNotFound) > 0)
             {
-                sql = $@"
-UPDATE [{model.ValueTableName}]
-SET [RetryCount] = 0,
-    [LastUpdated] = @LastUpdated
-WHERE [Id] = @Id
-";
+                state = state & ItemState.RelatedItemNotFound;
             }
-            else
+            if ((pushState & PushState.RelatedItemNotSync) > 0)
             {
-                sql = $@"
+                state = state & ItemState.RelatedItemNotSynced;
+            }
+            if ((pushState & PushState.ValidationFailed) > 0)
+            {
+                state = state & ItemState.ValidationFailed;
+            }
+            var sql = $@"
 UPDATE [{model.ValueTableName}]
 SET [RetryCount] = [RetryCount] + 1,
-    [LastUpdated] = @LastUpdated
-WHERE [Id] = @Id
+    [LastUpdated] = @LastUpdated,
+    [State] = CASE WHEN [State] = 0 OR [State] IS NULL THEN @States
+                ELSE ([State] | @StatesToExclude) ^ @StatesToExclude
+                END
+WHERE [Id] = @ItemId
 ";
-            }
-
             _connection.Execute(sql, param: new
             {
-                Id = id,
-                LastUpdated = DateTime.Now.ToUnixTimestamp()
+                ItemId = itemId,
+                LastUpdated = DateTime.Now.ToUnixTimestamp(),
+                StatesToExclude = ItemState.Processed,
+                States = state
             }, transaction: _transaction);
         }
 
-        public void UpdateItemDestinationId(IIndexModel model, string sourceId, string destinationId, bool updateState)
+        public void UpdateItemDestinationId(IIndexModel model, string sourceId, string destinationId)
         {
-            var updateStateSQL = string.Empty;
-            if (updateState)
-            {
-                updateStateSQL = $@",
-    [State] = CASE  
-        WHEN [State] = 0 THEN 0
-        WHEN [State] IS NULL THEN 0 
-        ELSE ([State] | @StatesToExclude) ^ @StatesToExclude
-    END";
-            }
+            // Only works when sync success
             var sql = $@"
 UPDATE [{model.ValueTableName}]
 SET [DestinationId] = @DestinationId,
     [RetryCount] = 0,
-    [LastUpdated] = @LastUpdated{updateStateSQL}
+    [LastUpdated] = @LastUpdated,
+    [State] = CASE  
+        WHEN [State] = 0 OR [State] IS NULL THEN 0
+        ELSE ([State] | @StatesToExclude) ^ @StatesToExclude
+    END
 WHERE [SourceId] = @SourceId
 ";
             _connection.Execute(sql, param: new
@@ -620,7 +619,7 @@ WHERE [SourceId] = @SourceId
                 SourceId = sourceId,
                 DestinationId = destinationId,
                 LastUpdated = DateTime.Now.ToUnixTimestamp(),
-                StatesToExclude = ItemState.Invalid
+                StatesToExclude = ItemState.Invalid | ItemState.RelatedItemNotFound | ItemState.RelatedItemNotSynced | ItemState.Failed | ItemState.ValidationFailed
             }, transaction: _transaction);
         }
 

@@ -15,7 +15,7 @@ namespace FastSQL.Sync.Core.Models
         public Guid TargetEntityId { get; set; }
         public EntityType TargetEntityType { get; set; }
         public string TargetItemId { get; set; }
-        public QueueItemState Status { get; set; }
+        public PushState Status { get; set; }
         public Guid MessageId { get; set; }
         public long CreatedAt { get; set; }
         public long UpdatedAt { get; set; }
@@ -26,16 +26,16 @@ namespace FastSQL.Sync.Core.Models
         [NotMapped]
         public bool ByPassed
         {
-            get => HasState(QueueItemState.ByPassed);
+            get => HasState(PushState.ByPassed);
             set
             {
                 if (value)
                 {
-                    AddState(QueueItemState.ByPassed);
+                    AddState(PushState.ByPassed);
                 }
                 else
                 {
-                    RemoveState(QueueItemState.ByPassed);
+                    RemoveState(PushState.ByPassed);
                 }
             }
         }
@@ -43,16 +43,16 @@ namespace FastSQL.Sync.Core.Models
         [NotMapped]
         public bool Reported
         {
-            get => HasState(QueueItemState.Reported);
+            get => HasState(PushState.Reported);
             set
             {
                 if (value)
                 {
-                    AddState(QueueItemState.Reported);
+                    AddState(PushState.Reported);
                 }
                 else
                 {
-                    RemoveState(QueueItemState.Reported);
+                    RemoveState(PushState.Reported);
                 }
             }
         }
@@ -60,16 +60,16 @@ namespace FastSQL.Sync.Core.Models
         [NotMapped]
         public bool Success
         {
-            get => HasState(QueueItemState.Success);
+            get => HasState(PushState.Success);
             set
             {
                 if (value)
                 {
-                    AddState(QueueItemState.Success);
+                    AddState(PushState.Success);
                 }
                 else
                 {
-                    RemoveState(QueueItemState.Success);
+                    RemoveState(PushState.Success);
                 }
             }
         }
@@ -77,16 +77,16 @@ namespace FastSQL.Sync.Core.Models
         [NotMapped]
         public bool Failed
         {
-            get => HasState(QueueItemState.Failed);
+            get => HasState(PushState.Failed);
             set
             {
                 if (value)
                 {
-                    AddState(QueueItemState.Failed);
+                    AddState(PushState.Failed);
                 }
                 else
                 {
-                    RemoveState(QueueItemState.Failed);
+                    RemoveState(PushState.Failed);
                 }
             }
         }
@@ -94,12 +94,12 @@ namespace FastSQL.Sync.Core.Models
         [NotMapped]
         public EntityType EntityType => EntityType.QueueItem;
         
-        public void AddState(QueueItemState state)
+        public void AddState(PushState state)
         {
             Status = Status != 0 ? (Status | state) : state;
         }
 
-        public void RemoveState(QueueItemState state)
+        public void RemoveState(PushState state)
         {
             if (Status == 0)
             {
@@ -109,7 +109,7 @@ namespace FastSQL.Sync.Core.Models
             Status = (Status | state) ^ state;
         }
 
-        public bool HasState(QueueItemState state)
+        public bool HasState(PushState state)
         {
             return (Status & state) > 0;
         }

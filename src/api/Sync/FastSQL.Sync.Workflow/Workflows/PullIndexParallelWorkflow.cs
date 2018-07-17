@@ -94,7 +94,8 @@ namespace FastSQL.Sync.Workflow.Workflows
                            {
                                dd.StartWith<UpdateIndexChangesStep>()
                                 .Input(s => s.IndexModel, (d, ctx) => ctx.Item);
-                           });
+                           })
+                           .Delay(d => TimeSpan.FromSeconds(1));
                    }
                });
         }
