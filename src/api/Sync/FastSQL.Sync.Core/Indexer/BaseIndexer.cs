@@ -148,7 +148,6 @@ CREATE TABLE {indexer.NewValueTableName}_tmp (
             using (var bcp = new SqlBulkCopy(Connection as SqlConnection, SqlBulkCopyOptions.TableLock, Transaction as SqlTransaction))
             using (var tbl = data.ToDataTable())
             {
-
                 bcp.DestinationTableName = $"{indexer.NewValueTableName}_tmp";
                 bcp.WriteToServer(tbl);
                 

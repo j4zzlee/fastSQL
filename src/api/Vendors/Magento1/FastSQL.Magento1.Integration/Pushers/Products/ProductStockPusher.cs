@@ -1,46 +1,88 @@
-﻿using FastSQL.Core;
-using FastSQL.Sync.Core;
+﻿using FastSQL.Magento1.Magento1Soap;
 using FastSQL.Sync.Core.Enums;
+using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Processors;
 using FastSQL.Sync.Core.Pusher;
-using FastSQL.Sync.Core.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace FastSQL.Magento1.Integration.Pushers.Products
 {
     public class ProductStockPusher : BaseAttributePusher
     {
+        private readonly SoapM1 soap;
+
         public ProductStockPusher(ProductStockPusherOptionManager optionManager, 
             ProductProcessor entityProcessor, 
             StockAttributeProcessor attributeProcessor,
             FastProvider provider,
             FastAdapter adapter,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter, entityRepository, attributeRepository, connectionRepository)
+            SoapM1 soap) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter)
         {
+            this.soap = soap;
         }
 
         public override PushState Create(out string destinationId)
         {
-            throw new NotImplementedException();
+            destinationId = IndexedItem.GetDestinationId();
+            return UpdateStock(IndexedItem.GetDestinationId());
+        }
+
+        private PushState UpdateStock(string destinationId)
+        {
+            var attrModel = (AttributeModel)GetIndexModel();
+            var entityModel = (EntityModel)GetEntityModel();
+            soap.SetOptions(Adapter.Options);
+            try
+            {
+                var updateData = Load();
+
+                soap.Begin();
+                var client = soap.GetClient();
+                var sessionId = soap.GetSession();
+
+                client.catalogInventoryStockItemUpdate(sessionId, destinationId, updateData.stock_data);
+                return PushState.Success;
+            }
+            finally
+            {
+                soap.End();
+            }
+        }
+
+        private catalogProductCreateEntity Load()
+        {
+            var qty = IndexedItem.Value<double>("stock");
+            var inStock = qty > 0 ? 1 : 0;
+            var manageStock = Options.FirstOrDefault(o => o.Name == "manage_stock").Value == bool.TrueString ? 1 : 0;
+            var useQtyDecimal = Options.FirstOrDefault(o => o.Name == "decimal").Value == bool.TrueString ? 1 : 0;
+            return new catalogProductCreateEntity
+            {
+                stock_data = new catalogInventoryStockItemUpdateEntity()
+                {
+                    qty = IndexedItem.Value<string>("stock"),
+                    is_in_stock = inStock,
+                    manage_stock = manageStock,
+                    is_in_stockSpecified = true,
+                    is_qty_decimal = useQtyDecimal,
+                    is_qty_decimalSpecified = true,
+                }
+            };
         }
 
         public override string GetDestinationId()
         {
-            throw new NotImplementedException();
+            return IndexedItem.GetDestinationId();
         }
 
-        public override string Remove(string destinationId = null)
+        public override PushState Remove(string destinationId = null)
         {
-            throw new NotImplementedException();
+            return PushState.Success;
         }
 
-        public override string Update(string destinationId = null)
+        public override PushState Update(string destinationId = null)
         {
-            throw new NotImplementedException();
+            destinationId = !string.IsNullOrWhiteSpace(destinationId) ? destinationId : IndexedItem.GetDestinationId();
+            return UpdateStock(destinationId);
         }
     }
 }

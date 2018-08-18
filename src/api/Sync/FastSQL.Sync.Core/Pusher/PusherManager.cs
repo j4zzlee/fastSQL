@@ -108,11 +108,11 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
                     {
                         if (item.HasState(ItemState.Removed))
                         {
-                            _pusher.Remove();
+                            pushState = _pusher.Remove();
                         }
                         else
                         {
-                            _pusher.Update();
+                            pushState = _pusher.Update();
                         }
                     }
                     else
@@ -122,11 +122,11 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
                         {
                             if (item.HasState(ItemState.Removed))
                             {
-                                _pusher.Remove(destinationId);
+                                pushState = _pusher.Remove(destinationId);
                             }
                             else
                             {
-                                _pusher.Update(destinationId);
+                                pushState = _pusher.Update(destinationId);
                             }
                         }
                         else // still cannot find a destinationId, which means the entity/attribute does not exists

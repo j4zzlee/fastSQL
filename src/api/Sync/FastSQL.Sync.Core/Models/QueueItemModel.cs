@@ -22,24 +22,7 @@ namespace FastSQL.Sync.Core.Models
         public long ExecuteAt { get; set; }
         public long ExecutedAt { get; set; }
         public int RetryCount { get; set; }
-
-        [NotMapped]
-        public bool ByPassed
-        {
-            get => HasState(PushState.ByPassed);
-            set
-            {
-                if (value)
-                {
-                    AddState(PushState.ByPassed);
-                }
-                else
-                {
-                    RemoveState(PushState.ByPassed);
-                }
-            }
-        }
-
+        
         [NotMapped]
         public bool Reported
         {

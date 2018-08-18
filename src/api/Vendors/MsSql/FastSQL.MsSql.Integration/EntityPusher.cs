@@ -16,9 +16,7 @@ namespace FastSQL.MsSql.Integration
             EntityPusherOptionManager optionManager,
             EntityProcessor processor,
             FastProvider provider,
-            FastAdapter adapter,
-            EntityRepository entityRepository,
-            ConnectionRepository connectionRepository) : base(optionManager, processor, provider, adapter, entityRepository, connectionRepository)
+            FastAdapter adapter) : base(optionManager, processor, provider, adapter)
         {
         }
 
@@ -32,12 +30,12 @@ namespace FastSQL.MsSql.Integration
             throw new NotImplementedException();
         }
 
-        public override string Remove(string destinationId = null)
+        public override PushState Remove(string destinationId = null)
         {
             throw new NotImplementedException();
         }
 
-        public override string Update(string destinationId = null)
+        public override PushState Update(string destinationId = null)
         {
             throw new NotImplementedException();
         }

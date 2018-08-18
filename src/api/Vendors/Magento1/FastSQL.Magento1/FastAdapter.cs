@@ -20,8 +20,7 @@ namespace FastSQL.Magento1
             {
                 message = "Connected.";
                 api.SetOptions(Options);
-                var sessionId = api.Connect();
-                return true;
+                return api.TryConnect();
             }
             catch (Exception ex)
             {

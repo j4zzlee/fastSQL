@@ -17,10 +17,7 @@ namespace FastSQL.Magento2.Integration.Pushers.Products
             ProductProcessor entityProcessor, 
             SingleAttributeProcessor attributeProcessor, 
             FastProvider provider, 
-            FastAdapter adapter,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter, entityRepository, attributeRepository, connectionRepository)
+            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter)
         {
         }
 
@@ -34,12 +31,12 @@ namespace FastSQL.Magento2.Integration.Pushers.Products
             throw new NotImplementedException();
         }
 
-        public override string Remove(string destinationId = null)
+        public override PushState Remove(string destinationId = null)
         {
             throw new NotImplementedException();
         }
 
-        public override string Update(string destinationId = null)
+        public override PushState Update(string destinationId = null)
         {
             throw new NotImplementedException();
         }

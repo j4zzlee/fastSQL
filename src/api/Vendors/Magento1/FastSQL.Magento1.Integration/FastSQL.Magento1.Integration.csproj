@@ -10,4 +10,8 @@
     <ProjectReference Include="..\FastSQL.Magento1\FastSQL.Magento1.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.ServiceModel" />
+  </ItemGroup>
+
 </Project>

@@ -15,9 +15,7 @@ namespace FastSQL.Magento1.Integration.Pushers
         public ParentCategoryPusher(ParentCategoryPusherOptionManager optionManager,
             ParentCategoryProcessor processor,
             FastProvider provider, 
-            FastAdapter adapter,
-            EntityRepository entityRepository,
-            ConnectionRepository connectionRepository) : base(optionManager, processor, provider, adapter, entityRepository, connectionRepository)
+            FastAdapter adapter) : base(optionManager, processor, provider, adapter)
         {
         }
 
@@ -31,12 +29,12 @@ namespace FastSQL.Magento1.Integration.Pushers
             throw new NotImplementedException();
         }
 
-        public override string Remove(string destinationId = null)
+        public override PushState Remove(string destinationId = null)
         {
             throw new NotImplementedException();
         }
 
-        public override string Update(string destinationId = null)
+        public override PushState Update(string destinationId = null)
         {
             throw new NotImplementedException();
         }

@@ -13,8 +13,6 @@ namespace FastSQL.Sync.Core.Enums
         Processed = 4,
         Invalid = 8,
         RelatedItemNotFound = 16,
-        RelatedItemNotSynced = 32,
-        ValidationFailed = 64,
-        Failed = 128
+        RelatedItemNotSynced = 32
     }
 }

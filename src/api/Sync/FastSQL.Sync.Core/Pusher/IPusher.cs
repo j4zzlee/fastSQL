@@ -8,8 +8,8 @@ namespace FastSQL.Sync.Core.Pusher
     public interface IPusher: IOptionManager
     {
         PushState Create(out string destinationId);
-        string Remove(string destinationId = null);
-        string Update(string destinationId = null);
+        PushState Remove(string destinationId = null);
+        PushState Update(string destinationId = null);
         string GetDestinationId();
         IPusher OnReport(Action<string> reporter);
         IPusher SetItem(IndexItemModel item);

@@ -569,33 +569,34 @@ WHERE [name] = N'{table}' AND [type] = 'U'
 
         public  void Retry(IIndexModel model, string itemId, PushState pushState)
         {
-            ItemState state = ItemState.Failed;
-            if ((pushState & PushState.RelatedItemNotFound) > 0)
+            var state = ItemState.None;
+            //if ((pushState & PushState.RelatedItemNotFound) > 0)
+            //{
+            //    state = state | ItemState.RelatedItemNotFound;
+            //}
+            //if ((pushState & PushState.RelatedItemNotSync) > 0)
+            //{
+            //    state = state | ItemState.RelatedItemNotSynced;
+            //}
+            if ((pushState & (PushState.ValidationFailed | PushState.Failed | PushState.UnexpectedError)) > 0)
             {
-                state = state & ItemState.RelatedItemNotFound;
-            }
-            if ((pushState & PushState.RelatedItemNotSync) > 0)
-            {
-                state = state & ItemState.RelatedItemNotSynced;
-            }
-            if ((pushState & PushState.ValidationFailed) > 0)
-            {
-                state = state & ItemState.ValidationFailed;
+                state = state | ItemState.Invalid;
             }
             var sql = $@"
 UPDATE [{model.ValueTableName}]
 SET [RetryCount] = [RetryCount] + 1,
     [LastUpdated] = @LastUpdated,
-    [State] = CASE WHEN [State] = 0 OR [State] IS NULL THEN @States
-                ELSE ([State] | @StatesToExclude) ^ @StatesToExclude
-                END
+    [State] = CASE WHEN 
+                [State] = 0 OR [State] IS NULL THEN @States
+                ELSE ([State] | @StatesToExclude | @States) ^ @StatesToExclude
+            END
 WHERE [Id] = @ItemId
 ";
             _connection.Execute(sql, param: new
             {
                 ItemId = itemId,
                 LastUpdated = DateTime.Now.ToUnixTimestamp(),
-                StatesToExclude = ItemState.Processed,
+                StatesToExclude = ItemState.None,
                 States = state
             }, transaction: _transaction);
         }
@@ -619,7 +620,7 @@ WHERE [SourceId] = @SourceId
                 SourceId = sourceId,
                 DestinationId = destinationId,
                 LastUpdated = DateTime.Now.ToUnixTimestamp(),
-                StatesToExclude = ItemState.Invalid | ItemState.RelatedItemNotFound | ItemState.RelatedItemNotSynced | ItemState.Failed | ItemState.ValidationFailed
+                StatesToExclude = ItemState.Invalid | ItemState.RelatedItemNotFound | ItemState.RelatedItemNotSynced
             }, transaction: _transaction);
         }
 

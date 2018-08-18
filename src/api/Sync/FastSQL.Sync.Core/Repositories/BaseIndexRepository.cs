@@ -154,7 +154,7 @@ SELECT COUNT(*) FROM {model.ValueTableName}
             return result.Select(d => IndexItemModel.FromJObject(JObject.FromObject(d)));
         }
 
-        public IndexItemModel GetDependsOnItem(string valueTableName, DependencyItemModel dependence, IndexItemModel item)
+        public bool GetDependsOnItem(string valueTableName, DependencyItemModel dependence, IndexItemModel item, out IndexItemModel dependsOnItem)
         {
             var referenceKeyParams = Regex.Split(dependence.ReferenceKeys, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
             var foreignKeyParams = Regex.Split(dependence.ForeignKeys, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
@@ -165,15 +165,20 @@ SELECT COUNT(*) FROM {model.ValueTableName}
             var dynamicParams = new DynamicParameters();
             foreach (var p in @params)
             {
+                if (string.IsNullOrWhiteSpace(p.Value)) // An item has dependency with NULL value is not depends on anything
+                {
+                    dependsOnItem = null;
+                    return false;
+                }
                 dynamicParams.Add(p.Key, p.Value);
             }
             var sql = $@"
 SELECT TOP 1 * FROM {valueTableName}
 WHERE {string.Join(" AND ", @params.Select(p => $@"[{p.Key}] = @{p.Key}"))}
 ";
-            var dependsOnItem = _connection.Query<object>(sql, param: dynamicParams, transaction: _transaction)
+            dependsOnItem = _connection.Query<object>(sql, param: dynamicParams, transaction: _transaction)
                 .Select(d => IndexItemModel.FromJObject(JObject.FromObject(d))).FirstOrDefault();
-            return dependsOnItem;
+            return true;
         }
 
         public IEnumerable<IndexItemModel> GetIndexChangedItems(
@@ -189,21 +194,23 @@ WHERE {string.Join(" AND ", @params.Select(p => $@"[{p.Key}] = @{p.Key}"))}
             /**
              * Do not ignore RelatedItemNotFound and RelatedItemNotSync, 
              * These items should be checked in code logic
+             * RelatedItemNotFound: it might be found later
+             * RelatedItemNotSynced: it will be synced later
              */
-            @params.Add("ExcludeStates", ItemState.Invalid | ItemState.Processed);
+            @params.Add("ExcludeStates", ItemState.Invalid);
+            // TODO: RETRY COUNT?
             var sql = $@"
 SELECT v.* 
 FROM {model.ValueTableName} v
 WHERE 
     v.[DestinationId] IS NULL
     OR v.[State] IS NULL
+    OR v.[State] = 0
     OR (
         (v.[State] & @ChangedState) > 0
-        AND (
-            (v.[State] & @ExcludeStates) = 0
-        )
+        AND (v.[State] & @ExcludeStates) = 0
     )
-ORDER BY v.[Id], v.[RetryCount]
+ORDER BY v.[RetryCount], v.[Id] 
 OFFSET @Offset ROWS
 FETCH NEXT @Limit ROWS ONLY;
 ";
@@ -213,11 +220,10 @@ FROM {model.ValueTableName} v
 WHERE 
     v.[DestinationId] IS NULL
     OR v.[State] IS NULL
+    OR v.[State] = 0
     OR (
         (v.[State] & @ChangedState) > 0
-        AND (
-            (v.[State] & @ExcludeStates) = 0
-        )
+        AND (v.[State] & @ExcludeStates) = 0
     )
 ";
             totalCount = _connection
@@ -245,6 +251,14 @@ SELECT * FROM [{model.ValueTableName}]
 WHERE [SourceId] = @Id", param: new { Id = id }, transaction: _transaction) as IEnumerable<IDictionary<string, object>>;
             var item = items?.FirstOrDefault();
             return item != null ? IndexItemModel.FromJObject(JObject.FromObject(item)) : null;
+        }
+
+        public IEnumerable<IndexItemModel> GetIndexedItemsBySourceId(IIndexModel model, string id)
+        {
+            var items = _connection.Query($@"
+SELECT * FROM [{model.ValueTableName}]
+WHERE [SourceId] = @Id", param: new { Id = id }, transaction: _transaction) as IEnumerable<IDictionary<string, object>>;
+            return items?.Select(i => IndexItemModel.FromJObject(JObject.FromObject(i)));
         }
 
         public IndexItemModel GetIndexedItemDestinationId(IIndexModel model, string id)
@@ -288,7 +302,7 @@ param: new
 },
 transaction: _transaction).FirstOrDefault();
 
-            if (exists != null && (exists.Status == 0 || exists.HasState(PushState.ByPassed | PushState.Failed | PushState.UnexpectedError)))
+            if (exists != null && (exists.Status == 0 || exists.HasState(PushState.Ignore | PushState.Failed | PushState.UnexpectedError)))
             {
                 return null; // no row inserted
             }

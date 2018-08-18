@@ -46,17 +46,11 @@ namespace FastSQL.Magento1
 
         public void End()
         {
-            try
-            {
-                _client?.Close();
-            }
-            catch
-            {
-                // do nothing
-            }
+            _client?.Close();
+            CurrentSession = null;
         }
 
-        public bool Connect()
+        public bool TryConnect()
         {
             try
             {
@@ -75,9 +69,15 @@ namespace FastSQL.Magento1
             }
         }
 
+        public string GetSession()
+        {
+            return CurrentSession;
+        }
+
         public void Dispose()
         {
             _client?.Close();
+            CurrentSession = null;
         }
     }
 }

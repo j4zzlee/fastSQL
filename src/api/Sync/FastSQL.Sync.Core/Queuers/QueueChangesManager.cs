@@ -73,6 +73,7 @@ namespace FastSQL.Sync.Core.Queuers
                             if (entityIndexItem == null || !entityIndexItem.HasValues)
                             {
                                 relatedItemNotFound = true;
+                                relatedItemNotSynced = true;
                             }
                             else if (string.IsNullOrWhiteSpace(entityIndexItem.GetDestinationId()))
                             {
@@ -90,23 +91,29 @@ namespace FastSQL.Sync.Core.Queuers
                                 continue;
                             }
                         }
+
                         // Items that has dependencies that are not resolved/synced should not be queued
                         var shouldNotSync = false;
                         foreach (var dependence in dependencies)
                         {
                             var model = dependsOnIndexes.FirstOrDefault(d => d.Id == dependence.TargetEntityId && d.EntityType == dependence.TargetEntityType);
-                            var dependsOnItem = entityRepository.GetDependsOnItem(model.ValueTableName, dependence, item);
+                            var hasDependencies = entityRepository.GetDependsOnItem(model.ValueTableName, dependence, item, out IndexItemModel dependsOnItem);
+                            if (!hasDependencies)
+                            {
+                                continue;
+                            }
                             if (dependsOnItem == null || !dependsOnItem.HasValues)
                             {
                                 // should let item wait for it
                                 relatedItemNotFound = true;
+                                relatedItemNotSynced = true;
                             }
                             else if (string.IsNullOrWhiteSpace(dependsOnItem["DestinationId"]?.ToString()))
                             {
                                 // should let item wait for it
                                 relatedItemNotSynced = true;
                             }
-                            else if (dependsOnItem.HasState(ItemState.Failed | ItemState.ValidationFailed | ItemState.Invalid | ItemState.RelatedItemNotFound | ItemState.RelatedItemNotSynced))
+                            else if (dependsOnItem.HasState(ItemState.Invalid | ItemState.RelatedItemNotFound | ItemState.RelatedItemNotSynced))
                             {
                                 shouldNotSync = true;
                             }
@@ -134,7 +141,6 @@ namespace FastSQL.Sync.Core.Queuers
                         }
 
                         // TODO: what if retrycount > 1000?
-                        // TODO: what about Failed and ValidationFailed
                         entityRepository.RemoveIndexItemState(
                                 _indexerModel.ValueTableName,
                                 item.GetId(), ItemState.RelatedItemNotFound | ItemState.RelatedItemNotSynced);
