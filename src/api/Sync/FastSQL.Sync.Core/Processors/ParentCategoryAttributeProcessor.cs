@@ -9,9 +9,9 @@ namespace FastSQL.Sync.Core.Processors
     {
         public string Id => "rbeOthqg+UKieWWBoUEFXA==";
 
-        public string Name => "Parent category attribute sync";
+        public string Name => "Parent Category Attribute Sync";
 
-        public string Description => "Parent category attribute sync";
+        public string Description => "Parent Category Attribute Sync";
 
         public ProcessorType Type => ProcessorType.Attribute;
     }

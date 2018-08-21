@@ -1,7 +1,9 @@
 ﻿using FastSQL.App.Interfaces;
 using FastSQL.App.UserControls;
+using FastSQL.Core;
 using FastSQL.Core.UI.Events;
 using FastSQL.Core.UI.Interfaces;
+using FastSQL.Sync.Core.Settings;
 using Prism.Events;
 using Syncfusion.Windows.Tools.Controls;
 using System;
@@ -15,8 +17,10 @@ namespace FastSQL.App.Managers
     public class SettingPageManager : IPageManager
     {
         private readonly IEventAggregator eventAggregator;
-        private readonly UCSettingsListView uCSettingsListView;
-        private readonly UCSettingsContent uCSettingsContent;
+        private readonly IEnumerable<ISettingProvider> settingProviders;
+        private readonly ResolverFactory resolverFactory;
+        private UCSettingsListView uCSettingsListView;
+        private UCSettingsContent uCSettingsContent;
 
         public string Id => "LI5b8oVnMUqTxSHIgNj6wQ";
 
@@ -26,16 +30,27 @@ namespace FastSQL.App.Managers
 
         public SettingPageManager(
             IEventAggregator eventAggregator,
-            UCSettingsListView uCSettingsListView,
-            UCSettingsContent uCSettingsContent)
+            IEnumerable<ISettingProvider> settingProviders,
+            ResolverFactory resolverFactory)
         {
             this.eventAggregator = eventAggregator;
-            this.uCSettingsListView = uCSettingsListView;
-            this.uCSettingsContent = uCSettingsContent;
+            this.settingProviders = settingProviders;
+            this.resolverFactory = resolverFactory;
         }
 
         public IPageManager Apply()
         {
+            if (uCSettingsListView == null)
+            {
+                uCSettingsListView = resolverFactory.Resolve<UCSettingsListView>();
+            }
+
+            if (uCSettingsContent == null)
+            {
+                uCSettingsContent = resolverFactory.Resolve<UCSettingsContent>();
+                uCSettingsContent.SetSettingProviders(settingProviders);
+            }
+
             eventAggregator.GetEvent<AddPageEvent>().Publish(new AddPageEventArgument
             {
                 PageDefinition = uCSettingsListView
@@ -45,6 +60,7 @@ namespace FastSQL.App.Managers
             {
                 PageDefinition = uCSettingsContent
             });
+
             return this;
         }
     }

@@ -77,7 +77,9 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Entity" Grid.Row="0"></TextBlock>
-                                <ComboBox ItemsSource="{Binding Entities}"
+                                <ComboBox 
+                                    Name="cbbEntities"
+                                    ItemsSource="{Binding Entities}"
                                 SelectedItem="{Binding SelectedEntity}"
                                 DisplayMemberPath="Name"
                                 IsSynchronizedWithCurrentItem="True"
@@ -104,7 +106,9 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Source Connection" Grid.Row="0"></TextBlock>
-                                <ComboBox ItemsSource="{Binding SourceConnections}"
+                                <ComboBox 
+                                    Name="cbbSourceConnections"
+                                    ItemsSource="{Binding SourceConnections}"
                                 SelectedItem="{Binding SelectedSourceConnection}"
                                 DisplayMemberPath="Name"
                                 IsSynchronizedWithCurrentItem="True"
@@ -120,7 +124,9 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Destination Connection" Grid.Row="0"></TextBlock>
-                                <ComboBox ItemsSource="{Binding DestinationConnections}"
+                                <ComboBox 
+                                    Name="cbbDestinationConnections"
+                                    ItemsSource="{Binding DestinationConnections}"
                                 SelectedItem="{Binding SelectedDestinationConnection}"
                                 DisplayMemberPath="Name"
                                 IsSynchronizedWithCurrentItem="True"
@@ -136,7 +142,9 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Source Processor" Grid.Row="0"></TextBlock>
-                                <ComboBox ItemsSource="{Binding SourceProcessors}"
+                                <ComboBox 
+                                    Name="cbbSourceProcessors"
+                                    ItemsSource="{Binding SourceProcessors}"
                                 SelectedItem="{Binding SelectedSourceProcessor}"
                                 DisplayMemberPath="Name"
                                 IsSynchronizedWithCurrentItem="True"
@@ -152,7 +160,9 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Destination Processor" Grid.Row="0"></TextBlock>
-                                <ComboBox ItemsSource="{Binding DestinationProcessors}"
+                                <ComboBox 
+                                    Name="cbbDestinationProcessors"
+                                    ItemsSource="{Binding DestinationProcessors}"
                                 SelectedItem="{Binding SelectedDestinationProcessor}"
                                 DisplayMemberPath="Name"
                                 IsSynchronizedWithCurrentItem="True"

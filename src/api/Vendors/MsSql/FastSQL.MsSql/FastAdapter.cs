@@ -47,6 +47,10 @@ namespace FastSQL.MsSql
                 message = "Connected.";
                 using (conn = GetConnection())
                 {
+                    if (string.IsNullOrWhiteSpace(conn.Database))
+                    {
+                        throw new Exception("Missing Database name");
+                    }
                     conn.Open();
                     return true;
                 }

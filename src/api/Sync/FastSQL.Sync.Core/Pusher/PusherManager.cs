@@ -158,7 +158,7 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
                     // Update invalid item
                     // Increate retry count
                     // Next time when queue items, it will be put behind because of the retry count
-                    entityRepository.Retry(_indexerModel, item.GetId(), PushState.Failed);
+                    entityRepository.Retry(_indexerModel, item.GetId(), PushState.UnexpectedError);
                     throw;
                 }
                 finally

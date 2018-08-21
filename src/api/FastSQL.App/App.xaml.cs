@@ -15,6 +15,7 @@ using System.Linq;
 using FastSQL.Core;
 using System.IO;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace FastSQL.App
 {
@@ -24,8 +25,6 @@ namespace FastSQL.App
     public partial class App : Application
     {
         private static IWindsorContainer _container;
-        private static IServiceProvider _provider;
-        private static IServiceCollection _services;
         private IDisposable _scope;
         private IEventAggregator _eventAggregate;
         private MainWindow _mainWindow;
@@ -65,7 +64,7 @@ namespace FastSQL.App
             e.Handled = _mainWindow != null;
         }
 
-        private void Application_Startup(object sender, StartupEventArgs e)
+        private async void Application_Startup(object sender, StartupEventArgs e)
         {
             _container = new WindsorContainer();
             _container.RegisterAll();
@@ -104,10 +103,15 @@ namespace FastSQL.App
                 Directory.CreateDirectory(appResourceManager.BasePath);
             }
 
-            Start();
+            await Start();
+            _scope = _container.BeginScope();
+            _mainWindow = _container.Resolve<MainWindow>();
+            Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            Current.MainWindow = _mainWindow;
+            _mainWindow.Show();
         }
         
-        private void Start()
+        private async Task Start()
         {
             Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var middlewares = _container.ResolveAll<IMiddleware>().OrderBy(o => o.Priority);
@@ -115,10 +119,10 @@ namespace FastSQL.App
             {
                 try
                 {
-                    if (!middleware.Apply(out string message))
+                    if (!(await middleware.Apply()))
                     {
                         MessageBox.Show(
-                           message,
+                           middleware.Message,
                            "Error",
                            MessageBoxButton.OK,
                            MessageBoxImage.Error);
@@ -132,12 +136,6 @@ namespace FastSQL.App
                     _container.Release(middleware);
                 }
             }
-
-            _scope = _container.BeginScope();
-            _mainWindow = _container.Resolve<MainWindow>();
-            Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-            Current.MainWindow = _mainWindow;
-            _mainWindow.Show();
         }
 
         private void OnApplicationRestart(ApplicationRestartEventArgument obj)

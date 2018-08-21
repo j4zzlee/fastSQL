@@ -23,6 +23,7 @@ using FastSQL.Sync.Core.Queuers;
 using FastSQL.Sync.Core.Reporters;
 using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Core.Settings;
+using FastSQL.Sync.Core.Workflows;
 using FastSQL.Sync.Workflow;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -261,11 +262,11 @@ namespace FastSQL.App
 
             container.Register(assemblyDescriptor
                .BasedOn(typeof(IWorkflow<>))
-               .WithService.Select(new Type[] { typeof(IWorkflow<>) })
-               .WithServiceAllInterfaces()
+               .WithService.Select(new Type[] { typeof(IBaseWorkflow), typeof(IGenericWorkflow) })
+               //.WithServiceAllInterfaces()
                .WithServiceSelf()
                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
-
+            container.Register(Component.For<WorkingSchedules>().ImplementedBy<WorkingSchedules>().LifeStyle.Singleton);
             var services = new WindsorServiceCollection(container);
             services.AddLogging(c => c.AddSerilog(dispose: true));
             services.AddWorkflow(/* o =>

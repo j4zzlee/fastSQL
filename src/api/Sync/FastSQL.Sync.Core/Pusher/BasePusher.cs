@@ -80,8 +80,8 @@ namespace FastSQL.Sync.Core.Pusher
             var normalizedValues = new Dictionary<string, string>();
             foreach (var d in dependencies)
             {
-                var foreignKeys = Regex.Split(d.ForeignKeys, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                var referenceKeys = Regex.Split(d.ReferenceKeys, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                var foreignKeys = d.ForeignKeysArr;
+                var referenceKeys = d.ReferenceKeysArr;
                 IIndexModel dependsOnModel = null;
                 if (d.TargetEntityType == EntityType.Attribute)
                 {
@@ -135,7 +135,7 @@ namespace FastSQL.Sync.Core.Pusher
         {
             return Processor.Id == processorId && Provider.Id == providerId;
         }
-
+        
         public override IPusher SetIndex(IIndexModel model)
         {
             EntityModel = model as EntityModel;

@@ -22,19 +22,22 @@ namespace FastSQL.Sync.Workflow
         private readonly EntityRepository entityRepository;
         private readonly AttributeRepository attributeRepository;
         private readonly IEnumerable<IBaseWorkflow> workflows;
+        private readonly WorkingSchedules workingSchedules;
         private ILogger _logger;
         private ILogger _errorLogger;
         private bool _running;
         private bool isRegistered;
-        private WorkflowMode workflowMode;
+        private IList<string> _ranWorkflows;
 
         public SyncService(
             ResolverFactory resolverFactory,
             EntityRepository entityRepository,
             AttributeRepository attributeRepository,
             IWorkflowHost host,
-            IEnumerable<IBaseWorkflow> workflows)
+            IEnumerable<IBaseWorkflow> workflows,
+            WorkingSchedules workingSchedules)
         {
+            _ranWorkflows = new List<string>();
             _logger = resolverFactory.Resolve<ILogger>("SyncService");
             _errorLogger = resolverFactory.Resolve<ILogger>("Error");
             this.resolverFactory = resolverFactory;
@@ -42,6 +45,7 @@ namespace FastSQL.Sync.Workflow
             this.attributeRepository = attributeRepository;
             _host = host;
             this.workflows = workflows;
+            this.workingSchedules = workingSchedules;
             //RegisterWorkflows();
         }
 
@@ -51,7 +55,7 @@ namespace FastSQL.Sync.Workflow
             //_host.Stop();
         }
 
-        private void RegisterWorkflows(WorkflowMode mode)
+        private void RegisterWorkflows()
         {
             if (isRegistered)
             {
@@ -60,13 +64,11 @@ namespace FastSQL.Sync.Workflow
 
             foreach (var workflow in workflows.Where(w => !w.IsGeneric))
             {
-                workflow.SetMode(mode);
                 _host.RegisterWorkflow(workflow as IWorkflow);
             }
 
             foreach (var workflow in workflows.Where(w => w.IsGeneric))
             {
-                workflow.SetMode(mode);
                 _host.RegisterGenericWorkflow(workflow);
             }
 
@@ -84,12 +86,21 @@ namespace FastSQL.Sync.Workflow
                     return;
                 }
                 _running = true;
-                RegisterWorkflows(workflowMode);
+                workingSchedules.SetSchedules(null);
+                RegisterWorkflows();
                 _host.Start();
 
                 foreach (var workflow in workflows)
                 {
-                    _host.StartWorkflow(workflow.Id, workflow.Version, null);
+                    if (!_ranWorkflows.Contains(workflow.Id))
+                    {
+                        _ranWorkflows.Add(workflow.Id);
+                        _host.StartWorkflow(workflow.Id, workflow.Version, null);
+                    }
+                    else
+                    {
+                        _host.ResumeWorkflow(workflow.Id);
+                    }
                 }
             }
             catch (Exception ex)
@@ -98,12 +109,7 @@ namespace FastSQL.Sync.Workflow
                 throw;
             }
         }
-
-        public void SetMode(WorkflowMode workflowMode)
-        {
-            this.workflowMode = workflowMode;
-        }
-
+        
         private void _host_OnStepError(WorkflowInstance workflow, WorkflowStep step, Exception exception)
         {
             _errorLogger.Error(exception, $@"Workflow {workflow.WorkflowDefinitionId}/{workflow.Id} has raised an error on step {step.Name}/{step.Id}");
@@ -134,7 +140,8 @@ namespace FastSQL.Sync.Workflow
                     return;
                 }
                 _running = true;
-                RegisterWorkflows(workflowMode);
+                workingSchedules.SetSchedules(new List<ScheduleOptionModel> { option });
+                RegisterWorkflows();
                 var workflow = workflows.FirstOrDefault(w => w.Id == option.WorkflowId) as IBaseWorkflow;
                 IIndexModel indexModel = option.TargetEntityType == EntityType.Entity
                         ? entityRepository.GetById(option.TargetEntityId.ToString()) as IIndexModel
@@ -145,11 +152,16 @@ namespace FastSQL.Sync.Workflow
                     throw new Exception($"Could not find Index with ID: {option.TargetEntityId}, Name: {option.TargetEntityName}, Type: {option.TargetEntityType}");
                 }
                 
-                workflow.SetIndex(indexModel);
-                
                 _host.Start();
-                
-                _host.StartWorkflow(workflow.Id, workflow.Version, null);
+                if (!_ranWorkflows.Contains(workflow.Id))
+                {
+                    _ranWorkflows.Add(workflow.Id);
+                    _host.StartWorkflow(workflow.Id, workflow.Version, null);
+                }
+                else
+                {
+                    _host.ResumeWorkflow(workflow.Id);
+                }
             }
             catch (Exception ex)
             {

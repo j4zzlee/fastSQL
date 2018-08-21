@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FastSQL.Sync.Core.Settings
 {
@@ -11,10 +12,11 @@ namespace FastSQL.Sync.Core.Settings
         string Name { get; }
         string Description { get; }
         bool Optional { get; }
-        bool Validate(out string message);
+        string Message { get; set; }
+        Task<bool> Validate();
         ISettingProvider Save();
         IEnumerable<string> Commands { get; }
-        bool Invoke(string commandName, out string message);
+        Task<bool> Invoke(string commandName);
         IEnumerable<OptionItem> Options { get; }
 
         ISettingProvider SetOptions(IEnumerable<OptionItem> enumerable);

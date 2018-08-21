@@ -40,7 +40,6 @@ namespace FastSQL.Sync.Core.Settings
         public override string Description => "Optional actions related to attributes";
 
         public override bool Optional => true;
-        
         public override IEnumerable<string> Commands
         {
             get
@@ -75,13 +74,13 @@ namespace FastSQL.Sync.Core.Settings
             this.errorLogger = resolverFactory.Resolve<ILogger>("Error");
         }
         
-        public override bool Validate(out string message)
+        public override async Task<bool> Validate()
         {
             try
             {
                 var ok = true;
                 //IsLoading = true;
-                var task = Task.Run(async () =>
+                await Task.Run(() =>
                 {
                     var allAttributes = attributeRepository.GetAll();
                     foreach (var attr in allAttributes)
@@ -108,9 +107,8 @@ namespace FastSQL.Sync.Core.Settings
                     }
 
                 });
-                task.Wait();
-                message = "All attributes has been initialized.";
-                logger.Information(message);
+                Message = "All attributes has been initialized.";
+                logger.Information(Message);
 
                 return true;
             }
@@ -123,28 +121,27 @@ namespace FastSQL.Sync.Core.Settings
             {
                 //IsLoading = false;
             }
-            return true;
         }
 
-        public override bool InvokeChildCommand(string commandName, out string message)
+        public override async Task<bool> InvokeChildCommand(string commandName)
         {
             switch(commandName.ToLower())
             {
                 case "init all attributes":
-                    return InitAllIndexes(out message);
+                    return await InitAllIndexes();
                 case "update all attributes":
-                    return UpdateAllAttributes(out message);
+                    return await UpdateAllAttributes();
             }
-            message = "Command is not available.";
+            Message = "Command is not available.";
             return false;
         }
 
-        private bool UpdateAllAttributes(out string message)
+        private async Task<bool> UpdateAllAttributes()
         {
             try
             {
                 //IsLoading = true;
-                var task = Task.Run(async () =>
+                await Task.Run(async () =>
                 {
                     var allAttributes = attributeRepository.GetAll();
                     foreach (var attr in allAttributes)
@@ -165,9 +162,8 @@ namespace FastSQL.Sync.Core.Settings
                     }
 
                 });
-                task.Wait();
-                message = "All attributes has been updated.";
-                logger.Information(message);
+                Message = "All attributes has been updated.";
+                logger.Information(Message);
 
                 return true;
             }
@@ -182,12 +178,12 @@ namespace FastSQL.Sync.Core.Settings
             }
         }
 
-        private bool InitAllIndexes(out string message)
+        private async Task<bool> InitAllIndexes()
         {
             try
             {
                 //IsLoading = true;
-                var task = Task.Run(async () =>
+                await Task.Run(async () =>
                 {
                     var allAttributes = attributeRepository.GetAll();
                     foreach (var attr in allAttributes)
@@ -210,9 +206,8 @@ namespace FastSQL.Sync.Core.Settings
                     }
 
                 });
-                task.Wait();
-                message = "All attributes has been initialized.";
-                logger.Information(message);
+                Message = "All attributes has been initialized.";
+                logger.Information(Message);
 
                 return true;
             }

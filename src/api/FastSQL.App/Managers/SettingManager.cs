@@ -30,19 +30,20 @@ namespace FastSQL.App.Managers
         {
             return _errorSettingProvider;
         }
-
-        public bool Validate(out string message)
+        public string Message { get; set; }
+        public async Task<bool> Validate()
         {
             foreach(var provider in settingProviders)
             {
-                var success = provider.Validate(out message);
+                var success = await provider.Validate();
+                Message = provider.Message;
                 if (!success)
                 {
                     _errorSettingProvider = provider;
                     return false;
                 }
             }
-            message = "Success!!!.";
+            Message = "Success!!!.";
             return true;
         }
     }

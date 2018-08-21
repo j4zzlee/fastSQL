@@ -165,7 +165,6 @@ namespace FastSQL.App.UserControls.Indexes
             set
             {
                 _selectedEntity = value;
-                LoadOptions();
                 OnPropertyChanged(nameof(SelectedEntity));
             }
         }
@@ -176,7 +175,6 @@ namespace FastSQL.App.UserControls.Indexes
             set
             {
                 _sourceConnection = value;
-                LoadOptions();
                 OnPropertyChanged(nameof(SelectedSourceConnection));
             }
         }
@@ -187,7 +185,6 @@ namespace FastSQL.App.UserControls.Indexes
             set
             {
                 _destinationConnection = value;
-                LoadOptions();
                 OnPropertyChanged(nameof(SelectedDestinationConnection));
             }
         }
@@ -198,7 +195,6 @@ namespace FastSQL.App.UserControls.Indexes
             set
             {
                 _sourceProcessor = value;
-                LoadOptions();
                 OnPropertyChanged(nameof(SelectedSourceProcessor));
             }
         }
@@ -209,7 +205,6 @@ namespace FastSQL.App.UserControls.Indexes
             set
             {
                 _destinationProcessor = value;
-                LoadOptions();
                 OnPropertyChanged(nameof(SelectedDestinationProcessor));
             }
         }
@@ -367,7 +362,7 @@ namespace FastSQL.App.UserControls.Indexes
                 OnPropertyChanged(nameof(TransformationConfigureViewModel));
             }
         }
-
+        
         public UCIndexDetailViewModel(
             IEventAggregator eventAggregator,
             IEnumerable<IProcessor> processors,
@@ -404,6 +399,64 @@ namespace FastSQL.App.UserControls.Indexes
             eventAggregator.GetEvent<RefreshConnectionListEvent>().Subscribe(OnConnectionsChanged);
             eventAggregator.GetEvent<RefreshIndexesListViewEvent>().Subscribe(OnIndexesChanged);
         }
+        
+        public void FilterProcessors()
+        {
+            if (_indexType == EntityType.Entity)
+            {
+                var allProcessors = processors.Where(p => p.Type == ProcessorType.Entity);
+                if (SelectedSourceConnection != null)
+                {
+                    SourceProcessors = new ObservableCollection<IProcessor>(allProcessors
+                        .Where(ps => pullers.Where(p => typeof(IEntityPuller).IsAssignableFrom(p.GetType()))
+                            .Select(p => p as IEntityPuller)
+                            .Any(p => p.IsImplemented(ps.Id, SelectedSourceConnection.ProviderId))));
+                } 
+                else
+                {
+                    SourceProcessors = new ObservableCollection<IProcessor>(allProcessors);
+                }
+
+                if (SelectedDestinationConnection != null)
+                {
+                    DestinationProcessors = new ObservableCollection<IProcessor>(allProcessors
+                        .Where(ps => pushers.Where(p => typeof(IEntityPusher).IsAssignableFrom(p.GetType()))
+                            .Select(p => p as IEntityPusher)
+                            .Any(p => p.IsImplemented(ps.Id, SelectedDestinationConnection.ProviderId))));
+                }
+                else
+                {
+                    DestinationProcessors = new ObservableCollection<IProcessor>(allProcessors);
+                }
+            }
+            else
+            {
+                var allProcessors = processors.Where(p => p.Type == ProcessorType.Attribute);
+                if (SelectedSourceConnection != null && SelectedEntity != null)
+                {
+                    SourceProcessors = new ObservableCollection<IProcessor>(allProcessors
+                        .Where(ps => pullers.Where(p => typeof(IAttributePuller).IsAssignableFrom(p.GetType()))
+                            .Select(p => p as IAttributePuller)
+                            .Any(p => p.IsImplemented(ps.Id, SelectedEntity.SourceProcessorId, SelectedSourceConnection.ProviderId))));
+                }
+                else
+                {
+                    SourceProcessors = new ObservableCollection<IProcessor>(allProcessors);
+                }
+
+                if (SelectedDestinationConnection != null && SelectedEntity != null)
+                {
+                    DestinationProcessors = new ObservableCollection<IProcessor>(allProcessors
+                        .Where(ps => pushers.Where(p => typeof(IAttributePusher).IsAssignableFrom(p.GetType()))
+                            .Select(p => p as IAttributePusher)
+                            .Any(p => p.IsImplemented(ps.Id, SelectedEntity.DestinationProcessorId, SelectedDestinationConnection.ProviderId))));
+                }
+                else
+                {
+                    DestinationProcessors = new ObservableCollection<IProcessor>(allProcessors);
+                }
+            }
+        }
 
         private void OnSelectIndex(SelectIndexEventArgument args)
         {
@@ -414,6 +467,11 @@ namespace FastSQL.App.UserControls.Indexes
 
             IsAttribute = _indexType == EntityType.Attribute;
             _indexModel = args.IndexModel;
+            if (_indexType == EntityType.Attribute)
+            {
+                var attrModel = _indexModel as AttributeModel;
+                SelectedEntity = Entities.FirstOrDefault(e => e.Id == attrModel.EntityId);
+            }
 
             Name = _indexModel.Name;
             Description = _indexModel.Description;
@@ -425,15 +483,10 @@ namespace FastSQL.App.UserControls.Indexes
 
             SelectedSourceConnection = SourceConnections.FirstOrDefault(c => c.Id == _indexModel.SourceConnectionId);
             SelectedDestinationConnection = DestinationConnections.FirstOrDefault(c => c.Id == _indexModel.DestinationConnectionId);
-
+            FilterProcessors();
+            //LoadOptions();
             SelectedSourceProcessor = SourceProcessors.FirstOrDefault(p => p.Id == _indexModel.SourceProcessorId);
             SelectedDestinationProcessor = DestinationProcessors.FirstOrDefault(p => p.Id == _indexModel.DestinationProcessorId);
-
-            if (_indexType == EntityType.Attribute)
-            {
-                var attrModel = _indexModel as AttributeModel;
-                SelectedEntity = Entities.FirstOrDefault(e => e.Id == attrModel.EntityId);
-            }
 
             EntityDependencyViewModel.SetTargetType(_indexType);
             AttributeDependencyViewModel.SetTargetType(_indexType);
@@ -821,19 +874,8 @@ namespace FastSQL.App.UserControls.Indexes
             IsAttribute = true;
             EntityDependencyViewModel.SetTargetType(indexType);
             AttributeDependencyViewModel.SetTargetType(indexType);
-
-            if (_indexType == EntityType.Entity)
-            {
-                SourceProcessors = new ObservableCollection<IProcessor>(processors.Where(p => p.Type == ProcessorType.Entity));
-                DestinationProcessors = new ObservableCollection<IProcessor>(processors.Where(p => p.Type == ProcessorType.Entity));
-            }
-            else
-            {
-                SourceProcessors = new ObservableCollection<IProcessor>(processors.Where(p => p.Type == ProcessorType.Attribute));
-                DestinationProcessors = new ObservableCollection<IProcessor>(processors.Where(p => p.Type == ProcessorType.Attribute));
-            }
         }
-
+        
         public void Loaded()
         {
             //throw new NotImplementedException();
@@ -850,7 +892,7 @@ namespace FastSQL.App.UserControls.Indexes
             DestinationConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
         }
 
-        private void LoadOptions()
+        public void LoadOptions()
         {
             var options = _indexModel != null 
                 ? entityRepository.LoadOptions(_indexModel?.Id.ToString(), _indexModel.EntityType)

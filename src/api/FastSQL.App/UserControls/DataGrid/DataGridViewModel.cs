@@ -1,5 +1,6 @@
 ﻿using FastSQL.App.Events;
 using FastSQL.App.Interfaces;
+using FastSQL.Core.UI.Models;
 using FastSQL.Sync.Core.Filters;
 using Newtonsoft.Json.Linq;
 using System;
@@ -34,7 +35,7 @@ namespace FastSQL.App.UserControls.DataGrid
         private ObservableCollection<object> _data;
         private ObservableCollection<ObservableFilterArgument> _filters;
         private IEnumerable<string> _filterProperties;
-        private ObservableCollection<string> _gridContextMenus;
+        private ObservableCollection<MenuItemDefinition> _gridContextMenus;
         private bool _hasGridContextMenu;
         private object _selectedItem;
         private IEnumerable<object> _selectedItems;
@@ -238,7 +239,7 @@ namespace FastSQL.App.UserControls.DataGrid
             }
         }
 
-        public ObservableCollection<string> GridContextMenus
+        public ObservableCollection<MenuItemDefinition> GridContextMenus
         {
             get => _gridContextMenus;
             set
@@ -368,9 +369,9 @@ namespace FastSQL.App.UserControls.DataGrid
             ShowPagingControls();
         }
 
-        public void SetGridContextMenus(List<string> list)
+        public void SetGridContextMenus(List<MenuItemDefinition> list)
         {
-            GridContextMenus = new ObservableCollection<string>(list);
+            GridContextMenus = new ObservableCollection<MenuItemDefinition>(list);
         }
 
         private void ShowPagingControls()

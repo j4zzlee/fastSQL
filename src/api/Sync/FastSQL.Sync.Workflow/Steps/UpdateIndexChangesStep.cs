@@ -21,6 +21,8 @@ namespace FastSQL.Sync.Workflow.Steps
     public class UpdateIndexChangesStep : BaseStepBodyInvoker
     {
         public IIndexModel IndexModel { get; set; }
+        public int Counter { get; set; }
+
         private readonly EntityRepository entityRepository;
         private readonly AttributeRepository attributeRepository;
         private readonly ConnectionRepository connectionRepository;
@@ -106,6 +108,10 @@ namespace FastSQL.Sync.Workflow.Steps
             {
                 ErrorLogger.Error(ex, ex.Message);
                 throw;
+            }
+            finally
+            {
+                Counter += 1;
             }
         }
     }

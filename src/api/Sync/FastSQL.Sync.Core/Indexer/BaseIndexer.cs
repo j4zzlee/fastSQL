@@ -107,10 +107,17 @@ namespace FastSQL.Sync.Core
             {
                 // create temporary table
                 var createTableSQL = $@"
-CREATE TABLE {indexer.NewValueTableName}_tmp (
-	[{idColumn.SourceName}] {idColumn.DataType} NOT NULL,
-    {string.Join(",\n\t", columnsNotId.Select(p => $"[{p.SourceName}] {p.DataType}"))}
+IF NOT EXISTS (
+    SELECT * FROM sys.tables
+    WHERE name = N'{indexer.NewValueTableName}_tmp' AND type = 'U'
 )
+BEGIN
+    CREATE TABLE {indexer.NewValueTableName}_tmp (
+	    [{idColumn.SourceName}] {idColumn.DataType} NOT NULL,
+        {string.Join(",\n\t", columnsNotId.Select(p => $"[{p.SourceName}] {p.DataType}"))}
+    );
+    TRUNCATE TABLE {indexer.NewValueTableName}_tmp
+END;
 ";
                 Connection.Execute(createTableSQL, transaction: Transaction);
                 // Persist the data
@@ -124,7 +131,15 @@ CREATE TABLE {indexer.NewValueTableName}_tmp (
             }
             finally
             {
-                var dropTableSql = $@"DROP TABLE {indexer.NewValueTableName}_tmp";
+                var dropTableSql = $@"
+IF EXISTS (
+    SELECT * FROM sys.tables
+    WHERE name = N'{indexer.NewValueTableName}_tmp' AND type = 'U'
+)
+BEGIN
+    DROP TABLE {indexer.NewValueTableName}_tmp
+END;
+";
                 Connection.Execute(dropTableSql, transaction: Transaction);
             }
             return this;

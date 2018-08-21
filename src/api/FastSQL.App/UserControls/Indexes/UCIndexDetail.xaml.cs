@@ -42,7 +42,24 @@ namespace FastSQL.App.UserControls
             this.resolverFactory = resolverFactory;
             DataContext = this.viewModel;
             Loaded += (s, e) => viewModel.Loaded();
-
+            cbbEntities.SelectionChanged += (s, e) => {
+                viewModel.FilterProcessors();
+                viewModel.LoadOptions();
+            };
+            cbbSourceConnections.SelectionChanged += (s, e) => {
+                viewModel.FilterProcessors();
+                viewModel.LoadOptions();
+            };
+            cbbDestinationConnections.SelectionChanged += (s, e) => {
+                viewModel.FilterProcessors();
+                viewModel.LoadOptions();
+            };
+            cbbSourceProcessors.SelectionChanged += (s, e) => {
+                viewModel.LoadOptions();
+            };
+            cbbDestinationProcessors.SelectionChanged += (s, e) => {
+                viewModel.LoadOptions();
+            };
             eventAggregator.GetEvent<SelectIndexEvent>().Subscribe(OnSelectIndex);
             eventAggregator.GetEvent<OpenManageIndexPageEvent>().Subscribe(OnManageIndex);
             eventAggregator.GetEvent<OpenIndexPreviewPageEvent>().Subscribe(OnOpenPreviewPage);

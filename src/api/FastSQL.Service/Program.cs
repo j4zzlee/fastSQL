@@ -62,7 +62,6 @@ namespace FastSQL.Service
                     {
                         service.ConstructUsing(s => {
                             var svc = _container.Resolve<SyncService>();
-                            svc.SetMode(WorkflowMode.None);
                             return svc;
                         });
                         service.WhenStarted(s => s.Start());

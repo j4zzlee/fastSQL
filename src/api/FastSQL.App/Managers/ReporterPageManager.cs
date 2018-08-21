@@ -1,6 +1,7 @@
 ﻿using FastSQL.App.Interfaces;
 using FastSQL.App.UserControls;
 using FastSQL.App.UserControls.Reporters;
+using FastSQL.Core;
 using FastSQL.Core.UI.Events;
 using FastSQL.Core.UI.Interfaces;
 using Prism.Events;
@@ -16,8 +17,9 @@ namespace FastSQL.App.Managers
     public class ReporterPageManager : IPageManager
     {
         private readonly IEventAggregator eventAggregator;
-        private readonly UCRepoterListView ucListView;
-        private readonly UCReporterContent ucContent;
+        private readonly ResolverFactory resolverFactory;
+        private UCRepoterListView ucListView;
+        private UCReporterContent ucContent;
 
         public string Id => "LI5b8oVnM))#(@(#($UqTxSHIgNj6wQ";
 
@@ -27,16 +29,24 @@ namespace FastSQL.App.Managers
 
         public ReporterPageManager(
             IEventAggregator eventAggregator,
-            UCRepoterListView uCSettingsListView,
-            UCReporterContent uCSettingsContent)
+            ResolverFactory resolverFactory)
         {
             this.eventAggregator = eventAggregator;
-            this.ucListView = uCSettingsListView;
-            this.ucContent = uCSettingsContent;
+            this.resolverFactory = resolverFactory;
         }
 
         public IPageManager Apply()
         {
+            if (ucListView == null)
+            {
+                ucListView = resolverFactory.Resolve<UCRepoterListView>();
+            }
+
+            if (ucContent == null)
+            {
+                ucContent = resolverFactory.Resolve<UCReporterContent>();
+            }
+
             eventAggregator.GetEvent<AddPageEvent>().Publish(new AddPageEventArgument
             {
                 PageDefinition = ucListView

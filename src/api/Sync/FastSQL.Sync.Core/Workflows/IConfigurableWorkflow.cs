@@ -11,8 +11,6 @@ namespace FastSQL.Sync.Core.Workflows
     {
         string Id { get; }
         int Version { get; }
-        void SetMode(WorkflowMode mode);
-        void SetIndex(IIndexModel model);
         bool IsGeneric { get; }
     }
 

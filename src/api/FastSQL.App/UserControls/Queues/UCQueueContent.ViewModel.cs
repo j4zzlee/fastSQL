@@ -1,5 +1,6 @@
 ﻿using FastSQL.App.Interfaces;
 using FastSQL.App.UserControls.DataGrid;
+using FastSQL.Core.UI.Models;
 using FastSQL.Sync.Core.Constants;
 using FastSQL.Sync.Core.Filters;
 using FastSQL.Sync.Core.Models;
@@ -25,8 +26,12 @@ namespace FastSQL.App.UserControls.Queues
             set
             {
                 dataGridViewModel = value;
-                dataGridViewModel.SetGridContextMenus(new List<string> {
-                    "Run"
+                dataGridViewModel.SetGridContextMenus(new List<MenuItemDefinition> {
+                    new MenuItemDefinition
+                    {
+                        Name = "Run",
+                        CommandName = "Run"
+                    }
                 });
                 dataGridViewModel.OnFilter += DataGridViewModel_OnFilter;
                 dataGridViewModel.OnEvent += DataGridViewModel_OnEvent;

@@ -90,7 +90,7 @@ namespace FastSQL.Sync.Core.Puller
         {
             return EntityProcessor.Id == processorId && Provider.Id == providerId;
         }
-
+        
         public override IPuller SetIndex(IIndexModel model)
         {
             EntityModel = model as EntityModel;
@@ -141,7 +141,7 @@ namespace FastSQL.Sync.Core.Puller
         {
             return Provider.Id == providerId && AttributeProcessor.Id == attributeProcessorId && EntityProcessor.Id == entityProcessorId;
         }
-
+        
         public override IIndexModel GetIndexModel()
         {
             return AttributeModel;

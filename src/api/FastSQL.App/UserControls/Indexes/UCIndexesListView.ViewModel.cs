@@ -60,9 +60,18 @@ namespace FastSQL.App.UserControls.Indexes
             set
             {
                 _selectedIndexModel = value;
-                SelectedIndex = IndexModels?
+
+                if (value == null)
+                {
+                    SelectedIndex = 0;
+                }
+                else
+                {
+                    SelectedIndex = IndexModels?
                     .Select((i, idx) => new { i, idx })
-                    .FirstOrDefault(i => i.i?.Id == value?.Id).idx ?? 0;
+                    .FirstOrDefault(i => i.i?.Id == value?.Id)?.idx ?? 0;
+                }
+                
                 OnPropertyChanged(nameof(SelectedIndexModel));
             }
         }

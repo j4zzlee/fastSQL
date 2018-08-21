@@ -19,46 +19,8 @@ namespace FastSQL.Sync.Core.Repositories
         protected BaseIndexRepository(DbConnection connection) : base(connection)
         {
         }
-
-        public void AddIndexItemState(string valueTable, string itemId, ItemState state)
-        {
-            _connection.Execute($@"
-UPDATE [{valueTable}]
-SET [State] = CASE  
-    WHEN [State] = 0 THEN @State
-    WHEN [State] IS NULL THEN @State 
-    ELSE ([State] | @State)
-    END
-WHERE [Id] = @ItemId
-",
-new
-{
-    ItemId = itemId,
-    State = state
-},
-transaction: _transaction);
-        }
-
-        public void RemoveIndexItemState(string valueTable, string itemId, ItemState state)
-        {
-            _connection.Execute($@"
-UPDATE [{valueTable}]
-SET [State] = CASE  
-    WHEN [State] = 0 THEN 0
-    WHEN [State] IS NULL THEN NULL
-    ELSE ([State] | @State) ^ @State
-    END
-WHERE [Id] = @ItemId
-",
-new
-{
-    ItemId = itemId,
-    State = state
-},
-transaction: _transaction);
-        }
-
-        public void ChangeIndexedItems(IIndexModel model, ItemState include, ItemState exclude, params string[] ids)
+        
+        public void ChangeStateOfIndexedItems(IIndexModel model, ItemState include, ItemState exclude, params string[] ids)
         {
             var sql = $@"
 UPDATE {model.ValueTableName}
@@ -76,37 +38,11 @@ WHERE Id IN @Id";
             _connection.Execute(sql, new
             {
                 Id = ids,
-                State = include | ItemState.Changed,
+                State = include,
                 StatesToExclude = exclude,
             }, transaction: _transaction);
         }
-
-        public void ChangeIndexedItemsRange(IIndexModel model, ItemState include, ItemState exclude, string fromId = null, string toId = null)
-        {
-            fromId = !string.IsNullOrWhiteSpace(fromId) ? fromId : "0";
-
-            var sql = $@"
-UPDATE {model.ValueTableName}
-SET [State] = 
-    CASE  
-        WHEN [State] = 0 THEN @State
-        WHEN [State] IS NULL THEN @State 
-        ELSE ([State] | @State | @StatesToExclude) ^ @StatesToExclude
-    END
-WHERE Id >= @FromId";
-            if (!string.IsNullOrWhiteSpace(toId))
-            {
-                sql = $" AND Id < @ToId";
-            }
-            _connection.Execute(sql, new
-            {
-                FromId = fromId,
-                ToId = toId,
-                State = include | ItemState.Changed,
-                StatesToExclude = exclude,
-            }, transaction: _transaction);
-        }
-
+        
         public IEnumerable<IndexItemModel> GetIndexedItems(
             IIndexModel model,
             IEnumerable<FilterArgument> filters,
@@ -156,8 +92,8 @@ SELECT COUNT(*) FROM {model.ValueTableName}
 
         public bool GetDependsOnItem(string valueTableName, DependencyItemModel dependence, IndexItemModel item, out IndexItemModel dependsOnItem)
         {
-            var referenceKeyParams = Regex.Split(dependence.ReferenceKeys, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-            var foreignKeyParams = Regex.Split(dependence.ForeignKeys, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            var referenceKeyParams = dependence.ReferenceKeysArr;
+            var foreignKeyParams = dependence.ForeignKeysArr;
             var @params = foreignKeyParams
                 .Select((fk, i) => new { fk, i })
                 .Select(fk => new KeyValuePair<string, string>(referenceKeyParams[fk.i], item[fk.fk].ToString()))
@@ -332,5 +268,6 @@ ORDER BY [CreatedAt] ASC -- always first in first out
 ",
  transaction: _transaction).FirstOrDefault();
         }
+        
     }
 }

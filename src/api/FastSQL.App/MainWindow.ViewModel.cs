@@ -42,7 +42,7 @@ namespace FastSQL.App
             }
         }
 
-        public BaseCommand OpenPageCommand => new BaseCommand(obj => IsInitialized, OpenPage);
+        public BaseCommand OpenPageCommand => new BaseCommand(obj => true, OpenPage);
         public BaseCommand OpenSettingsCommand => new BaseCommand(obj => true, OpenPage);
         public BaseCommand OpenHelpCommand => new BaseCommand(o => true, OpenPage);
 
@@ -52,9 +52,9 @@ namespace FastSQL.App
             this.pageManagers = pageManagers;
         }
 
-        public void ValidateSettings()
+        public async Task ValidateSettings()
         {
-            var isOk = settingManager.Validate(out string message);
+            var isOk = await settingManager.Validate();
             IsInitialized = isOk;
             if (!isOk)
             {

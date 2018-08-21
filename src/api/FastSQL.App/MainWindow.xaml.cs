@@ -37,7 +37,7 @@ namespace FastSQL.App
             _viewModel = viewModel;
             this.resolverFactory = resolverFactory;
             DataContext = _viewModel;
-            _viewModel.ValidateSettings();
+            //Loaded += async (s, e) => await _viewModel.ValidateSettings();
         }
 
         private void OnActivateControl(ActivateControlEventArgument obj)

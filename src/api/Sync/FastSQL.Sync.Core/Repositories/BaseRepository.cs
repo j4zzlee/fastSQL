@@ -570,17 +570,11 @@ WHERE [name] = N'{table}' AND [type] = 'U'
         public  void Retry(IIndexModel model, string itemId, PushState pushState)
         {
             var state = ItemState.None;
-            //if ((pushState & PushState.RelatedItemNotFound) > 0)
-            //{
-            //    state = state | ItemState.RelatedItemNotFound;
-            //}
-            //if ((pushState & PushState.RelatedItemNotSync) > 0)
-            //{
-            //    state = state | ItemState.RelatedItemNotSynced;
-            //}
             if ((pushState & (PushState.ValidationFailed | PushState.Failed | PushState.UnexpectedError)) > 0)
             {
-                state = state | ItemState.Invalid;
+                // tells the service to not queue this item again
+                // but there will be a workflow to re-queue these type of items => never stop the progress
+                state = state | ItemState.Invalid; 
             }
             var sql = $@"
 UPDATE [{model.ValueTableName}]

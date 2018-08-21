@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Permissions;
 using System.Text;
+using System.Threading.Tasks;
 using FastSQL.Core;
 using FastSQL.MsSql;
 using FastSQL.Sync.Core.Settings.Events;
@@ -145,55 +146,56 @@ namespace FastSQL.Sync.Core.Settings
             return this;
         }
 
-        public override bool Validate(out string message)
+        public override async Task<bool> Validate()
         {
             if (!File.Exists(applicationManager.SettingFile))
             {
-                message = "Could not find application configuration file.";
+                Message = "Could not find application configuration file.";
                 return false;
             }
             
             if (string.IsNullOrWhiteSpace(Options?.FirstOrDefault(o => o.Name == "Database")?.Value))
             {
-                message = "Missing database name.";
+                Message = "Missing database name.";
                 return false;
             }
             adapter.SetOptions(Options);
-            var connected = adapter.TryConnect(out message);
-            return connected;
+            var connected = adapter.TryConnect(out string message);
+            Message = message;
+            return await Task.FromResult(connected);
         }
 
-        public override bool InvokeChildCommand(string commandName, out string message)
+        public override async Task<bool> InvokeChildCommand(string commandName)
         {
             switch(commandName.ToLower())
             {
                 case "create database":
-                    CreateDataBase();
-                    message = "Database created successful.";
+                    await CreateDataBase();
+                    Message = "Database created successful.";
                     return true;
                 case "run migrations":
-                    RunMigrations();
-                    message = "Database migrations have been applied.";
+                    await RunMigrations();
+                    Message = "Database migrations have been applied.";
                     return true;
                 case "undo migrations":
-                    UndoMigrations();
-                    message = "Success undo migrtions";
+                    await UndoMigrations();
+                    Message = "Success undo migrtions";
                     return true;
                 case "drop database":
-                    DropDatabase();
-                    message = "Database has been dropped.";
+                    await DropDatabase();
+                    Message = "Database has been dropped.";
                     return true;
                 case "generate migration":
-                    GenerateMigration();
-                    message = "Migration has been generated";
+                    await GenerateMigration();
+                    Message = "Migration has been generated";
                     return true;
             }
-            message = "Command is not available.";
+            Message = "Command is not available.";
             return false;
         }
 
         [PrincipalPermission(SecurityAction.Demand, Role = @"BUILTIN\Administrators")]
-        private void GenerateMigration()
+        private async Task<string> GenerateMigration()
         {
             generateMigrationCommand.ReadArguments(new List<string> {
                 $"--application-path={applicationManager.BasePath}",
@@ -202,44 +204,49 @@ namespace FastSQL.Sync.Core.Settings
                 $"--ticket=example-{Guid.NewGuid()}"
             });
             generateMigrationCommand.Execute();
+            return await Task.FromResult(string.Empty);
         }
 
         [PrincipalPermission(SecurityAction.Demand, Role = @"BUILTIN\Administrators")]
-        private void CreateDataBase()
+        private async Task<string> CreateDataBase()
         {
             createDatabaseCommand.ReadArguments(new List<string> {
                 $"--application-path={applicationManager.BasePath}"
             });
             createDatabaseCommand.Execute();
+            return await Task.FromResult(string.Empty);
         }
 
         [PrincipalPermission(SecurityAction.Demand, Role = @"BUILTIN\Administrators")]
-        private void RunMigrations()
+        private async Task<string> RunMigrations()
         {
             migrateUpCommand.ReadArguments(new List<string> {
                 $"--application-path={applicationManager.BasePath}",
                 $"--migration-path={Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Migrations")}"
             });
             migrateUpCommand.Execute();
+            return await Task.FromResult(string.Empty);
         }
 
         [PrincipalPermission(SecurityAction.Demand, Role = @"BUILTIN\Administrators")]
-        private void UndoMigrations()
+        private async Task<string> UndoMigrations()
         {
             migrateDownCommand.ReadArguments(new List<string> {
                 $"--application-path={applicationManager.BasePath}",
                 $"--migration-path={Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Migrations")}"
             });
             migrateDownCommand.Execute();
+            return await Task.FromResult(string.Empty);
         }
 
         [PrincipalPermission(SecurityAction.Demand, Role = @"BUILTIN\Administrators")]
-        private void DropDatabase()
+        private async Task<string> DropDatabase()
         {
             dropDatabaseCommand.ReadArguments(new List<string> {
                 $"--application-path={applicationManager.BasePath}"
             });
             dropDatabaseCommand.Execute();
+            return await Task.FromResult(string.Empty);
         }
     }
 }

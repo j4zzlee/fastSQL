@@ -1,15 +1,12 @@
 ﻿using FastSQL.Core;
-using FastSQL.Sync.Core.Events;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Repositories;
 using Newtonsoft.Json;
 using Prism.Events;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FastSQL.Sync.Core.Indexer

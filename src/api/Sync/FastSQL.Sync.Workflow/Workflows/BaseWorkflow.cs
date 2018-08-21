@@ -20,16 +20,5 @@ namespace FastSQL.Sync.Workflow.Workflows
         public virtual bool IsGeneric => true;
 
         public abstract void Build(IWorkflowBuilder<T> builder);
-        protected WorkflowMode Mode { get; set; } = WorkflowMode.None;
-        protected IIndexModel IndexModel { get; set; }
-        public void SetMode(WorkflowMode mode)
-        {
-            Mode = mode;
-        }
-
-        public void SetIndex(IIndexModel model)
-        {
-            IndexModel = model;
-        }
     }
 }

@@ -72,13 +72,13 @@ namespace FastSQL.Sync.Core.Settings
             return this;
         }
 
-        public override bool Validate(out string message)
+        public override async Task<bool> Validate()
         {
             try
             {
                 var ok = true;
                 //IsLoading = true;
-                var task = Task.Run(async () =>
+                await Task.Run(() =>
                 {
                     var allEntities = entityRepository.GetAll();
                     foreach (var entity in allEntities)
@@ -104,9 +104,8 @@ namespace FastSQL.Sync.Core.Settings
                     }
 
                 });
-                task.Wait();
-                message = "All entities has been initialized.";
-                logger.Information(message);
+                Message = "All entities has been initialized.";
+                logger.Information(Message);
 
                 return ok;
             }
@@ -121,25 +120,25 @@ namespace FastSQL.Sync.Core.Settings
             }
         }
 
-        public override bool InvokeChildCommand(string commandName, out string message)
+        public override async Task<bool> InvokeChildCommand(string commandName)
         {
             switch(commandName.ToLower())
             {
                 case "init all entities":
-                    return InitAllEntities(out message);
+                    return await InitAllEntities();
                 case "update all entities":
-                    return UpdateAllEntities(out message);
+                    return await UpdateAllEntities();
             }
-            message = "Command is not available.";
+            Message = "Command is not available.";
             return false;
         }
 
-        private bool UpdateAllEntities(out string message)
+        private async Task<bool> UpdateAllEntities()
         {
             try
             {
                 //IsLoading = true;
-                var task = Task.Run(async () =>
+                await Task.Run(async () =>
                 {
                     var allEntities = entityRepository.GetAll();
                     foreach (var entity in allEntities)
@@ -159,9 +158,8 @@ namespace FastSQL.Sync.Core.Settings
                     }
 
                 });
-                task.Wait();
-                message = "All entities has been updated.";
-                logger.Information(message);
+                Message = "All entities has been updated.";
+                logger.Information(Message);
 
                 return true;
             }
@@ -176,12 +174,12 @@ namespace FastSQL.Sync.Core.Settings
             }
         }
 
-        private bool InitAllEntities(out string message)
+        private async Task<bool> InitAllEntities()
         {
             try
             {
                 //IsLoading = true;
-                var task = Task.Run(async () =>
+                await Task.Run(async () =>
                 {
                     var allEntities = entityRepository.GetAll();
                     foreach (var entity in allEntities)
@@ -203,9 +201,8 @@ namespace FastSQL.Sync.Core.Settings
                     }
 
                 });
-                task.Wait();
-                message = "All entities has been initialized.";
-                logger.Information(message);
+                Message = "All entities has been initialized.";
+                logger.Information(Message);
 
                 return true;
             }

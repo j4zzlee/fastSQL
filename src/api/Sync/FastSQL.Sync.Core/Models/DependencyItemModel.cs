@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FastSQL.Sync.Core.Models
 {
@@ -21,6 +22,16 @@ namespace FastSQL.Sync.Core.Models
         public bool ExecuteImmediately { get; set; } = false;
         public string ReferenceKeys { get; set; } // Keys that hold by TargetEntity
         public string ForeignKeys { get; set; } // Keys that hold by the Entity
+
+        [NotMapped]
+        public string[] ForeignKeysArr => string.IsNullOrWhiteSpace(ForeignKeys) 
+            ? new string[] { } 
+            : Regex.Split(ForeignKeys, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+
+        [NotMapped]
+        public string[] ReferenceKeysArr => string.IsNullOrWhiteSpace(ReferenceKeys)
+          ? new string[] { }
+          : Regex.Split(ReferenceKeys, "[,;|]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
         public bool HasDependOnStep(IntegrationStep step)
         {

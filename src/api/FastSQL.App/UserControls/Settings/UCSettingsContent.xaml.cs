@@ -35,7 +35,7 @@ namespace FastSQL.App.UserControls
             InitializeComponent();
             Loaded += (s, e) => OnLoaded();
         }
-
+        
         public void SetViewModel(UCSettingContentViewModel viewModel)
         {
             ViewModel = viewModel;
@@ -61,6 +61,10 @@ namespace FastSQL.App.UserControls
         {
             _currentSettingId = obj.SettingId;
             var currentSetting = SettingProviders.FirstOrDefault(s => s.Id == _currentSettingId);
+            if (currentSetting == null)
+            {
+                return;
+            }
             ViewModel.SetOptions(currentSetting.Options);
             ViewModel.SetCommands(currentSetting.Commands.Concat(new List<string> { "Save", "Validate" }));
             ViewModel.SetProvider(currentSetting);

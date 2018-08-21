@@ -1,6 +1,7 @@
 ﻿using FastSQL.Core;
 using FastSQL.Sync.Core.Reporters;
 using FastSQL.Sync.Core.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace FastSQL.Sync.Workflow.Steps
 
         public ReportStep(ResolverFactory resolver,
             IEnumerable<IReporter> reporters,
-            ReporterRepository reporterRepository): base(resolver)
+            ReporterRepository reporterRepository) : base(resolver)
         {
             this.reporters = reporters;
             this.reporterRepository = reporterRepository;
@@ -23,15 +24,26 @@ namespace FastSQL.Sync.Workflow.Steps
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
-            var reportModels = reporterRepository.GetAll();
-            await Task.Run(() => Parallel.ForEach(reportModels, async (r, i) =>
+            try
             {
-                var options = reporterRepository.LoadOptions(r.Id.ToString(), r.EntityType);
-                var reporter = reporters.FirstOrDefault(rt => rt.Id == r.ReporterId);
-                reporter.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-                reporter.SetReportModel(r);
-                await reporter.Queue();
-            }));
+                var reportModels = reporterRepository.GetAll();
+                await Task.Run(() => Parallel.ForEach(reportModels, async (r, i) =>
+                {
+                    var options = reporterRepository.LoadOptions(r.Id.ToString(), r.EntityType);
+                    var reporter = reporters.FirstOrDefault(rt => rt.Id == r.ReporterId);
+                    reporter.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
+                    reporter.SetReportModel(r);
+                    await reporter.Queue();
+                }));
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Error(ex, ex.Message);
+                throw;
+            }
+            finally
+            {
+            }
         }
     }
 }

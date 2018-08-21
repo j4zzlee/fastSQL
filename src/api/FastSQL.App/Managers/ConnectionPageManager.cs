@@ -1,6 +1,7 @@
 ﻿using FastSQL.App.Interfaces;
 using FastSQL.App.UserControls;
 using FastSQL.App.UserControls.Connections;
+using FastSQL.Core;
 using FastSQL.Core.UI.Events;
 using FastSQL.Core.UI.Interfaces;
 using Prism.Events;
@@ -16,8 +17,9 @@ namespace FastSQL.App.Managers
     public class ConnectionPageManager : IPageManager
     {
         private readonly IEventAggregator eventAggregator;
-        private readonly UCConnectionsListView ucConnectionListView;
-        private readonly UCConnectionsContent uCConnectionsContent;
+        private readonly ResolverFactory resolverFactory;
+        private UCConnectionsListView ucConnectionListView;
+        private UCConnectionsContent uCConnectionsContent;
 
         public string Id => "LI5b8oVn@#$%@asdf#@$MUqTxSHIgNj6wQ";
 
@@ -27,16 +29,24 @@ namespace FastSQL.App.Managers
 
         public ConnectionPageManager(
             IEventAggregator eventAggregator,
-            UCConnectionsListView ucConnectionListView,
-            UCConnectionsContent uCConnectionsContent)
+            ResolverFactory resolverFactory)
         {
             this.eventAggregator = eventAggregator;
-            this.ucConnectionListView = ucConnectionListView;
-            this.uCConnectionsContent = uCConnectionsContent;
+            this.resolverFactory = resolverFactory;
         }
 
         public IPageManager Apply()
         {
+            if (ucConnectionListView == null)
+            {
+                ucConnectionListView = resolverFactory.Resolve<UCConnectionsListView>();
+            }
+
+            if (uCConnectionsContent == null)
+            {
+                uCConnectionsContent = resolverFactory.Resolve<UCConnectionsContent>();
+            }
+
             eventAggregator.GetEvent<AddPageEvent>().Publish(new AddPageEventArgument
             {
                 PageDefinition = ucConnectionListView

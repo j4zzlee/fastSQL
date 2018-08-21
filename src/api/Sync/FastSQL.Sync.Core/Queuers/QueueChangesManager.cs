@@ -85,9 +85,11 @@ namespace FastSQL.Sync.Core.Queuers
                                 /**
                                  * Adding these status only for reporting
                                  */
-                                entityRepository.AddIndexItemState(
-                                    _indexerModel.ValueTableName,
-                                    item.GetId(), relatedItemNotFound ? ItemState.RelatedItemNotFound : ItemState.RelatedItemNotSynced);
+                                entityRepository.ChangeStateOfIndexedItems(
+                                    _indexerModel,
+                                    relatedItemNotFound ? ItemState.RelatedItemNotFound : ItemState.RelatedItemNotSynced,
+                                    ItemState.None,
+                                    item.GetId());
                                 continue;
                             }
                         }
@@ -129,9 +131,11 @@ namespace FastSQL.Sync.Core.Queuers
                             /**
                              * Adding these status only for reporting
                              */
-                            entityRepository.AddIndexItemState(
-                                _indexerModel.ValueTableName,
-                                item.GetId(), relatedItemNotFound ? ItemState.RelatedItemNotFound : ItemState.RelatedItemNotSynced);
+                            entityRepository.ChangeStateOfIndexedItems(
+                                   _indexerModel,
+                                   relatedItemNotFound ? ItemState.RelatedItemNotFound : ItemState.RelatedItemNotSynced,
+                                   ItemState.None,
+                                   item.GetId());
                             continue;
                         }
 
@@ -141,9 +145,11 @@ namespace FastSQL.Sync.Core.Queuers
                         }
 
                         // TODO: what if retrycount > 1000?
-                        entityRepository.RemoveIndexItemState(
-                                _indexerModel.ValueTableName,
-                                item.GetId(), ItemState.RelatedItemNotFound | ItemState.RelatedItemNotSynced);
+                        entityRepository.ChangeStateOfIndexedItems(
+                                   _indexerModel,
+                                   ItemState.None,
+                                   relatedItemNotFound ? ItemState.RelatedItemNotFound : ItemState.RelatedItemNotSynced,
+                                   item.GetId());
 
                         // only valid item can be queued
                         entityRepository.QueueItem(_indexerModel, item.GetId());

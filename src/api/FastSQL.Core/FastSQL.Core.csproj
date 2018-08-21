@@ -29,4 +29,8 @@
     <ProjectReference Include="..\3rd\Castle.Windsor.ServiceCollection\Castle.Windsor.ServiceCollection.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Factories\" />
+  </ItemGroup>
+
 </Project>

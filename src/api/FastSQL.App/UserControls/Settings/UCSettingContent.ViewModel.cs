@@ -52,9 +52,8 @@ namespace FastSQL.App.UserControls
                 Name = o.Name,
                 Value = o.Value
             }));
-            var message = string.Empty;
-            var success = await Task.Run(() => _settingProvider.Invoke(commandText, out message));
-            MessageBox.Show(message,
+            var success = await _settingProvider.Invoke(commandText);
+            MessageBox.Show(_settingProvider.Message,
                 success ? "Success" : "Failed",
                 MessageBoxButton.OK,
                 success ? MessageBoxImage.Information : MessageBoxImage.Error);

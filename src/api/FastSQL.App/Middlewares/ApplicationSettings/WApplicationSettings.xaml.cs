@@ -1,4 +1,5 @@
 ﻿using FastSQL.App.Events;
+using FastSQL.Core;
 using FastSQL.Sync.Core.Settings;
 using Prism.Events;
 using System;
@@ -23,19 +24,29 @@ namespace FastSQL.App.Middlewares.ApplicationSettings
     public partial class WApplicationSettings : Window
     {
         private readonly IEventAggregator eventAggregator;
+        private readonly ResolverFactory resolverFactory;
 
         public WApplicationSettings(
             WApplicationSettingsViewModel viewModel,
             IEventAggregator eventAggregator,
-            IEnumerable<ISettingProvider> settingProviders)
+            ResolverFactory resolverFactory)
         {
             InitializeComponent();
             DataContext = viewModel;
             SettingContent.SetEventAggregator(eventAggregator);
-            SettingContent.SetSettingProviders(settingProviders);
+            //
             SettingContent.SetViewModel(viewModel.SettingViewModel);
             SettingContent.OnLoaded();
             this.eventAggregator = eventAggregator;
+            this.resolverFactory = resolverFactory;
+            //,
+            //IEnumerable<ISettingProvider> settingProviders
+        }
+
+        public void SetProviders(IEnumerable<ISettingProvider> providers)
+        {
+            SettingContent.SetSettingProviders(providers);
+            SettingContent.OnLoaded();
         }
 
         public void SetProvider(ISettingProvider provider)

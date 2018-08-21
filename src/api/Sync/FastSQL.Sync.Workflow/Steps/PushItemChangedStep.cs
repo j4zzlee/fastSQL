@@ -41,7 +41,7 @@ namespace FastSQL.Sync.Workflow.Steps
             MessageRepository messageRepository,
             QueueItemRepository queueItemRepository,
             ConnectionRepository connectionRepository,
-            PusherManager pusherManager): base(resolver)
+            PusherManager pusherManager) : base(resolver)
         {
             this.entityIndexers = entityIndexers;
             this.attributeIndexers = attributeIndexers;
@@ -57,99 +57,104 @@ namespace FastSQL.Sync.Workflow.Steps
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
-            var executeAt = DateTime.Now.ToUnixTimestamp();
-            var firstQueuedItem = entityRepository.GetCurrentQueuedItems();
-            if (firstQueuedItem == null)
-            {
-                return;
-            }
-            IIndexModel indexModel = null;
-            IndexItemModel itemModel = null;
-            IIndexer indexer = null;
-            IPusher pusher = null;
-            IEnumerable<OptionItem> options = null;
-            if (firstQueuedItem.TargetEntityType == EntityType.Entity)
-            {
-                indexModel = entityRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
-                options = entityRepository.LoadOptions(indexModel.Id.ToString()).Select(o => new OptionItem { Name = o.Key, Value = o.Value });
-                var sourceConnection = connectionRepository.GetById(indexModel.SourceConnectionId.ToString());
-                var destinationConnection = connectionRepository.GetById(indexModel.DestinationConnectionId.ToString());
-                indexer = entityIndexers.FirstOrDefault(i => i.IsImplemented(indexModel.SourceProcessorId, sourceConnection.ProviderId));
-                pusher = entityPushers.FirstOrDefault(p => p.IsImplemented(indexModel.DestinationProcessorId, destinationConnection.ProviderId));
-            }
-            else
-            {
-                var attributeModel = attributeRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
-                indexModel = attributeModel;
-                var entityModel = entityRepository.GetById(attributeModel.EntityId.ToString());
-                options = attributeRepository.LoadOptions(attributeModel.Id.ToString()).Select(o => new OptionItem { Name = o.Key, Value = o.Value });
-                var sourceConnection = connectionRepository.GetById(attributeModel.SourceConnectionId.ToString());
-                var destinationConnection = connectionRepository.GetById(attributeModel.DestinationConnectionId.ToString());
-                indexer = attributeIndexers.FirstOrDefault(i => i.IsImplemented(attributeModel.SourceProcessorId, entityModel.SourceProcessorId, sourceConnection.ProviderId));
-                pusher = attributePushers.FirstOrDefault(p => p.IsImplemented(attributeModel.DestinationProcessorId, entityModel.DestinationProcessorId, destinationConnection.ProviderId));
-            }
-
-            indexer.SetIndex(indexModel);
-            indexer.SetOptions(options);
-            pusher.SetIndex(indexModel);
-            pusher.SetOptions(options);
-            pusherManager.SetIndex(indexModel);
-            pusherManager.OnReport(s => Logger.Information(s));
-            pusherManager.SetIndexer(indexer);
-            pusherManager.SetPusher(pusher);
-
             try
             {
-                itemModel = entityRepository.GetIndexedItemById(indexModel, firstQueuedItem.TargetItemId.ToString());
-                var pushState = await pusherManager.PushItem(itemModel);
-                var queueItemStatus = firstQueuedItem.Status == PushState.None ? PushState.Success : firstQueuedItem.Status;
-                var messageId = messageRepository.Create(new
+                var executeAt = DateTime.Now.ToUnixTimestamp();
+                var firstQueuedItem = entityRepository.GetCurrentQueuedItems();
+                if (firstQueuedItem == null)
                 {
-                    Message = string.Join("\n", pusherManager.GetReportMessages()),
-                    CreatedAt = DateTime.Now.ToUnixTimestamp(),
-                    MessageType = MessageType.Information,
-                    Status = MessageStatus.None
-                });
-                queueItemStatus = queueItemStatus & pushState;
-                if ((pushState & PushState.Success) <= 0)
-                {
-                    queueItemStatus = (queueItemStatus | PushState.Success) ^ (PushState.Success);
+                    return;
                 }
-                queueItemRepository.Update(firstQueuedItem.Id.ToString(), new
+                IIndexModel indexModel = null;
+                IndexItemModel itemModel = null;
+                IIndexer indexer = null;
+                IPusher pusher = null;
+                IEnumerable<OptionItem> options = null;
+                if (firstQueuedItem.TargetEntityType == EntityType.Entity)
                 {
-                    UpdatedAt = DateTime.Now.ToUnixTimestamp(),
-                    ExecuteAt = executeAt,
-                    ExecutedAt = DateTime.Now.ToUnixTimestamp(),
-                    MessageId = messageId,
-                    Status = queueItemStatus
-                });
-            }
-            catch (Exception ex)
-            {
-                var messages = $@"Queue item (Id: {firstQueuedItem.Id}) failed to run. 
+                    indexModel = entityRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
+                    options = entityRepository.LoadOptions(indexModel.Id.ToString()).Select(o => new OptionItem { Name = o.Key, Value = o.Value });
+                    var sourceConnection = connectionRepository.GetById(indexModel.SourceConnectionId.ToString());
+                    var destinationConnection = connectionRepository.GetById(indexModel.DestinationConnectionId.ToString());
+                    indexer = entityIndexers.FirstOrDefault(i => i.IsImplemented(indexModel.SourceProcessorId, sourceConnection.ProviderId));
+                    pusher = entityPushers.FirstOrDefault(p => p.IsImplemented(indexModel.DestinationProcessorId, destinationConnection.ProviderId));
+                }
+                else
+                {
+                    var attributeModel = attributeRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
+                    indexModel = attributeModel;
+                    var entityModel = entityRepository.GetById(attributeModel.EntityId.ToString());
+                    options = attributeRepository.LoadOptions(attributeModel.Id.ToString()).Select(o => new OptionItem { Name = o.Key, Value = o.Value });
+                    var sourceConnection = connectionRepository.GetById(attributeModel.SourceConnectionId.ToString());
+                    var destinationConnection = connectionRepository.GetById(attributeModel.DestinationConnectionId.ToString());
+                    indexer = attributeIndexers.FirstOrDefault(i => i.IsImplemented(attributeModel.SourceProcessorId, entityModel.SourceProcessorId, sourceConnection.ProviderId));
+                    pusher = attributePushers.FirstOrDefault(p => p.IsImplemented(attributeModel.DestinationProcessorId, entityModel.DestinationProcessorId, destinationConnection.ProviderId));
+                }
+
+                indexer.SetIndex(indexModel);
+                indexer.SetOptions(options);
+                pusher.SetIndex(indexModel);
+                pusher.SetOptions(options);
+                pusherManager.SetIndex(indexModel);
+                pusherManager.OnReport(s => Logger.Information(s));
+                pusherManager.SetIndexer(indexer);
+                pusherManager.SetPusher(pusher);
+
+                try
+                {
+                    itemModel = entityRepository.GetIndexedItemById(indexModel, firstQueuedItem.TargetItemId.ToString());
+                    var pushState = await pusherManager.PushItem(itemModel);
+                    var messageId = messageRepository.Create(new
+                    {
+                        Message = string.Join("\n", pusherManager.GetReportMessages()),
+                        CreatedAt = DateTime.Now.ToUnixTimestamp(),
+                        MessageType = MessageType.Information,
+                        Status = MessageStatus.None
+                    });
+                    queueItemRepository.Update(firstQueuedItem.Id.ToString(), new
+                    {
+                        UpdatedAt = DateTime.Now.ToUnixTimestamp(),
+                        ExecuteAt = executeAt,
+                        ExecutedAt = DateTime.Now.ToUnixTimestamp(),
+                        MessageId = messageId,
+                        Status = pushState
+                    });
+                }
+                catch (Exception ex)
+                {
+                    var messages = $@"Queue item (Id: {firstQueuedItem.Id}) failed to run. 
 Addtional information:
 ```{JsonConvert.SerializeObject(indexModel, Formatting.Indented)}```
 Progress: 
 ```{string.Join("\n - ", pusherManager.GetReportMessages())}```
 Exception: 
 ```{ex}```";
-                var messageId = messageRepository.Create(new
-                {
-                    Message = messages,
-                    CreatedAt = DateTime.Now.ToUnixTimestamp(),
-                    MessageType = MessageType.Error,
-                    Status = MessageStatus.None
-                });
+                    var messageId = messageRepository.Create(new
+                    {
+                        Message = messages,
+                        CreatedAt = DateTime.Now.ToUnixTimestamp(),
+                        MessageType = MessageType.Error,
+                        Status = MessageStatus.None
+                    });
 
-                queueItemRepository.Update(firstQueuedItem.Id.ToString(), new
-                {
-                    UpdatedAt = DateTime.Now.ToUnixTimestamp(),
-                    ExecuteAt = executeAt,
-                    ExecutedAt = DateTime.Now.ToUnixTimestamp(),
-                    MessageId = messageId,
-                    Status = (firstQueuedItem.Status | PushState.UnexpectedError | PushState.Failed | PushState.Success) ^ PushState.Success, // remove success
-                });
+                    queueItemRepository.Update(firstQueuedItem.Id.ToString(), new
+                    {
+                        UpdatedAt = DateTime.Now.ToUnixTimestamp(),
+                        ExecuteAt = executeAt,
+                        ExecutedAt = DateTime.Now.ToUnixTimestamp(),
+                        MessageId = messageId,
+                        Status = PushState.UnexpectedError
+                    });
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Error(ex, ex.Message);
                 throw;
+            }
+            finally
+            {
             }
         }
     }

@@ -110,15 +110,15 @@
                     ItemsSource="{Binding GridContextMenus}"
                     Visibility="{Binding Path=HasGridContextMenu, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <ContextMenu.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding}"/>
-                        </DataTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type ContextMenu}" ItemsSource="{Binding Children}">
+                            <TextBlock Text="{Binding Name}" />
+                        </HierarchicalDataTemplate>
                     </ContextMenu.ItemTemplate>
                     <ContextMenu.ItemContainerStyle>
                         <Style TargetType="MenuItem">
                             <Setter Property="Command" 
                                     Value="{Binding Source={StaticResource Proxy}, Path=Data.OnGridContextMenuCommand}"/>
-                            <Setter Property="CommandParameter" Value="{Binding}"/>
+                            <Setter Property="CommandParameter" Value="{Binding CommandName}"/>
                         </Style>
                     </ContextMenu.ItemContainerStyle>
                 </ContextMenu>

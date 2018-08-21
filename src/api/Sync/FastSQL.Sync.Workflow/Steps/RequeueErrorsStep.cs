@@ -1,43 +1,41 @@
-﻿using FastSQL.Core;
-using FastSQL.Sync.Core.Models;
-using FastSQL.Sync.Core.Queuers;
-using FastSQL.Sync.Core.Repositories;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
+using FastSQL.Core;
+using FastSQL.Sync.Core.Models;
+using FastSQL.Sync.Core.Repositories;
 using WorkflowCore.Interface;
 
 namespace FastSQL.Sync.Workflow.Steps
 {
-    public class QueueIndexChangesStep : BaseStepBodyInvoker
+    public class RequeueErrorsStep : BaseStepBodyInvoker
     {
-        public IIndexModel IndexModel { get; set; }
-        public int Counter { get; set; }
         private readonly EntityRepository entityRepository;
         private readonly AttributeRepository attributeRepository;
         private readonly ConnectionRepository connectionRepository;
-        private readonly QueueChangesManager queueChangesManager;
 
-        public QueueIndexChangesStep(ResolverFactory resolver,
+        public IIndexModel IndexModel { get; set; }
+        public int Counter { get; set; }
+
+        public RequeueErrorsStep(
+            ResolverFactory resolver, 
             EntityRepository entityRepository,
             AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository,
-            QueueChangesManager queueChangesManager) : base(resolver)
+            ConnectionRepository connectionRepository) : base(resolver)
         {
             this.entityRepository = entityRepository;
             this.attributeRepository = attributeRepository;
             this.connectionRepository = connectionRepository;
-            this.queueChangesManager = queueChangesManager;
         }
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
             try
             {
-                Logger.Information($@"Queueing index changes of {IndexModel.Name}/{IndexModel.Id}...");
-                queueChangesManager.SetIndex(IndexModel);
-                queueChangesManager.OnReport(s => Logger.Information(s));
-                await queueChangesManager.QueueChanges();
-                Logger.Information($@"Queued index changes of {IndexModel.Name}/{IndexModel.Id}");
+                Logger.Information($@"Requeuing items of {IndexModel.Name}/{IndexModel.Id}...");
+                await Task.Run(() => entityRepository.ChangeStateOfIndexedItems(IndexModel, Core.Enums.ItemState.None, Core.Enums.ItemState.Invalid, null));
+                Logger.Information($@"Requeued items of {IndexModel.Name}/{IndexModel.Id}");
             }
             catch (Exception ex)
             {

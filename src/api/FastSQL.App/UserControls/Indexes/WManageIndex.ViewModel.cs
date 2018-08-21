@@ -5,6 +5,7 @@ using FastSQL.App.UserControls.OutputView;
 using FastSQL.Core;
 using FastSQL.Core.Events;
 using FastSQL.Core.Loggers;
+using FastSQL.Core.UI.Models;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Constants;
 using FastSQL.Sync.Core.Enums;
@@ -73,16 +74,109 @@ namespace FastSQL.App.UserControls.Indexes
             set
             {
                 dataGridViewModel = value;
-                dataGridViewModel.SetGridContextMenus(new List<string> {
-                    "Change",
-                    //"Change Range",
-                    "Change All",
-                    "Remove",
-                    //"Remove Range",
-                    "Remove All",
-                    "Sync",
-                    //"Sync Range",
-                    "Sync All"});
+                //dataGridViewModel.SetGridContextMenus(new List<string> {
+                //    "Change",
+                //    //"Change Range",
+                //    "Change All",
+                //    "Remove",
+                //    //"Remove Range",
+                //    "Remove All",
+                //    "Sync",
+                //    //"Sync Range",
+                //    "Sync All"});
+                dataGridViewModel.SetGridContextMenus(new List<MenuItemDefinition>
+                {
+                    new MenuItemDefinition
+                    {
+                        Name = "Change",
+                        Children = new ObservableCollection<MenuItemDefinition>
+                        {
+                            new MenuItemDefinition
+                            {
+                                Name = "Selected",
+                                CommandName = "ChangeSelected"
+                            },
+                            new MenuItemDefinition
+                            {
+                                Name = "All",
+                                CommandName = "ChangeAll"
+                            }
+                        }
+                    },
+                    new MenuItemDefinition
+                    {
+                        Name = "Unchange",
+                        Children = new ObservableCollection<MenuItemDefinition>
+                        {
+                            new MenuItemDefinition
+                            {
+                                Name = "Selected",
+                                CommandName = "UnchangeSelected"
+                            },
+                            new MenuItemDefinition
+                            {
+                                Name = "All",
+                                CommandName = "UnchangeAll"
+                            }
+                        }
+                    },
+                    new MenuItemDefinition
+                    {
+                        Name = "Remove",
+                        Children = new ObservableCollection<MenuItemDefinition>
+                        {
+                            new MenuItemDefinition
+                            {
+                                Name = "Selected",
+                                CommandName = "RemoveSelected"
+                            },
+                            new MenuItemDefinition
+                            {
+                                Name = "All",
+                                CommandName = "RemoveAll"
+                            }
+                        }
+                    },
+                    new MenuItemDefinition
+                    {
+                        Name = "Process",
+                        Children = new ObservableCollection<MenuItemDefinition>
+                        {
+                            new MenuItemDefinition
+                            {
+                                Name = "Selected",
+                                CommandName = "ProcessSelected"
+                            },
+                            new MenuItemDefinition
+                            {
+                                Name = "All",
+                                CommandName = "ProcessAll"
+                            }
+                        }
+                    },
+                    new MenuItemDefinition
+                    {
+                        Name = "Unprocess",
+                        Children = new ObservableCollection<MenuItemDefinition>
+                        {
+                            new MenuItemDefinition
+                            {
+                                Name = "Selected",
+                                CommandName = "UnprocessSelected"
+                            },
+                            new MenuItemDefinition
+                            {
+                                Name = "All",
+                                CommandName = "UnprocessAll"
+                            }
+                        }
+                    },
+                    new MenuItemDefinition
+                    {
+                        Name = "Sync",
+                        CommandName = "Sync"
+                    }
+                });
                 dataGridViewModel.OnFilter += DataGridViewModel_OnFilter;
                 dataGridViewModel.OnEvent += DataGridViewModel_OnEvent;
                 OnPropertyChanged(nameof(DataGridViewModel));
@@ -101,28 +195,64 @@ namespace FastSQL.App.UserControls.Indexes
             var selectedItemIds = selectedItems.Select(i => i["Id"].ToString());
             switch (args.CommandName)
             {
-                case "Change":
-                    entityRepository.ChangeIndexedItems(_indexModel,
+                case "ChangeSelected":
+                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
                         ItemState.Changed,
-                        ItemState.Removed | ItemState.Invalid | ItemState.Processed,
+                        ItemState.Removed | ItemState.Invalid,
                         selectedItemIds.ToArray());
                     break;
-                case "Change All":
-                    entityRepository.ChangeIndexedItems(_indexModel,
+                case "ChangeAll":
+                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
                         ItemState.Changed,
-                        ItemState.Removed | ItemState.Invalid | ItemState.Processed,
+                        ItemState.Removed | ItemState.Invalid,
                         null);
                     break;
-                case "Remove":
-                    entityRepository.ChangeIndexedItems(_indexModel,
-                        ItemState.Changed | ItemState.Removed,
-                        ItemState.Invalid | ItemState.Processed,
+                case "UnchangeSelected":
+                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                        ItemState.None,
+                        ItemState.Changed | ItemState.Invalid,
                         selectedItemIds.ToArray());
                     break;
-                case "Remove All":
-                    entityRepository.ChangeIndexedItems(_indexModel,
+                case "UnchangeAll":
+                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                        ItemState.None,
+                        ItemState.Changed | ItemState.Invalid,
+                        null);
+                    break;
+                case "RemoveSelected":
+                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
                         ItemState.Changed | ItemState.Removed,
-                        ItemState.Invalid | ItemState.Processed,
+                        ItemState.Invalid,
+                        selectedItemIds.ToArray());
+                    break;
+                case "RemoveAll":
+                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                        ItemState.Changed | ItemState.Removed,
+                        ItemState.Invalid,
+                        null);
+                    break;
+                case "ProcessSelected":
+                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                        ItemState.Processed,
+                        ItemState.Invalid,
+                        selectedItemIds.ToArray());
+                    break;
+                case "ProcessAll":
+                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                        ItemState.Processed,
+                        ItemState.Invalid,
+                        null);
+                    break;
+                case "UnprocessSelected":
+                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                        ItemState.None,
+                        ItemState.Processed | ItemState.Invalid,
+                        selectedItemIds.ToArray());
+                    break;
+                case "UnprocessAll":
+                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                        ItemState.None,
+                        ItemState.Processed | ItemState.Invalid,
                         null);
                     break;
                 case "Sync":
@@ -328,11 +458,11 @@ namespace FastSQL.App.UserControls.Indexes
             {
                 logger.Information(m);
             });
-            _puller.SetIndex(_indexModel);
-            _pusher.SetIndex(_indexModel);
-            _indexer.SetIndex(_indexModel);
-
-            Initialized = _puller.Initialized() && entityRepository.Initialized(_indexModel);
+            _puller?.SetIndex(_indexModel);
+            _indexer?.SetIndex(_indexModel);
+            _pusher?.SetIndex(_indexModel);
+            
+            Initialized = _puller?.Initialized() == true && entityRepository?.Initialized(_indexModel) == true;
 
             if (Initialized)
             {

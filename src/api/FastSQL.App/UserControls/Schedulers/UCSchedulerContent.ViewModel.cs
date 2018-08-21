@@ -1,6 +1,7 @@
 ﻿using FastSQL.App.Interfaces;
 using FastSQL.App.UserControls.DataGrid;
 using FastSQL.Core;
+using FastSQL.Core.UI.Models;
 using FastSQL.Sync.Core;
 using FastSQL.Sync.Core.Constants;
 using FastSQL.Sync.Core.Enums;
@@ -37,9 +38,17 @@ namespace FastSQL.App.UserControls.Schedulers
             set
             {
                 dataGridViewModel = value;
-                dataGridViewModel.SetGridContextMenus(new List<string> {
-                    "Run",
-                    "Stop"
+                dataGridViewModel.SetGridContextMenus(new List<MenuItemDefinition> {
+                    new MenuItemDefinition
+                    {
+                        Name = "Run",
+                        CommandName = "Run"
+                    },
+                    new MenuItemDefinition
+                    {
+                        Name = "Stop",
+                        CommandName = "Stop"
+                    }
                 });
                 dataGridViewModel.OnFilter += DataGridViewModel_OnFilter;
                 dataGridViewModel.OnEvent += DataGridViewModel_OnEvent;
@@ -60,7 +69,6 @@ namespace FastSQL.App.UserControls.Schedulers
             this.attributeRepository = attributeRepository;
             this.workflows = workflows;
             this.syncService = syncService;
-            syncService.SetMode(WorkflowMode.Test);
         }
 
         private async void DataGridViewModel_OnFilter(object sender, FilterArguments args)
