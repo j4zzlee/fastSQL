@@ -103,9 +103,9 @@ namespace FastSQL.App.UserControls.Indexes
         }
 
 
-        public void Loaded()
+        public Task<int> Loaded()
         {
-
+            return Task.FromResult(0);
         }
 
         private void OnRefreshIndexes(RefreshIndexesListViewEventArgument obj)

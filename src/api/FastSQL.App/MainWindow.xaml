@@ -41,6 +41,7 @@
                             syncfusion:DockingManager.State="Dock"
                             syncfusion:DockingManager.SideInDockedMode="Bottom"
                             syncfusion:DockingManager.DockAbility="Bottom"
+                            syncfusion:DockingManager.OuterDockAbility="Bottom"
                             syncfusion:DockingManager.DesiredMinHeightInDockedMode="200"
                             syncfusion:DockingManager.CanClose="False">
                         <outputview:UCOutputView DataContext="{Binding OutputViewViewModel}" HasChannel="True"></outputview:UCOutputView>

@@ -26,7 +26,7 @@ namespace FastSQL.App.UserControls.Reporters
         {
             InitializeComponent();
             DataContext = viewModel;
-            Loaded += (s, e) => viewModel.Loaded();
+            Loaded += async (s, e) => await viewModel.Loaded();
         }
 
         public string Id

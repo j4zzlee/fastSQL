@@ -41,7 +41,7 @@ namespace FastSQL.App.UserControls
             this.viewModel = viewModel;
             this.resolverFactory = resolverFactory;
             DataContext = this.viewModel;
-            Loaded += (s, e) => viewModel.Loaded();
+            Loaded += async (s, e) => await viewModel.Loaded();
             cbbEntities.SelectionChanged += (s, e) => {
                 viewModel.FilterProcessors();
                 viewModel.LoadOptions();

@@ -35,7 +35,7 @@ namespace FastSQL.App.UserControls.Queues
             this.viewModel = viewModel;
             this.resolverFactory = resolverFactory;
             DataContext = this.viewModel;
-            Loaded += (s, e) => viewModel.Loaded();
+            Loaded += async (s, e) => await viewModel.Loaded();
         }
 
         public string Id { get => "NZW8@!2_+38$@32VJgnbIEOxA5UU8r8tNA%%)(&=="; set { } }

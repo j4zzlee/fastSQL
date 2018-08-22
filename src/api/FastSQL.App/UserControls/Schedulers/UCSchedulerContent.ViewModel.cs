@@ -204,7 +204,7 @@ namespace FastSQL.App.UserControls.Schedulers
             });
         }
 
-        public async void Loaded()
+        public async Task Loaded()
         {
             await LoadData(null, DataGridContstants.PageLimit, 0, true);
         }

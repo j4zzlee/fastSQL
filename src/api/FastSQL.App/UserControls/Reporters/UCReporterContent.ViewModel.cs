@@ -114,7 +114,7 @@ namespace FastSQL.App.UserControls.Reporters
 
         public ObservableCollection<MessageDeliveryChannelModel> Channels
         {
-            get => new ObservableCollection<MessageDeliveryChannelModel>(_channels);
+            get => new ObservableCollection<MessageDeliveryChannelModel>(_channels ?? new List<MessageDeliveryChannelModel>());
             set
             {
                 _channels = value?.ToList() ?? new List<MessageDeliveryChannelModel>();
@@ -348,11 +348,12 @@ namespace FastSQL.App.UserControls.Reporters
 
         }
 
-        public void Loaded()
+        public Task<int> Loaded()
         {
             using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
             {
                 Channels = new ObservableCollection<MessageDeliveryChannelModel>(messageDeliveryChannelRepository.GetAll());
+                return Task.FromResult(0);
             }
         }
     }

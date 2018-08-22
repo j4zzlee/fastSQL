@@ -78,11 +78,12 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
             }
         }
 
-        public void Loaded()
+        public Task<int> Loaded()
         {
             using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
             {
                 Channels = new ObservableCollection<MessageDeliveryChannelModel>(messageDeliveryChannelRepository.GetAll());
+                return Task.FromResult(0);
             }
         }
     }

@@ -47,9 +47,9 @@ namespace FastSQL.App.UserControls.Previews
         //{
         //}
 
-        private void WPreviewData_Loaded(object sender, RoutedEventArgs e)
+        private async void WPreviewData_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModel.Load();
+            await viewModel.Load();
         }
 
         public void SetPuller(IPuller puller)

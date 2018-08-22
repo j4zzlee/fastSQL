@@ -29,7 +29,7 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
             InitializeComponent();
             this.viewModel = viewModel;
             DataContext = viewModel;
-            Loaded += (s, e) => viewModel.Loaded();
+            Loaded += async (s, e) => await viewModel.Loaded();
         }
 
         public string Id

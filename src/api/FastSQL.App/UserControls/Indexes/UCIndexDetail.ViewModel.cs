@@ -873,7 +873,7 @@ namespace FastSQL.App.UserControls.Indexes
             AttributeDependencyViewModel.SetTargetType(indexType);
         }
 
-        public void Loaded()
+        public Task<int> Loaded()
         {
             using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
             using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
@@ -886,6 +886,7 @@ namespace FastSQL.App.UserControls.Indexes
 
                 Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete", "Preview" }); // , "Manage"
             }
+            return Task.FromResult(0);
         }
 
         private void OnIndexesChanged(RefreshIndexesListViewEventArgument args)

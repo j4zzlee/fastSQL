@@ -6,44 +6,45 @@
              xmlns:local="clr-namespace:FastSQL.App.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid DataContext="{Binding}" Name="grdContainer">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <ItemsControl ItemsSource="{Binding Path=Options}" Grid.Row="0" Grid.Column="0">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-        <ItemsControl ItemsSource="{Binding Path=Commands}" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Padding="10" HorizontalAlignment="Center">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Button 
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+        <Grid DataContext="{Binding}" Name="grdContainer">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <ItemsControl ItemsSource="{Binding Path=Options}" Grid.Row="0" Grid.Column="0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding Path=Commands}" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Padding="10" HorizontalAlignment="Center">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button 
                         Command="{Binding ElementName=grdContainer, Path=DataContext.ApplyCommand}"
                         CommandParameter="{Binding}"
                         Padding="10"
                         Margin="10">
-                        <TextBlock Text="{Binding}"></TextBlock>
-                    </Button>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-    </Grid>
-    
+                            <TextBlock Text="{Binding}"></TextBlock>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

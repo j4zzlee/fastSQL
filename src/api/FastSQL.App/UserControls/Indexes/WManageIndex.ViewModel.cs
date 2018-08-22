@@ -433,7 +433,7 @@ namespace FastSQL.App.UserControls.Indexes
             ModelName = _indexModel?.Name ?? "Manage Index";
         }
 
-        public async void Loaded()
+        public async Task Loaded()
         {
             using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
             {

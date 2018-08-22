@@ -64,11 +64,12 @@ namespace FastSQL.App.UserControls.Previews
             _index = model;
         }
 
-        public void Load()
+        public Task<int> Load()
         {
             var res = _puller.Preview();
             DataGridViewModel.SetData(res.Data);
             Status = res.Status;
+            return Task.FromResult(0);
         }
     }
 }

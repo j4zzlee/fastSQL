@@ -291,9 +291,9 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
 
         }
 
-        public void Loaded()
+        public Task<int> Loaded()
         {
-
+            return Task.FromResult(0);
         }
     }
 }

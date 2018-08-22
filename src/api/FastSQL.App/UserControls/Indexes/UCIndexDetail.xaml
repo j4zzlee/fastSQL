@@ -10,54 +10,55 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>
-    <Grid DataContext="{Binding}" Name="grdContainer">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="200"/>
-        </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0">
-            <TabControl Name="tbContainer">
-                <TabItem Header="General">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid Grid.Row="0" >
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+        <Grid DataContext="{Binding}" Name="grdContainer">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <TabControl Name="tbContainer">
+                    <TabItem Header="General">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                            <Grid>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Name" Grid.Row="0"></TextBlock>
-                                <TextBox Text="{Binding Name}" Grid.Row="1" Padding="5" Margin="0,0,0,10"></TextBox>
-                            </Grid>
-                            <Grid Grid.Row="1" >
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Description" Grid.Row="0"></TextBlock>
-                                <TextBox Text="{Binding Description}"
+                                <Grid Grid.Row="0" >
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Name" Grid.Row="0"></TextBlock>
+                                    <TextBox Text="{Binding Name}" Grid.Row="1" Padding="5" Margin="0,0,0,10"></TextBox>
+                                </Grid>
+                                <Grid Grid.Row="1" >
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Description" Grid.Row="0"></TextBlock>
+                                    <TextBox Text="{Binding Description}"
                                         Grid.Row="1"
                                         Padding="5"
                                         Margin="0,0,0,10"
@@ -66,18 +67,18 @@
                                         AcceptsReturn="True"
                                         HorizontalScrollBarVisibility="Auto"
                                         VerticalScrollBarVisibility="Auto"></TextBox>
-                            </Grid>
-                            <Grid Grid.Row="2" 
+                                </Grid>
+                                <Grid Grid.Row="2" 
                                   Visibility="{Binding ElementName=grdContainer, Path=DataContext.IsAttribute, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Entity" Grid.Row="0"></TextBlock>
-                                <ComboBox 
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Entity" Grid.Row="0"></TextBlock>
+                                    <ComboBox 
                                     Name="cbbEntities"
                                     ItemsSource="{Binding Entities}"
                                 SelectedItem="{Binding SelectedEntity}"
@@ -85,28 +86,28 @@
                                 IsSynchronizedWithCurrentItem="True"
                                 Grid.Row="1"
                                 Padding="5" Margin="0,0,0,10"></ComboBox>
-                            </Grid>
-                            <Grid Grid.Row="3" >
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Enabled" Grid.Column="0" Margin="0,0,10,10"></TextBlock>
-                                <CheckBox IsChecked="{Binding Enabled}" Grid.Column="1" Padding="5" Margin="0,0,0,10"></CheckBox>
-                            </Grid>
-                            <Grid Grid.Row="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Source Connection" Grid.Row="0"></TextBlock>
-                                <ComboBox 
+                                </Grid>
+                                <Grid Grid.Row="3" >
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Enabled" Grid.Column="0" Margin="0,0,10,10"></TextBlock>
+                                    <CheckBox IsChecked="{Binding Enabled}" Grid.Column="1" Padding="5" Margin="0,0,0,10"></CheckBox>
+                                </Grid>
+                                <Grid Grid.Row="4">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Source Connection" Grid.Row="0"></TextBlock>
+                                    <ComboBox 
                                     Name="cbbSourceConnections"
                                     ItemsSource="{Binding SourceConnections}"
                                 SelectedItem="{Binding SelectedSourceConnection}"
@@ -114,17 +115,17 @@
                                 IsSynchronizedWithCurrentItem="True"
                                 Grid.Row="1"
                                 Padding="5" Margin="0,0,0,10"></ComboBox>
-                            </Grid>
-                            <Grid Grid.Row="5">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Destination Connection" Grid.Row="0"></TextBlock>
-                                <ComboBox 
+                                </Grid>
+                                <Grid Grid.Row="5">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Destination Connection" Grid.Row="0"></TextBlock>
+                                    <ComboBox 
                                     Name="cbbDestinationConnections"
                                     ItemsSource="{Binding DestinationConnections}"
                                 SelectedItem="{Binding SelectedDestinationConnection}"
@@ -132,17 +133,17 @@
                                 IsSynchronizedWithCurrentItem="True"
                                 Grid.Row="1"
                                 Padding="5" Margin="0,0,0,10"></ComboBox>
-                            </Grid>
-                            <Grid Grid.Row="6">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Source Processor" Grid.Row="0"></TextBlock>
-                                <ComboBox 
+                                </Grid>
+                                <Grid Grid.Row="6">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Source Processor" Grid.Row="0"></TextBlock>
+                                    <ComboBox 
                                     Name="cbbSourceProcessors"
                                     ItemsSource="{Binding SourceProcessors}"
                                 SelectedItem="{Binding SelectedSourceProcessor}"
@@ -150,17 +151,17 @@
                                 IsSynchronizedWithCurrentItem="True"
                                 Grid.Row="1"
                                 Padding="5" Margin="0,0,0,10"></ComboBox>
-                            </Grid>
-                            <Grid Grid.Row="7">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Destination Processor" Grid.Row="0"></TextBlock>
-                                <ComboBox 
+                                </Grid>
+                                <Grid Grid.Row="7">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Destination Processor" Grid.Row="0"></TextBlock>
+                                    <ComboBox 
                                     Name="cbbDestinationProcessors"
                                     ItemsSource="{Binding DestinationProcessors}"
                                 SelectedItem="{Binding SelectedDestinationProcessor}"
@@ -168,164 +169,165 @@
                                 IsSynchronizedWithCurrentItem="True"
                                 Grid.Row="1"
                                 Padding="5" Margin="0,0,0,10"></ComboBox>
-                            </Grid>
-                            <Grid Grid.Row="8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <Grid Grid.Column="0" Name="grdIndexInfo1">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <ItemsControl Grid.Row="0">
-                                        <TextBlock Text="Source View: " Margin="5" Padding="5" FontWeight="Bold"></TextBlock>
-                                        <TextBlock Text="{Binding SourceViewName}" Margin="5" Padding="5"></TextBlock>
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=grdIndexInfo1, Path=ActualWidth}"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                    </ItemsControl>
-                                    <ItemsControl Grid.Row="1">
-                                        <TextBlock Text="Value Table: " Margin="5" Padding="5" FontWeight="Bold"></TextBlock>
-                                        <TextBlock Text="{Binding ValueTableName}" Margin="5" Padding="5"></TextBlock>
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=grdIndexInfo1, Path=ActualWidth}"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                    </ItemsControl>
                                 </Grid>
-                                <Grid Grid.Column="1" Name="grdIndexInfo2">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <ItemsControl Grid.Row="0">
-                                        <TextBlock Text="Old Value Table: " Margin="5" Padding="5" FontWeight="Bold"></TextBlock>
-                                        <TextBlock Text="{Binding OldValueTableName}" Margin="5" Padding="5"></TextBlock>
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=grdIndexInfo2, Path=ActualWidth}"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                    </ItemsControl>
-                                    <ItemsControl Grid.Row="1">
-                                        <TextBlock Text="New Value Table:" Margin="5" Padding="5" FontWeight="Bold"></TextBlock>
-                                        <TextBlock Text="{Binding NewValueTableName}" Margin="5" Padding="5"></TextBlock>
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=grdIndexInfo2, Path=ActualWidth}"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                    </ItemsControl>
+                                <Grid Grid.Row="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Name="grdIndexInfo1">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <ItemsControl Grid.Row="0">
+                                            <TextBlock Text="Source View: " Margin="5" Padding="5" FontWeight="Bold"></TextBlock>
+                                            <TextBlock Text="{Binding SourceViewName}" Margin="5" Padding="5"></TextBlock>
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=grdIndexInfo1, Path=ActualWidth}"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                        <ItemsControl Grid.Row="1">
+                                            <TextBlock Text="Value Table: " Margin="5" Padding="5" FontWeight="Bold"></TextBlock>
+                                            <TextBlock Text="{Binding ValueTableName}" Margin="5" Padding="5"></TextBlock>
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=grdIndexInfo1, Path=ActualWidth}"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                    </Grid>
+                                    <Grid Grid.Column="1" Name="grdIndexInfo2">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <ItemsControl Grid.Row="0">
+                                            <TextBlock Text="Old Value Table: " Margin="5" Padding="5" FontWeight="Bold"></TextBlock>
+                                            <TextBlock Text="{Binding OldValueTableName}" Margin="5" Padding="5"></TextBlock>
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=grdIndexInfo2, Path=ActualWidth}"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                        <ItemsControl Grid.Row="1">
+                                            <TextBlock Text="New Value Table:" Margin="5" Padding="5" FontWeight="Bold"></TextBlock>
+                                            <TextBlock Text="{Binding NewValueTableName}" Margin="5" Padding="5"></TextBlock>
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Orientation="Horizontal" IsItemsHost="True" Width="{Binding ElementName=grdIndexInfo2, Path=ActualWidth}"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                    </Grid>
                                 </Grid>
                             </Grid>
-                        </Grid>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Puller Options" >
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
-                        <ItemsControl ItemsSource="{Binding Path=PullerOptions}" Grid.Row="7" Grid.Column="0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Vertical"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Indexer Options" >
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
-                        <ItemsControl ItemsSource="{Binding Path=IndexerOptions}" Grid.Row="7" Grid.Column="0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Vertical"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Pusher Options" >
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
-                        <ItemsControl ItemsSource="{Binding Path=PusherOptions}" Grid.Row="7" Grid.Column="0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Vertical"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Mapper Options" >
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
-                        <ItemsControl ItemsSource="{Binding Path=MapperOptions}" Grid.Row="7" Grid.Column="0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Vertical"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Entity Dependencies">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
-                        <local:UCIndexDependencies DataContext="{Binding EntityDependencyViewModel}" DependencyType="Entity"></local:UCIndexDependencies>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Attribute Dependencies">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
-                        <local:UCIndexDependencies DataContext="{Binding AttributeDependencyViewModel}" DependencyType="Attribute"></local:UCIndexDependencies>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Column Transformantions">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
-                        <transformers:UCTransformationConfigure DataContext="{Binding TransformationConfigureViewModel}"></transformers:UCTransformationConfigure>
-                    </ScrollViewer>
-                </TabItem>
-            </TabControl>
-        </Grid>
-        <Grid Grid.Column="1">
-            <ItemsControl ItemsSource="{Binding Path=Commands}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" Padding="10" HorizontalAlignment="Stretch">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button 
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Puller Options" >
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                            <ItemsControl ItemsSource="{Binding Path=PullerOptions}" Grid.Row="7" Grid.Column="0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Indexer Options" >
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                            <ItemsControl ItemsSource="{Binding Path=IndexerOptions}" Grid.Row="7" Grid.Column="0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Pusher Options" >
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                            <ItemsControl ItemsSource="{Binding Path=PusherOptions}" Grid.Row="7" Grid.Column="0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Mapper Options" >
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                            <ItemsControl ItemsSource="{Binding Path=MapperOptions}" Grid.Row="7" Grid.Column="0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <local:UCOptionItem DataContext="{Binding}"></local:UCOptionItem>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Entity Dependencies">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                            <local:UCIndexDependencies DataContext="{Binding EntityDependencyViewModel}" DependencyType="Entity"></local:UCIndexDependencies>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Attribute Dependencies">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                            <local:UCIndexDependencies DataContext="{Binding AttributeDependencyViewModel}" DependencyType="Attribute"></local:UCIndexDependencies>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Column Transformantions">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                            <transformers:UCTransformationConfigure DataContext="{Binding TransformationConfigureViewModel}"></transformers:UCTransformationConfigure>
+                        </ScrollViewer>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+            <Grid Grid.Column="1">
+                <ItemsControl ItemsSource="{Binding Path=Commands}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" Padding="10" HorizontalAlignment="Stretch">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button 
                         Command="{Binding ElementName=grdContainer, Path=DataContext.ApplyCommand}"
                         CommandParameter="{Binding}"
                         Padding="10"
                         Margin="10">
-                            <TextBlock Text="{Binding}"></TextBlock>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Vertical"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+                                <TextBlock Text="{Binding}"></TextBlock>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
         </Grid>
-    </Grid>
+    </ScrollViewer>
 </UserControl>

@@ -33,7 +33,7 @@ namespace FastSQL.App.UserControls
         public UCSettingsContent()
         {
             InitializeComponent();
-            Loaded += (s, e) => OnLoaded();
+            Loaded += async (s, e) => await OnLoaded();
         }
         
         public void SetViewModel(UCSettingContentViewModel viewModel)
@@ -51,10 +51,11 @@ namespace FastSQL.App.UserControls
             EventAggregator = eventAggregator;
         }
 
-        public void OnLoaded()
+        public Task<int> OnLoaded()
         {
             DataContext = ViewModel;
             EventAggregator?.GetEvent<SelectSettingEvent>().Subscribe(OnSelectSetting);
+            return Task.FromResult(0);
         }
 
         private void OnSelectSetting(SelectSettingEventArgument obj)

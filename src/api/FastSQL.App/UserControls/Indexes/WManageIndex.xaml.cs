@@ -42,7 +42,7 @@ namespace FastSQL.App.UserControls
             this.viewModel = viewModel;
             this.viewModel.SetOwner(this);
             this.DataContext = this.viewModel;
-            this.Loaded += (s, e) => this.viewModel.Loaded();
+            this.Loaded += async (s, e) => await this.viewModel.Loaded();
            
             eventAggregator.GetEvent<ManageIndexLoadingEvent>().Subscribe(OnManageIndexLoading);
         }

@@ -6,6 +6,7 @@ using Prism.Events;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FastSQL.App.UserControls.Reporters
 {
@@ -83,11 +84,12 @@ namespace FastSQL.App.UserControls.Reporters
             }
         }
 
-        public void Loaded()
+        public Task<int> Loaded()
         {
             using (var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this))
             {
                 Reporters = new ObservableCollection<ReporterModel>(reporterRepository.GetAll());
+                return Task.FromResult(0);
             }
         }
     }
