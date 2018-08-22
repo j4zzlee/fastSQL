@@ -19,12 +19,10 @@ namespace FastSQL.Sync.Workflow.Workflows
     [Description("Pull Indexes in Sequence Mode")]
     public class PullIndexSequenceWorkflow : BaseWorkflow<GeneralMessage>
     {
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
-        private readonly ScheduleOptionRepository scheduleOptionRepository;
-        private readonly IndexerManager indexerManager;
-        private readonly WorkingSchedules workingSchedules;
-        private readonly ILogger logger;
+        private ILogger _logger;
+        protected ILogger Logger => _logger ?? (_logger = ResolverFactory.Resolve<ILogger>("SyncService"));
+        private ILogger _errorLogger;
+        protected ILogger ErrorLogger => _logger ?? (_errorLogger = ResolverFactory.Resolve<ILogger>("Error"));
 
         public override string Id => nameof(PullIndexSequenceWorkflow);
 
@@ -32,20 +30,8 @@ namespace FastSQL.Sync.Workflow.Workflows
 
         public override bool IsGeneric => true;
 
-        public PullIndexSequenceWorkflow(
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ScheduleOptionRepository scheduleOptionRepository,
-            IndexerManager indexerManager,
-            ResolverFactory resolverFactory,
-            WorkingSchedules workingSchedules)
+        public PullIndexSequenceWorkflow()
         {
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
-            this.scheduleOptionRepository = scheduleOptionRepository;
-            this.indexerManager = indexerManager;
-            this.workingSchedules = workingSchedules;
-            this.logger = resolverFactory.Resolve<ILogger>("Workflow");
         }
 
         public override void Build(IWorkflowBuilder<GeneralMessage> builder)

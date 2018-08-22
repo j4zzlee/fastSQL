@@ -15,9 +15,7 @@ namespace FastSQL.Sync.Core.Pusher
         protected readonly IOptionManager OptionManager;
         protected readonly IRichAdapter Adapter;
         protected readonly IRichProvider Provider;
-        public virtual ConnectionRepository ConnectionRepository { get; set; }
-        public virtual EntityRepository EntityRepository { get; set; }
-        public virtual AttributeRepository AttributeRepository { get; set; }
+        public RepositoryFactory RepositoryFactory { get; set; }
 
         protected Action<string> _reporter;
         protected IndexItemModel IndexedItem;
@@ -64,56 +62,68 @@ namespace FastSQL.Sync.Core.Pusher
 
         protected virtual IPusher SpreadOptions()
         {
-            var indexModel = GetIndexModel();
-            ConnectionModel = ConnectionRepository.GetById(indexModel.DestinationConnectionId.ToString());
-            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
-            var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
-            Adapter.SetOptions(connectionOptionItems);
-            return this;
+            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            {
+                var indexModel = GetIndexModel();
+                ConnectionModel = connectionRepository.GetById(indexModel.DestinationConnectionId.ToString());
+                var connectionOptions = connectionRepository.LoadOptions(ConnectionModel.Id.ToString());
+                var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
+                Adapter.SetOptions(connectionOptionItems);
+                return this;
+            }
         }
 
         protected virtual Dictionary<string, string> GetNormalizedValuesByDependencies(IndexItemModel indexedItem = null)
         {
-            var indexedModel = GetIndexModel();
-            indexedItem = indexedItem ?? IndexedItem;
-            var dependencies = EntityRepository.GetDependencies(indexedModel.Id, indexedModel.EntityType);
-            var normalizedValues = new Dictionary<string, string>();
-            foreach (var d in dependencies)
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
             {
-                var foreignKeys = d.ForeignKeysArr;
-                var referenceKeys = d.ReferenceKeysArr;
-                IIndexModel dependsOnModel = null;
-                if (d.TargetEntityType == EntityType.Attribute)
+                var indexedModel = GetIndexModel();
+                indexedItem = indexedItem ?? IndexedItem;
+                var dependencies = entityRepository.GetDependencies(indexedModel.Id, indexedModel.EntityType);
+                var normalizedValues = new Dictionary<string, string>();
+                foreach (var d in dependencies)
                 {
-                    dependsOnModel = AttributeRepository.GetById(d.TargetEntityId.ToString());
-                }
-                else
-                {
-                    dependsOnModel = EntityRepository.GetById(d.TargetEntityId.ToString());
-                }
-                var hasDependencies = EntityRepository.GetDependsOnItem(dependsOnModel.ValueTableName, d, indexedItem, out IndexItemModel referencedItem);
-                if (!hasDependencies)
-                {
-                    return normalizedValues;
-                }
-                for (var i = 0; i < foreignKeys.Length; i++)
-                {
-                    var foreignKey = foreignKeys[i];
-                    var referenceKey = referenceKeys[i];
-
-                    if (!IndexedItem.Properties().Select(p => p.Name).Contains(foreignKey))
+                    var foreignKeys = d.ForeignKeysArr;
+                    var referenceKeys = d.ReferenceKeysArr;
+                    IIndexModel dependsOnModel = null;
+                    if (d.TargetEntityType == EntityType.Attribute)
                     {
-                        continue;
+                        dependsOnModel = attributeRepository.GetById(d.TargetEntityId.ToString());
                     }
-                    if (normalizedValues.ContainsKey(foreignKey))
+                    else
                     {
-                        continue;
+                        dependsOnModel = entityRepository.GetById(d.TargetEntityId.ToString());
                     }
+                    var hasDependencies = entityRepository.GetDependsOnItem(dependsOnModel.ValueTableName, d, indexedItem, out IndexItemModel referencedItem);
+                    if (!hasDependencies)
+                    {
+                        return normalizedValues;
+                    }
+                    for (var i = 0; i < foreignKeys.Length; i++)
+                    {
+                        var foreignKey = foreignKeys[i];
+                        var referenceKey = referenceKeys[i];
 
-                    normalizedValues.Add(foreignKey, referencedItem?.Value<string>(referenceKey));
+                        if (!IndexedItem.Properties().Select(p => p.Name).Contains(foreignKey))
+                        {
+                            continue;
+                        }
+                        if (normalizedValues.ContainsKey(foreignKey))
+                        {
+                            continue;
+                        }
+
+                        normalizedValues.Add(foreignKey, referencedItem?.Value<string>(referenceKey));
+                    }
                 }
+                return normalizedValues;
             }
-            return normalizedValues;
+        }
+
+        public virtual void Dispose()
+        {
+            RepositoryFactory.Release(this);
         }
     }
 
@@ -172,10 +182,13 @@ namespace FastSQL.Sync.Core.Pusher
 
         public override IPusher SetIndex(IIndexModel model)
         {
-            AttributeModel = model as AttributeModel;
-            EntityModel = EntityRepository.GetById(AttributeModel.EntityId.ToString());
-            SpreadOptions();
-            return this;
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            {
+                AttributeModel = model as AttributeModel;
+                EntityModel = entityRepository.GetById(AttributeModel.EntityId.ToString());
+                SpreadOptions();
+                return this;
+            }
         }
 
         public override IIndexModel GetIndexModel()

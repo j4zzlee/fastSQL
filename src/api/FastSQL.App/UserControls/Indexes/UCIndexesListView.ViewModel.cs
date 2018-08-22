@@ -15,8 +15,6 @@ namespace FastSQL.App.UserControls.Indexes
 {
     public class UCIndexesListViewViewModel : BaseViewModel
     {
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
         private readonly IEventAggregator eventAggregator;
         private IIndexModel _selectedIndexModel;
         private ObservableCollection<IIndexModel> _indexModels;
@@ -76,13 +74,8 @@ namespace FastSQL.App.UserControls.Indexes
             }
         }
 
-        public UCIndexesListViewViewModel(
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            IEventAggregator eventAggregator)
+        public UCIndexesListViewViewModel(IEventAggregator eventAggregator)
         {
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
             this.eventAggregator = eventAggregator;
             eventAggregator.GetEvent<RefreshIndexesListViewEvent>().Subscribe(OnRefreshIndexes);
         }
@@ -95,13 +88,17 @@ namespace FastSQL.App.UserControls.Indexes
 
         private void LoadIndexModels()
         {
-            if (_indexType == EntityType.Entity)
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
             {
-                IndexModels = new ObservableCollection<IIndexModel>(entityRepository.GetAll());
-            }
-            else
-            {
-                IndexModels = new ObservableCollection<IIndexModel>(attributeRepository.GetAll());
+                if (_indexType == EntityType.Entity)
+                {
+                    IndexModels = new ObservableCollection<IIndexModel>(entityRepository.GetAll());
+                }
+                else
+                {
+                    IndexModels = new ObservableCollection<IIndexModel>(attributeRepository.GetAll());
+                }
             }
         }
 

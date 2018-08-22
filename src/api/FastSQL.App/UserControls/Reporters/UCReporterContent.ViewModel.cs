@@ -17,11 +17,10 @@ using System.Windows;
 
 namespace FastSQL.App.UserControls.Reporters
 {
-    public class UCReporterContentViewModel: BaseViewModel
+    public class UCReporterContentViewModel : BaseViewModel
     {
         private IEnumerable<IReporter> _reporters;
         private readonly IEventAggregator _eventAggregator;
-        private readonly MessageDeliveryChannelRepository _messageDeliveryChannelRepository;
         private ObservableCollection<string> _commands;
         private ObservableCollection<OptionItemViewModel> _options;
 
@@ -32,7 +31,6 @@ namespace FastSQL.App.UserControls.Reporters
         private List<MessageDeliveryChannelModel> _channels;
         private MessageDeliveryChannelModel _selectedChannel;
         private ObservableCollection<MessageDeliveryChannelModel> _selectedChannels;
-        private readonly ReporterRepository _reporterRepository;
 
         public string Name
         {
@@ -88,26 +86,29 @@ namespace FastSQL.App.UserControls.Reporters
         }
 
         public BaseCommand AddSelectedChannelCommand => new BaseCommand(o => true, OnAddChannel);
-        
+
         public BaseCommand RemoveSelectedChannelCommand => new BaseCommand(o => true, OnRemoveChannel);
-        
+
         [DoNotWire]
         public IReporter SelectedReporter
         {
             get => _selectedReporter;
             set
             {
-                _selectedReporter = value;
-                IEnumerable<OptionModel> options = null;
-                if (_reporterModel != null)
+                using (var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this))
                 {
-                    options = _reporterRepository.LoadOptions(_reporterModel.Id.ToString());
+                    _selectedReporter = value;
+                    IEnumerable<OptionModel> options = null;
+                    if (_reporterModel != null)
+                    {
+                        options = reporterRepository.LoadOptions(_reporterModel.Id.ToString());
+                    }
+
+                    _selectedReporter.SetOptions(options?.Select(o => new OptionItem { Name = o.Key, Value = o.Value }) ?? new List<OptionItem>());
+                    SetOptions(_selectedReporter.Options);
+
+                    OnPropertyChanged(nameof(SelectedReporter));
                 }
-
-                _selectedReporter.SetOptions(options?.Select(o => new OptionItem { Name = o.Key, Value = o.Value }) ?? new List<OptionItem>());
-                SetOptions(_selectedReporter.Options);
-
-                OnPropertyChanged(nameof(SelectedReporter));
             }
         }
 
@@ -144,35 +145,35 @@ namespace FastSQL.App.UserControls.Reporters
 
         public UCReporterContentViewModel(
             IEnumerable<IReporter> reporters,
-            IEventAggregator eventAggregator,
-            MessageDeliveryChannelRepository messageDeliveryChannelRepository,
-            ReporterRepository reporterRepository)
+            IEventAggregator eventAggregator)
         {
             _reporters = reporters;
             _eventAggregator = eventAggregator;
-            _messageDeliveryChannelRepository = messageDeliveryChannelRepository;
-            _reporterRepository = reporterRepository;
-
             Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete" });
             eventAggregator.GetEvent<SelectReporterEvent>().Subscribe(OnSelectReporter);
             eventAggregator.GetEvent<RefreshChannelListEvent>().Subscribe(OnChannelsRefresh);
             Reporters = new ObservableCollection<IReporter>(_reporters);
-            Channels = new ObservableCollection<MessageDeliveryChannelModel>(_messageDeliveryChannelRepository.GetAll());
         }
 
         private void OnChannelsRefresh(RefreshChannelListEventArgument obj)
         {
-            Channels = new ObservableCollection<MessageDeliveryChannelModel>(_messageDeliveryChannelRepository.GetAll());
+            using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
+            {
+                Channels = new ObservableCollection<MessageDeliveryChannelModel>(messageDeliveryChannelRepository.GetAll());
+            }
         }
 
         private void OnSelectReporter(SelectReporterEventArgument obj)
         {
-            _reporterModel = _reporterRepository.GetById(obj.ReporterId.ToString());
-            Name = _reporterModel.Name;
-            Description = _reporterModel.Description;
-            SelectedReporter = Reporters?.FirstOrDefault(p => p.Id == _reporterModel.ReporterId);
-            var selectedChannels = _reporterRepository.GetLinkedDeliveryChannels(new List<string> { _reporterModel.Id.ToString() });
-            SelectedChannels = new ObservableCollection<MessageDeliveryChannelModel>(Channels.Where(c => selectedChannels.Any(sc => sc.DeliveryChannelId == c.Id && sc.ReporterId == _reporterModel.Id)));
+            using (var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this))
+            {
+                _reporterModel = reporterRepository.GetById(obj.ReporterId.ToString());
+                Name = _reporterModel.Name;
+                Description = _reporterModel.Description;
+                SelectedReporter = Reporters?.FirstOrDefault(p => p.Id == _reporterModel.ReporterId);
+                var selectedChannels = reporterRepository.GetLinkedDeliveryChannels(new List<string> { _reporterModel.Id.ToString() });
+                SelectedChannels = new ObservableCollection<MessageDeliveryChannelModel>(Channels.Where(c => selectedChannels.Any(sc => sc.DeliveryChannelId == c.Id && sc.ReporterId == _reporterModel.Id)));
+            }
         }
 
         public void SetOptions(IEnumerable<OptionItem> options)
@@ -184,7 +185,7 @@ namespace FastSQL.App.UserControls.Reporters
                 return result;
             }));
         }
-        
+
         private bool Save(out string message)
         {
             if (_reporterModel == null)
@@ -192,11 +193,12 @@ namespace FastSQL.App.UserControls.Reporters
                 message = "No item to save";
                 return true;
             }
+            var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this);
 
             try
             {
-                _reporterRepository.BeginTransaction();
-                var result = _reporterRepository.Update(_reporterModel.Id.ToString(), new
+                reporterRepository.BeginTransaction();
+                var result = reporterRepository.Update(_reporterModel.Id.ToString(), new
                 {
                     Name,
                     Description,
@@ -205,10 +207,10 @@ namespace FastSQL.App.UserControls.Reporters
 
                 SelectedReporter.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
 
-                _reporterRepository.LinkOptions(_reporterModel.Id.ToString(), SelectedReporter.Options); // no need to unlink, they can be reuse
-                _reporterRepository.UnlinkDeliveryChannels(_reporterModel.Id.ToString());
-                _reporterRepository.LinkDeliveryChannels(_reporterModel.Id.ToString(), SelectedChannels.Select(c => c.Id.ToString()));
-                _reporterRepository.Commit();
+                reporterRepository.LinkOptions(_reporterModel.Id.ToString(), SelectedReporter.Options); // no need to unlink, they can be reuse
+                reporterRepository.UnlinkDeliveryChannels(_reporterModel.Id.ToString());
+                reporterRepository.LinkDeliveryChannels(_reporterModel.Id.ToString(), SelectedChannels.Select(c => c.Id.ToString()));
+                reporterRepository.Commit();
                 _eventAggregator.GetEvent<RefreshReporterListEvent>().Publish(new RefreshReporterListEventArgument
                 {
                     SelectedReporterId = _reporterModel.Id
@@ -216,8 +218,12 @@ namespace FastSQL.App.UserControls.Reporters
             }
             catch
             {
-                _reporterRepository.RollBack();
+                reporterRepository.RollBack();
                 throw;
+            }
+            finally
+            {
+                reporterRepository?.Dispose();
             }
 
             message = "Success";
@@ -226,10 +232,12 @@ namespace FastSQL.App.UserControls.Reporters
 
         private bool New(out string message)
         {
+            var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this);
+
             try
             {
-                _reporterRepository.BeginTransaction();
-                var result = _reporterRepository.Create(new
+                reporterRepository.BeginTransaction();
+                var result = reporterRepository.Create(new
                 {
                     Name,
                     Description,
@@ -239,10 +247,10 @@ namespace FastSQL.App.UserControls.Reporters
 
                 SelectedReporter.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
 
-                _reporterRepository.LinkOptions(result, SelectedReporter.Options); // no need to unlink, they can be reuse
-                _reporterRepository.UnlinkDeliveryChannels(result);
-                _reporterRepository.LinkDeliveryChannels(result, SelectedChannels.Select(c => c.Id.ToString()));
-                _reporterRepository.Commit();
+                reporterRepository.LinkOptions(result, SelectedReporter.Options); // no need to unlink, they can be reuse
+                reporterRepository.UnlinkDeliveryChannels(result);
+                reporterRepository.LinkDeliveryChannels(result, SelectedChannels.Select(c => c.Id.ToString()));
+                reporterRepository.Commit();
 
                 message = "Success";
                 _eventAggregator.GetEvent<RefreshReporterListEvent>().Publish(new RefreshReporterListEventArgument
@@ -253,8 +261,12 @@ namespace FastSQL.App.UserControls.Reporters
             }
             catch
             {
-                _reporterRepository.RollBack();
+                reporterRepository.RollBack();
                 throw;
+            }
+            finally
+            {
+                reporterRepository?.Dispose();
             }
         }
 
@@ -280,13 +292,15 @@ namespace FastSQL.App.UserControls.Reporters
                 message = "No item to delete";
                 return true;
             }
+            var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this);
+
             try
             {
-                _reporterRepository.BeginTransaction();
-                _reporterRepository.DeleteById(_reporterModel.Id.ToString());
-                _reporterRepository.UnlinkOptions(_reporterModel.Id.ToString());
-                _reporterRepository.UnlinkDeliveryChannels(_reporterModel.Id.ToString());
-                _reporterRepository.Commit();
+                reporterRepository.BeginTransaction();
+                reporterRepository.DeleteById(_reporterModel.Id.ToString());
+                reporterRepository.UnlinkOptions(_reporterModel.Id.ToString());
+                reporterRepository.UnlinkDeliveryChannels(_reporterModel.Id.ToString());
+                reporterRepository.Commit();
 
                 _eventAggregator.GetEvent<RefreshReporterListEvent>().Publish(new RefreshReporterListEventArgument
                 {
@@ -298,11 +312,15 @@ namespace FastSQL.App.UserControls.Reporters
             }
             catch
             {
-                _reporterRepository.RollBack();
+                reporterRepository.RollBack();
                 throw;
             }
+            finally
+            {
+                reporterRepository?.Dispose();
+            }
         }
-        
+
         public BaseCommand ApplyCommand => new BaseCommand(o => true, OnApplyCommand);
         private void OnApplyCommand(object obj)
         {
@@ -332,7 +350,10 @@ namespace FastSQL.App.UserControls.Reporters
 
         public void Loaded()
         {
-
+            using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
+            {
+                Channels = new ObservableCollection<MessageDeliveryChannelModel>(messageDeliveryChannelRepository.GetAll());
+            }
         }
     }
 }

@@ -18,41 +18,32 @@ namespace FastSQL.Sync.Workflow
     public class SyncService: IDisposable
     {
         private IWorkflowHost _host;
-        private readonly ResolverFactory resolverFactory;
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
+        public ResolverFactory ResolverFactory { get; set; }
+        public RepositoryFactory RepositoryFactory { get; set; }
         private readonly IEnumerable<IBaseWorkflow> workflows;
         private readonly WorkingSchedules workingSchedules;
         private ILogger _logger;
+        private ILogger Logger => _logger ?? (_logger = ResolverFactory.Resolve<ILogger>("SyncService"));
         private ILogger _errorLogger;
+        private ILogger ErrorLogger => _errorLogger ?? (_errorLogger = ResolverFactory.Resolve<ILogger>("Error"));
         private bool _running;
         private bool isRegistered;
         private IList<string> _ranWorkflows;
 
         public SyncService(
-            ResolverFactory resolverFactory,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
             IWorkflowHost host,
             IEnumerable<IBaseWorkflow> workflows,
             WorkingSchedules workingSchedules)
         {
             _ranWorkflows = new List<string>();
-            _logger = resolverFactory.Resolve<ILogger>("SyncService");
-            _errorLogger = resolverFactory.Resolve<ILogger>("Error");
-            this.resolverFactory = resolverFactory;
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
             _host = host;
             this.workflows = workflows;
             this.workingSchedules = workingSchedules;
-            //RegisterWorkflows();
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
-            //_logger.Information("Service stopped.");
-            //_host.Stop();
+            RepositoryFactory.Release(this);
         }
 
         private void RegisterWorkflows()
@@ -82,7 +73,7 @@ namespace FastSQL.Sync.Workflow
             {
                 if (_running)
                 {
-                    _errorLogger.Error("The workflow is running");
+                    ErrorLogger.Error("The workflow is running");
                     return;
                 }
                 _running = true;
@@ -105,21 +96,21 @@ namespace FastSQL.Sync.Workflow
             }
             catch (Exception ex)
             {
-                _errorLogger.Error(ex, "Sync Service failed to run.");
+                ErrorLogger.Error(ex, "Sync Service failed to run.");
                 throw;
             }
         }
         
         private void _host_OnStepError(WorkflowInstance workflow, WorkflowStep step, Exception exception)
         {
-            _errorLogger.Error(exception, $@"Workflow {workflow.WorkflowDefinitionId}/{workflow.Id} has raised an error on step {step.Name}/{step.Id}");
+            ErrorLogger.Error(exception, $@"Workflow {workflow.WorkflowDefinitionId}/{workflow.Id} has raised an error on step {step.Name}/{step.Id}");
         }
 
         public void Stop()
         {
             try
             {
-                _logger.Information("Service stopped.");
+                Logger.Information("Service stopped.");
                 _host.Stop();
             }
             finally
@@ -132,11 +123,13 @@ namespace FastSQL.Sync.Workflow
 
         public void StartTest(ScheduleOptionModel option)
         {
+            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
+            var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this);
             try
             {
                 if (_running)
                 {
-                    _errorLogger.Error("The workflow is running");
+                    ErrorLogger.Error("The workflow is running");
                     return;
                 }
                 _running = true;
@@ -165,8 +158,13 @@ namespace FastSQL.Sync.Workflow
             }
             catch (Exception ex)
             {
-                _errorLogger.Error(ex, "Sync Service failed to run.");
+                ErrorLogger.Error(ex, "Sync Service failed to run.");
                 throw;
+            }
+            finally
+            {
+                entityRepository?.Dispose();
+                attributeRepository?.Dispose();
             }
         }
     }

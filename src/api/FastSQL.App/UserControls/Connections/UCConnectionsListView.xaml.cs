@@ -26,6 +26,7 @@ namespace FastSQL.App.UserControls.Connections
         {
             InitializeComponent();
             this.DataContext = viewModel;
+            Loaded += async (s, e) => await viewModel.Loaded();
         }
 
         public string Id { get => "E9XCrgxIXUqlfewf2342@#@ckiPX5VAQw"; set { } }

@@ -13,20 +13,29 @@ using System.Threading.Tasks;
 
 namespace FastSQL.App.UserControls.Connections
 {
-    public class UCConnectionListViewViewModel: BaseViewModel
+    public class UCConnectionListViewViewModel : BaseViewModel
     {
-        private readonly ConnectionRepository connectionRepository;
         private readonly IEventAggregator eventAggregator;
         private ConnectionModel _selectedConnection;
         private ObservableCollection<ConnectionModel> _connections;
 
-        public BaseCommand SelectItemCommand => new BaseCommand(o => true, o => {
+        public BaseCommand SelectItemCommand => new BaseCommand(o => true, o =>
+        {
             var id = o.ToString();
             eventAggregator.GetEvent<SelectConnectionEvent>().Publish(new SelectConnectionEventArgument
             {
                 ConnectionId = id
             });
         });
+
+        public Task<int> Loaded()
+        {
+            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            {
+                Connections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+                return Task.FromResult(0);
+            }
+        }
 
         public ObservableCollection<ConnectionModel> Connections
         {
@@ -47,44 +56,36 @@ namespace FastSQL.App.UserControls.Connections
             set
             {
                 _selectedConnection = value;
-                
+
                 OnPropertyChanged(nameof(SelectedConnection));
             }
         }
 
         public UCConnectionListViewViewModel(
-            ConnectionRepository connectionRepository,
             IEventAggregator eventAggregator)
         {
-            this.connectionRepository = connectionRepository;
             this.eventAggregator = eventAggregator;
-            Connections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
             eventAggregator.GetEvent<RefreshConnectionListEvent>().Subscribe(OnRefreshConnections);
-            var firstConection = Connections.FirstOrDefault();
-            if (firstConection != null)
-            {
-                eventAggregator.GetEvent<SelectConnectionEvent>().Publish(new SelectConnectionEventArgument
-                {
-                    ConnectionId = firstConection.Id.ToString()
-                });
-            }
         }
 
         private void OnRefreshConnections(RefreshConnectionListEventArgument obj)
         {
-            Connections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
-            var selectedId = obj.SelectedConnectionId;
-            if (string.IsNullOrWhiteSpace(obj.SelectedConnectionId))
+            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
             {
-                var firstConnection = Connections.FirstOrDefault();
-                selectedId = firstConnection?.Id.ToString();
-            }
-            if (!string.IsNullOrWhiteSpace(selectedId))
-            {
-                eventAggregator.GetEvent<SelectConnectionEvent>().Publish(new SelectConnectionEventArgument
+                Connections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+                var selectedId = obj.SelectedConnectionId;
+                if (string.IsNullOrWhiteSpace(obj.SelectedConnectionId))
                 {
-                    ConnectionId = selectedId
-                });
+                    var firstConnection = Connections.FirstOrDefault();
+                    selectedId = firstConnection?.Id.ToString();
+                }
+                if (!string.IsNullOrWhiteSpace(selectedId))
+                {
+                    eventAggregator.GetEvent<SelectConnectionEvent>().Publish(new SelectConnectionEventArgument
+                    {
+                        ConnectionId = selectedId
+                    });
+                }
             }
         }
     }

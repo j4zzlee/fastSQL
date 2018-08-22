@@ -9,53 +9,60 @@ using System.Text;
 namespace FastSQL.Magento1.Integration.Pushers
 {
     public class SubCategoryPusherOptionManager : BaseOptionManager
-    {
-        private readonly EntityRepository entityRepository;
-
-        public SubCategoryPusherOptionManager(EntityRepository entityRepository)
+    { 
+        public RepositoryFactory RepositoryFactory { get; set; }
+        public SubCategoryPusherOptionManager()
         {
-            this.entityRepository = entityRepository;
         }
+
+        public override void Dispose()
+        {
+            RepositoryFactory.Release(this);
+        }
+
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {
-            return new List<OptionItem> {
-                new OptionItem
-                {
-                    Name = "root_category_id",
-                    DisplayName = "Root Category Id"
-                },
-                new OptionItem
-                {
-                    Name = "is_anchor",
-                    DisplayName = "Is Anchor",
-                    Type = OptionType.Boolean
-                },
-                new OptionItem
-                {
-                    Name = "website_ids",
-                    DisplayName = "Website Ids",
-                    Value = "1"
-                },
-                new OptionItem
-                {
-                    Name = "store_id",
-                    DisplayName = "Store Ids",
-                    Value = "0"
-                },
-                new OptionItem
-                {
-                    Name = "parent_entity_id",
-                    DisplayName = "Parent Category Entity",
-                    Type = OptionType.List,
-                    OptionGroupNames = new List<string> { "Pusher" },
-                    Source = new OptionItemSource
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            {
+                return new List<OptionItem> {
+                    new OptionItem
                     {
-                        Source = entityRepository.GetAll().Cast<object>(),
-                        KeyColumnName = "Id",
-                        DisplayColumnName = "Name"
-                    }
-                },
-            };
+                        Name = "root_category_id",
+                        DisplayName = "Root Category Id"
+                    },
+                    new OptionItem
+                    {
+                        Name = "is_anchor",
+                        DisplayName = "Is Anchor",
+                        Type = OptionType.Boolean
+                    },
+                    new OptionItem
+                    {
+                        Name = "website_ids",
+                        DisplayName = "Website Ids",
+                        Value = "1"
+                    },
+                    new OptionItem
+                    {
+                        Name = "store_id",
+                        DisplayName = "Store Ids",
+                        Value = "0"
+                    },
+                    new OptionItem
+                    {
+                        Name = "parent_entity_id",
+                        DisplayName = "Parent Category Entity",
+                        Type = OptionType.List,
+                        OptionGroupNames = new List<string> { "Pusher" },
+                        Source = new OptionItemSource
+                        {
+                            Source = entityRepository.GetAll().Cast<object>(),
+                            KeyColumnName = "Id",
+                            DisplayColumnName = "Name"
+                        }
+                    },
+                };
+            }
         }
     }
 }

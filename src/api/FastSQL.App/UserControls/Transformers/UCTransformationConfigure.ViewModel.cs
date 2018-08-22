@@ -18,9 +18,6 @@ namespace FastSQL.App.UserControls.Transformers
 {
     public class UCTransformationConfigureViewModel : BaseViewModel
     {
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
-        private readonly TransformerRepository transformerRepository;
         private IEnumerable<ITransformer> transformers;
         private ITransformer _selectedTransformer;
         private ObservableCollection<OptionItemViewModel> _options;
@@ -121,15 +118,8 @@ namespace FastSQL.App.UserControls.Transformers
             }
         }
 
-        public UCTransformationConfigureViewModel(
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            TransformerRepository transformerRepository,
-            IEnumerable<ITransformer> transformers)
+        public UCTransformationConfigureViewModel(IEnumerable<ITransformer> transformers)
         {
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
-            this.transformerRepository = transformerRepository;
             this.transformers = transformers;
         }
 
@@ -142,18 +132,21 @@ namespace FastSQL.App.UserControls.Transformers
             
             _entityId = entity.Id;
             _entityType = entity.EntityType;
-            var transformations = transformerRepository.GetTransformations(_entityId, _entityType);
-            Transformations = new ObservableCollection<TransformationItemViewModel>(
-                transformations.Select(t =>
-                {
-                    var r = new TransformationItemViewModel();
-                    var transformer = transformers.FirstOrDefault(f => f.Id == t.TransformerId);
-                    transformer.SetOptions(transformerRepository.LoadOptions(_entityId.ToString(), _entityType).Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-                    r.SetTransformation(t);
-                    r.TransformerName = transformer.Name;
-                    r.SetOptions(transformer.Options);
-                    return r;
-                }));
+            using (var transformerRepository = RepositoryFactory.Create<TransformerRepository>(this))
+            {
+                var transformations = transformerRepository.GetTransformations(_entityId, _entityType);
+                Transformations = new ObservableCollection<TransformationItemViewModel>(
+                    transformations.Select(t =>
+                    {
+                        var r = new TransformationItemViewModel();
+                        var transformer = transformers.FirstOrDefault(f => f.Id == t.TransformerId);
+                        transformer.SetOptions(transformerRepository.LoadOptions(_entityId.ToString(), _entityType).Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
+                        r.SetTransformation(t);
+                        r.TransformerName = transformer.Name;
+                        r.SetOptions(transformer.Options);
+                        return r;
+                    }));
+            }
         }
 
         public IEnumerable<OptionItem> GetTransformationOptions()

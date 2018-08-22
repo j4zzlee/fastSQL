@@ -15,10 +15,6 @@ namespace FastSQL.App.UserControls.Queues
 {
     public class UCQueueContentViewModel : BaseViewModel
     {
-        public QueueItemRepository QueueItemRepository { get; set; }
-        public EntityRepository EntityRepository { get; set; }
-        public AttributeRepository AttributeRepository { get; set; }
-
         private DataGridViewModel dataGridViewModel;
         public DataGridViewModel QueueItems
         {
@@ -70,15 +66,17 @@ namespace FastSQL.App.UserControls.Queues
         {
             await Task.Run(() =>
             {
-                var items = QueueItemRepository
-                    .FilterQueueItems(filters, limit, offset, out int totalCount);
-                if (reset)
+                using (var queueItemRepository = RepositoryFactory.Create<QueueItemRepository>(this))
                 {
-                    QueueItems.CleanFilters();
+                    var items = queueItemRepository.FilterQueueItems(filters, limit, offset, out int totalCount);
+                    if (reset)
+                    {
+                        QueueItems.CleanFilters();
+                    }
+                    QueueItems.SetTotalCount(totalCount);
+                    QueueItems.SetOffset(limit, offset);
+                    QueueItems.SetData(items);
                 }
-                QueueItems.SetTotalCount(totalCount);
-                QueueItems.SetOffset(limit, offset);
-                QueueItems.SetData(items);
             });
         }
 

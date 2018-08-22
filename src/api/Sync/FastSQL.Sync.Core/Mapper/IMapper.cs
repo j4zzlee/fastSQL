@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace FastSQL.Sync.Core.Mapper
 {
-    public interface IMapper : IOptionManager
+    public interface IMapper : IOptionManager, IDisposable
     {
         IMapper SetIndex(IIndexModel model);
         IMapper OnReport(Action<string> reporter);

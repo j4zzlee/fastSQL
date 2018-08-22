@@ -12,9 +12,12 @@ namespace FastSQL.Sync.Core.Reporters
     public abstract class BaseReporter : IReporter
     {
         protected readonly IOptionManager OptionManager;
-        private readonly ResolverFactory resolverFactory;
-        private readonly MessageDeliveryChannelRepository messageDelieveryChannelRepository;
-        protected readonly ILogger Logger;
+        public ResolverFactory ResolverFactory { get; set; }
+        public RepositoryFactory RepositoryFactory { get; set; }
+        private ILogger _logger;
+        protected ILogger Logger => _logger ?? (_logger = ResolverFactory.Resolve<ILogger>("SyncService"));
+        private ILogger _errorLogger;
+        protected ILogger ErrorLogger => _logger ?? (_errorLogger = ResolverFactory.Resolve<ILogger>("Error"));
         private Action<string> _reporter;
         public abstract Task Queue();
 
@@ -24,14 +27,9 @@ namespace FastSQL.Sync.Core.Reporters
         public abstract string Name { get; }
         protected ReporterModel ReporterModel { get; set; }
 
-        public BaseReporter(IOptionManager optionManager, 
-            ResolverFactory resolverFactory,
-            MessageDeliveryChannelRepository messageDelieveryChannelRepository)
+        public BaseReporter(IOptionManager optionManager)
         {
             OptionManager = optionManager;
-            this.resolverFactory = resolverFactory;
-            this.messageDelieveryChannelRepository = messageDelieveryChannelRepository;
-            Logger = resolverFactory.Resolve<ILogger>("SyncService");
         }
 
         public IReporter SetReportModel(ReporterModel model)
@@ -64,7 +62,7 @@ namespace FastSQL.Sync.Core.Reporters
 
         public virtual void Dispose()
         {
-            resolverFactory.Release(Logger);
+            ResolverFactory.Release(Logger);
         }
     }
 }

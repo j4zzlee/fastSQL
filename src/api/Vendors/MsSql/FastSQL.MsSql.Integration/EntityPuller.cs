@@ -63,49 +63,55 @@ WHERE RowNum >= @Offset AND RowNum < (@Offset + @Limit)";
 
         public override PullResult PullNext(object lastToken = null)
         {
-            var options = EntityRepository.LoadOptions(EntityModel.Id.ToString());
-            int limit = options.GetValue("puller_page_limit", 100);
-            var isSql2008 = options.GetValue("puller_is_sql_2008", true);
-            int offset = 0;
-            if (lastToken != null)
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
             {
-                var jToken = JObject.FromObject(lastToken);
-                if (jToken.ContainsKey("Limit") && jToken.ContainsKey("Offset"))
+                var options = entityRepository.LoadOptions(EntityModel.Id.ToString());
+                int limit = options.GetValue("puller_page_limit", 100);
+                var isSql2008 = options.GetValue("puller_is_sql_2008", true);
+                int offset = 0;
+                if (lastToken != null)
                 {
-                    limit = int.Parse(jToken.GetValue("Limit").ToString());
-                    offset = int.Parse(jToken.GetValue("Offset").ToString());
-                    offset = offset + limit;
+                    var jToken = JObject.FromObject(lastToken);
+                    if (jToken.ContainsKey("Limit") && jToken.ContainsKey("Offset"))
+                    {
+                        limit = int.Parse(jToken.GetValue("Limit").ToString());
+                        offset = int.Parse(jToken.GetValue("Offset").ToString());
+                        offset = offset + limit;
+                    }
                 }
-            }
-            var sqlScript = GetSqlScript(options, true);
-            var sets = adapter.Query(sqlScript, new
-            {
-                Limit = limit,
-                Offset = offset
-            });
-            var set = sets.FirstOrDefault();
-            var results = set?.Rows?.Select(r => {
-                var jObj = JObject.FromObject(r);
-                jObj.Remove("RowNum");
-                return jObj.ToObject(typeof(object));
-            });
-            return new PullResult
-            {
-                Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
-                LastToken = new
+                var sqlScript = GetSqlScript(options, true);
+                var sets = adapter.Query(sqlScript, new
                 {
                     Limit = limit,
                     Offset = offset
-                },
-                Data = results
-            };
+                });
+                var set = sets.FirstOrDefault();
+                var results = set?.Rows?.Select(r =>
+                {
+                    var jObj = JObject.FromObject(r);
+                    jObj.Remove("RowNum");
+                    return jObj.ToObject(typeof(object));
+                });
+                return new PullResult
+                {
+                    Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
+                    LastToken = new
+                    {
+                        Limit = limit,
+                        Offset = offset
+                    },
+                    Data = results
+                };
+            }
         }
 
         public override IPuller Init()
         {
-            var options = EntityRepository.LoadOptions(EntityModel.Id.ToString());
-            var sqlScript = options.GetValue("puller_sql_script");
-            var truncateSQL = $@"
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            {
+                var options = entityRepository.LoadOptions(EntityModel.Id.ToString());
+                var sqlScript = options.GetValue("puller_sql_script");
+                var truncateSQL = $@"
 IF EXISTS (
     SELECT * FROM sys.views
     WHERE name = N'{EntityModel.SourceViewName}'
@@ -114,13 +120,14 @@ BEGIN
     DROP VIEW [{EntityModel.SourceViewName}];
 END
 ";
-            adapter.Execute(truncateSQL);
-            var createViewSQL = $@"
+                adapter.Execute(truncateSQL);
+                var createViewSQL = $@"
 CREATE VIEW [{EntityModel.SourceViewName}]
 AS
 {sqlScript}";
-            adapter.Execute(createViewSQL);
-            return this;
+                adapter.Execute(createViewSQL);
+                return this;
+            }
         }
 
         public override bool Initialized()
@@ -135,32 +142,36 @@ WHERE [name] = N'{EntityModel.SourceViewName}'
 
         public override PullResult Preview()
         {
-            var options = EntityRepository.LoadOptions(EntityModel.Id.ToString());
-            int limit = options.GetValue("puller_page_limit", 100);
-            var isSql2008 = options.GetValue("puller_is_sql_2008", true);
-            int offset = 0;
-            var sqlScript = GetSqlScript(options, false);
-            var sets = adapter.Query(sqlScript, new
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
             {
-                Limit = limit,
-                Offset = offset
-            });
-            var set = sets.FirstOrDefault();
-            var results = set?.Rows?.Select(r => {
-                var jObj = JObject.FromObject(r);
-                jObj.Remove("RowNum");
-                return jObj.ToObject(typeof(object));
-            });
-            return new PullResult
-            {
-                Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
-                LastToken = new
+                var options = entityRepository.LoadOptions(EntityModel.Id.ToString());
+                int limit = options.GetValue("puller_page_limit", 100);
+                var isSql2008 = options.GetValue("puller_is_sql_2008", true);
+                int offset = 0;
+                var sqlScript = GetSqlScript(options, false);
+                var sets = adapter.Query(sqlScript, new
                 {
                     Limit = limit,
                     Offset = offset
-                },
-                Data = results
-            };
+                });
+                var set = sets.FirstOrDefault();
+                var results = set?.Rows?.Select(r =>
+                {
+                    var jObj = JObject.FromObject(r);
+                    jObj.Remove("RowNum");
+                    return jObj.ToObject(typeof(object));
+                });
+                return new PullResult
+                {
+                    Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
+                    LastToken = new
+                    {
+                        Limit = limit,
+                        Offset = offset
+                    },
+                    Data = results
+                };
+            }
         }
     }
 }

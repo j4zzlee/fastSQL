@@ -29,7 +29,6 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
         private MessageDeliveryChannelModel _channelModel;
         private string _name;
         private string _description;
-        private readonly MessageDeliveryChannelRepository _messageDeliveryChannelRepository;
 
         public string Name
         {
@@ -90,28 +89,29 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
             get => _selectedChannel;
             set
             {
-                _selectedChannel = value;
-                IEnumerable<OptionModel> options = null;
-                if (_channelModel != null)
+                using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
                 {
-                    options = _messageDeliveryChannelRepository.LoadOptions(_channelModel.Id.ToString());
+                    _selectedChannel = value;
+                    IEnumerable<OptionModel> options = null;
+                    if (_channelModel != null)
+                    {
+                        options = messageDeliveryChannelRepository.LoadOptions(_channelModel.Id.ToString());
+                    }
+
+                    _selectedChannel.SetOptions(options?.Select(o => new OptionItem { Name = o.Key, Value = o.Value }) ?? new List<OptionItem>());
+                    SetOptions(_selectedChannel.Options);
+
+                    OnPropertyChanged(nameof(SelectedChannel));
                 }
-
-                _selectedChannel.SetOptions(options?.Select(o => new OptionItem { Name = o.Key, Value = o.Value }) ?? new List<OptionItem>());
-                SetOptions(_selectedChannel.Options);
-
-                OnPropertyChanged(nameof(SelectedChannel));
             }
         }
 
         public UCMessageDeliveryChannelContentViewModel(
             IEnumerable<IMessageDeliveryChannel> channels,
-            IEventAggregator eventAggregator,
-            MessageDeliveryChannelRepository messageDeliveryChannelRepository)
+            IEventAggregator eventAggregator)
         {
             _channels = channels;
             _eventAggregator = eventAggregator;
-            _messageDeliveryChannelRepository = messageDeliveryChannelRepository;
 
             Commands = new ObservableCollection<string>(new List<string> { "Try Connect", "Save", "New", "Delete" });
             eventAggregator.GetEvent<SelectChannelEvent>().Subscribe(OnSelectChannel);
@@ -120,10 +120,13 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
 
         private void OnSelectChannel(SelectChannelEventArgument obj)
         {
-            _channelModel = _messageDeliveryChannelRepository.GetById(obj.ChannelId.ToString());
-            Name = _channelModel.Name;
-            Description = _channelModel.Description;
-            SelectedChannel = Channels?.FirstOrDefault(p => p.Id == _channelModel.ChannelId);
+            using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
+            {
+                _channelModel = messageDeliveryChannelRepository.GetById(obj.ChannelId.ToString());
+                Name = _channelModel.Name;
+                Description = _channelModel.Description;
+                SelectedChannel = Channels?.FirstOrDefault(p => p.Id == _channelModel.ChannelId);
+            }
         }
 
         public void SetOptions(IEnumerable<OptionItem> options)
@@ -152,11 +155,11 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
                 message = "No item to save";
                 return true;
             }
-
+            var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this);
             try
             {
-                _messageDeliveryChannelRepository.BeginTransaction();
-                var result = _messageDeliveryChannelRepository.Update(_channelModel.Id.ToString(), new
+                messageDeliveryChannelRepository.BeginTransaction();
+                var result = messageDeliveryChannelRepository.Update(_channelModel.Id.ToString(), new
                 {
                     Name,
                     Description,
@@ -165,8 +168,8 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
 
                 SelectedChannel.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
 
-                _messageDeliveryChannelRepository.LinkOptions(_channelModel.Id.ToString(), SelectedChannel.Options);
-                _messageDeliveryChannelRepository.Commit();
+                messageDeliveryChannelRepository.LinkOptions(_channelModel.Id.ToString(), SelectedChannel.Options);
+                messageDeliveryChannelRepository.Commit();
                 _eventAggregator.GetEvent<RefreshChannelListEvent>().Publish(new RefreshChannelListEventArgument
                 {
                     SelectedChannelId = _channelModel.Id
@@ -174,8 +177,12 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
             }
             catch
             {
-                _messageDeliveryChannelRepository.RollBack();
+                messageDeliveryChannelRepository.RollBack();
                 throw;
+            }
+            finally
+            {
+                messageDeliveryChannelRepository?.Dispose();
             }
 
             message = "Success";
@@ -184,10 +191,11 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
 
         private bool New(out string message)
         {
+            var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this);
             try
             {
-                _messageDeliveryChannelRepository.BeginTransaction();
-                var result = _messageDeliveryChannelRepository.Create(new
+                messageDeliveryChannelRepository.BeginTransaction();
+                var result = messageDeliveryChannelRepository.Create(new
                 {
                     Name,
                     Description,
@@ -197,8 +205,8 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
 
                 SelectedChannel.SetOptions(Options?.Select(o => new OptionItem { Name = o.Name, Value = o.Value }) ?? new List<OptionItem>());
 
-                _messageDeliveryChannelRepository.LinkOptions(result, SelectedChannel.Options);
-                _messageDeliveryChannelRepository.Commit();
+                messageDeliveryChannelRepository.LinkOptions(result, SelectedChannel.Options);
+                messageDeliveryChannelRepository.Commit();
 
                 message = "Success";
                 _eventAggregator.GetEvent<RefreshChannelListEvent>().Publish(new RefreshChannelListEventArgument
@@ -209,8 +217,12 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
             }
             catch
             {
-                _messageDeliveryChannelRepository.RollBack();
+                messageDeliveryChannelRepository.RollBack();
                 throw;
+            }
+            finally
+            {
+                messageDeliveryChannelRepository?.Dispose();
             }
         }
 
@@ -221,12 +233,13 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
                 message = "No item to delete";
                 return true;
             }
-            try
+            var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this);
+                try
             {
-                _messageDeliveryChannelRepository.BeginTransaction();
-                _messageDeliveryChannelRepository.DeleteById(_channelModel.Id.ToString());
-                _messageDeliveryChannelRepository.UnlinkOptions(_channelModel.Id.ToString());
-                _messageDeliveryChannelRepository.Commit();
+                messageDeliveryChannelRepository.BeginTransaction();
+                messageDeliveryChannelRepository.DeleteById(_channelModel.Id.ToString());
+                messageDeliveryChannelRepository.UnlinkOptions(_channelModel.Id.ToString());
+                messageDeliveryChannelRepository.Commit();
 
                 _eventAggregator.GetEvent<RefreshChannelListEvent>().Publish(new RefreshChannelListEventArgument
                 {
@@ -238,11 +251,15 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
             }
             catch
             {
-                _messageDeliveryChannelRepository.RollBack();
+                messageDeliveryChannelRepository.RollBack();
                 throw;
             }
+            finally
+            {
+                messageDeliveryChannelRepository?.Dispose();
+            }
         }
-        
+
         public BaseCommand ApplyCommand => new BaseCommand(o => true, OnApplyCommand);
         private async void OnApplyCommand(object obj)
         {
@@ -276,7 +293,7 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
 
         public void Loaded()
         {
-            
+
         }
     }
 }

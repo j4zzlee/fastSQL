@@ -18,28 +18,15 @@ namespace FastSQL.Sync.Workflow.Workflows
     [Description("Requeue Errors")]
     public class RequeueErrorsWorkflow : BaseWorkflow<GeneralMessage>
     {
-        private readonly ILogger logger;
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
-        private readonly ScheduleOptionRepository scheduleOptionRepository;
-        private readonly WorkingSchedules workingSchedules;
+        private ILogger _logger;
+        private ILogger Logger => _logger ?? (_logger = ResolverFactory.Resolve<ILogger>("Workflow"));
 
         public override string Id => nameof(RequeueErrorsWorkflow);
         public override int Version => 1;
         public override bool IsGeneric => true;
 
-        public RequeueErrorsWorkflow(
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ScheduleOptionRepository scheduleOptionRepository,
-            ResolverFactory resolverFactory,
-            WorkingSchedules workingSchedules)
+        public RequeueErrorsWorkflow()
         {
-            this.logger = resolverFactory.Resolve<ILogger>("Workflow");
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
-            this.scheduleOptionRepository = scheduleOptionRepository;
-            this.workingSchedules = workingSchedules;
         }
 
         public override void Build(IWorkflowBuilder<GeneralMessage> builder)

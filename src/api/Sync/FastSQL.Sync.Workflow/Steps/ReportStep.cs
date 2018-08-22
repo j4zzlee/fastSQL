@@ -12,18 +12,16 @@ namespace FastSQL.Sync.Workflow.Steps
     public class ReportStep : BaseStepBodyInvoker
     {
         private readonly IEnumerable<IReporter> reporters;
-        private readonly ReporterRepository reporterRepository;
 
-        public ReportStep(ResolverFactory resolver,
-            IEnumerable<IReporter> reporters,
-            ReporterRepository reporterRepository) : base(resolver)
+        public ReportStep(IEnumerable<IReporter> reporters) : base()
         {
             this.reporters = reporters;
-            this.reporterRepository = reporterRepository;
         }
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
+            var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this);
+
             try
             {
                 var reportModels = reporterRepository.GetAll();
@@ -43,6 +41,7 @@ namespace FastSQL.Sync.Workflow.Steps
             }
             finally
             {
+                reporterRepository?.Dispose();
             }
         }
     }

@@ -9,16 +9,19 @@ namespace FastSQL.Magento1.Integration.Pushers
 {
     public class ProductPusherOptionManager : BaseOptionManager
     {
-        private readonly EntityRepository entityRepository;
+        public RepositoryFactory RepositoryFactory { get; set; }
 
-        public ProductPusherOptionManager(EntityRepository entityRepository)
+        public ProductPusherOptionManager()
         {
-            this.entityRepository = entityRepository;
         }
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {
-            var entities = entityRepository.GetAll();
-            return new List<OptionItem> {
+            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            {
+                var entities = entityRepository.GetAll();
+                return new List<OptionItem> {
                 new OptionItem
                 {
                     Name = "website_ids",
@@ -34,6 +37,12 @@ namespace FastSQL.Magento1.Integration.Pushers
                     Value = "0"
                 }
             };
+            }
+        }
+
+        public override void Dispose()
+        {
+            RepositoryFactory.Release(this);
         }
     }
 }

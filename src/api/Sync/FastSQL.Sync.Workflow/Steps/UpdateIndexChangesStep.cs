@@ -23,25 +23,15 @@ namespace FastSQL.Sync.Workflow.Steps
         public IIndexModel IndexModel { get; set; }
         public int Counter { get; set; }
 
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
-        private readonly ConnectionRepository connectionRepository;
         private readonly IEnumerable<IPuller> pullers;
         private readonly IEnumerable<IIndexer> indexers;
         private readonly IndexerManager indexerManager;
 
         public UpdateIndexChangesStep(
-            ResolverFactory resolver,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository,
             IEnumerable<IPuller> pullers,
             IEnumerable<IIndexer> indexers,
-            IndexerManager indexerManager) : base(resolver)
+            IndexerManager indexerManager) : base()
         {
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
-            this.connectionRepository = connectionRepository;
             this.pullers = pullers;
             this.indexers = indexers;
             this.indexerManager = indexerManager;
@@ -49,6 +39,8 @@ namespace FastSQL.Sync.Workflow.Steps
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
+            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
+            var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this);
             try
             {
                 Logger.Information($@"Updating index changes of {IndexModel.Name}/{IndexModel.Id}...");
@@ -112,6 +104,8 @@ namespace FastSQL.Sync.Workflow.Steps
             finally
             {
                 Counter += 1;
+                entityRepository?.Dispose();
+                connectionRepository?.Dispose();
             }
         }
     }

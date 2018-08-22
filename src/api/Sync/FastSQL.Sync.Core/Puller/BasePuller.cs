@@ -15,9 +15,7 @@ namespace FastSQL.Sync.Core.Puller
         protected ConnectionModel ConnectionModel;
 
         public IRichAdapter Adapter { get; }
-        public virtual ConnectionRepository ConnectionRepository { get; set; }
-        public virtual EntityRepository EntityRepository { get; set; }
-        public virtual AttributeRepository AttributeRepository { get; set; }
+        public RepositoryFactory RepositoryFactory { get; set; }
 
         public BasePuller(IOptionManager optionManager, IRichAdapter adapter)
         {
@@ -61,11 +59,19 @@ namespace FastSQL.Sync.Core.Puller
 
         protected virtual IPuller SpreadOptions()
         {
-            ConnectionModel = ConnectionRepository.GetById(GetIndexModel().SourceConnectionId.ToString());
-            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
-            var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
-            Adapter.SetOptions(connectionOptionItems);
-            return this;
+            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            {
+                ConnectionModel = connectionRepository.GetById(GetIndexModel().SourceConnectionId.ToString());
+                var connectionOptions = connectionRepository.LoadOptions(ConnectionModel.Id.ToString());
+                var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
+                Adapter.SetOptions(connectionOptionItems);
+                return this;
+            }
+        }
+
+        public virtual void Dispose()
+        {
+            RepositoryFactory.Release(this);
         }
     }
 
@@ -119,10 +125,13 @@ namespace FastSQL.Sync.Core.Puller
 
         public override IPuller SetIndex(IIndexModel model)
         {
-            AttributeModel = model as AttributeModel;
-            EntityModel = EntityRepository.GetById(AttributeModel.EntityId.ToString());
-            SpreadOptions();
-            return this;
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            {
+                AttributeModel = model as AttributeModel;
+                EntityModel = entityRepository.GetById(AttributeModel.EntityId.ToString());
+                SpreadOptions();
+                return this;
+            }
         }
         
         public bool IsImplemented(string attributeProcessorId, string entityProcessorId, string providerId)

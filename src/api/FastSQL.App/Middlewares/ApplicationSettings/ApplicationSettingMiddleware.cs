@@ -65,7 +65,7 @@ namespace FastSQL.App.Middlewares.ApplicationSettings
             return result;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             
         }

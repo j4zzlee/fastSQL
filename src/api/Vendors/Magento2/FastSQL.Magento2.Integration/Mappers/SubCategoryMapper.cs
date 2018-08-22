@@ -16,10 +16,7 @@ namespace FastSQL.Magento2.Integration.Mappers
         public SubCategoryMapper(
             SubCategoryProcessor processor, 
             SubCategoryMapperOptionManager optionManager,
-            FastProvider provider,
-            FastAdapter adapter,
-            EntityRepository entityRepository,
-            ConnectionRepository connectionRepository) : base(processor, optionManager, provider, adapter, entityRepository, connectionRepository)
+            FastAdapter adapter) : base(processor, optionManager, adapter)
         {
         }
 

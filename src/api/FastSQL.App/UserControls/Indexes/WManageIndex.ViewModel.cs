@@ -45,15 +45,11 @@ namespace FastSQL.App.UserControls.Indexes
         private bool _isLoading;
         private UCOutputViewViewModel _outputViewViewModel;
         private readonly IEventAggregator eventAggregator;
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
-        private readonly ConnectionRepository connectionRepository;
         private readonly LoggerFactory loggerFactory;
         private readonly IEnumerable<IIndexExporter> indexExporters;
         private readonly IndexerManager indexerManager;
         private readonly PusherManager syncManager;
         private readonly MapperManager mapperManager;
-        private readonly ResolverFactory resolverFactory;
         private ILogger logger;
         
         public BaseCommand InitIndexCommand => new BaseCommand(o => true, OnInitIndex);
@@ -74,16 +70,6 @@ namespace FastSQL.App.UserControls.Indexes
             set
             {
                 dataGridViewModel = value;
-                //dataGridViewModel.SetGridContextMenus(new List<string> {
-                //    "Change",
-                //    //"Change Range",
-                //    "Change All",
-                //    "Remove",
-                //    //"Remove Range",
-                //    "Remove All",
-                //    "Sync",
-                //    //"Sync Range",
-                //    "Sync All"});
                 dataGridViewModel.SetGridContextMenus(new List<MenuItemDefinition>
                 {
                     new MenuItemDefinition
@@ -190,79 +176,82 @@ namespace FastSQL.App.UserControls.Indexes
 
         private async void DataGridViewModel_OnEvent(object sender, Events.DataGridCommandEventArgument args)
         {
-            var selectedItems = args.SelectedItems
-                .Select(i => IndexItemModel.FromJObject(JObject.FromObject(i)));
-            var selectedItemIds = selectedItems.Select(i => i["Id"].ToString());
-            switch (args.CommandName)
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
             {
-                case "ChangeSelected":
-                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
-                        ItemState.Changed,
-                        ItemState.Removed | ItemState.Invalid,
-                        selectedItemIds.ToArray());
-                    break;
-                case "ChangeAll":
-                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
-                        ItemState.Changed,
-                        ItemState.Removed | ItemState.Invalid,
-                        null);
-                    break;
-                case "UnchangeSelected":
-                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
-                        ItemState.None,
-                        ItemState.Changed | ItemState.Invalid,
-                        selectedItemIds.ToArray());
-                    break;
-                case "UnchangeAll":
-                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
-                        ItemState.None,
-                        ItemState.Changed | ItemState.Invalid,
-                        null);
-                    break;
-                case "RemoveSelected":
-                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
-                        ItemState.Changed | ItemState.Removed,
-                        ItemState.Invalid,
-                        selectedItemIds.ToArray());
-                    break;
-                case "RemoveAll":
-                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
-                        ItemState.Changed | ItemState.Removed,
-                        ItemState.Invalid,
-                        null);
-                    break;
-                case "ProcessSelected":
-                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
-                        ItemState.Processed,
-                        ItemState.Invalid,
-                        selectedItemIds.ToArray());
-                    break;
-                case "ProcessAll":
-                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
-                        ItemState.Processed,
-                        ItemState.Invalid,
-                        null);
-                    break;
-                case "UnprocessSelected":
-                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
-                        ItemState.None,
-                        ItemState.Processed | ItemState.Invalid,
-                        selectedItemIds.ToArray());
-                    break;
-                case "UnprocessAll":
-                    entityRepository.ChangeStateOfIndexedItems(_indexModel,
-                        ItemState.None,
-                        ItemState.Processed | ItemState.Invalid,
-                        null);
-                    break;
-                case "Sync":
-                    syncManager.SetIndex(_indexModel);
-                    syncManager.SetIndexer(_indexer);
-                    syncManager.SetPusher(_pusher);
-                    await syncManager.Push(selectedItems.ToArray());
-                    break;
+                var selectedItems = args.SelectedItems
+                .Select(i => IndexItemModel.FromJObject(JObject.FromObject(i)));
+                var selectedItemIds = selectedItems.Select(i => i["Id"].ToString());
+                switch (args.CommandName)
+                {
+                    case "ChangeSelected":
+                        entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                            ItemState.Changed,
+                            ItemState.Removed | ItemState.Invalid,
+                            selectedItemIds.ToArray());
+                        break;
+                    case "ChangeAll":
+                        entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                            ItemState.Changed,
+                            ItemState.Removed | ItemState.Invalid,
+                            null);
+                        break;
+                    case "UnchangeSelected":
+                        entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                            ItemState.None,
+                            ItemState.Changed | ItemState.Invalid,
+                            selectedItemIds.ToArray());
+                        break;
+                    case "UnchangeAll":
+                        entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                            ItemState.None,
+                            ItemState.Changed | ItemState.Invalid,
+                            null);
+                        break;
+                    case "RemoveSelected":
+                        entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                            ItemState.Changed | ItemState.Removed,
+                            ItemState.Invalid,
+                            selectedItemIds.ToArray());
+                        break;
+                    case "RemoveAll":
+                        entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                            ItemState.Changed | ItemState.Removed,
+                            ItemState.Invalid,
+                            null);
+                        break;
+                    case "ProcessSelected":
+                        entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                            ItemState.Processed,
+                            ItemState.Invalid,
+                            selectedItemIds.ToArray());
+                        break;
+                    case "ProcessAll":
+                        entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                            ItemState.Processed,
+                            ItemState.Invalid,
+                            null);
+                        break;
+                    case "UnprocessSelected":
+                        entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                            ItemState.None,
+                            ItemState.Processed | ItemState.Invalid,
+                            selectedItemIds.ToArray());
+                        break;
+                    case "UnprocessAll":
+                        entityRepository.ChangeStateOfIndexedItems(_indexModel,
+                            ItemState.None,
+                            ItemState.Processed | ItemState.Invalid,
+                            null);
+                        break;
+                    case "Sync":
+                        syncManager.SetIndex(_indexModel);
+                        syncManager.SetIndexer(_indexer);
+                        syncManager.SetPusher(_pusher);
+                        await syncManager.Push(selectedItems.ToArray());
+                        break;
+                }
+                await LoadData(null, DataGridViewModel.GetLimit(), DataGridViewModel.GetOffset(), true);
             }
-            await LoadData(null, DataGridViewModel.GetLimit(), DataGridViewModel.GetOffset(), true);
         }
 
         private async void DataGridViewModel_OnFilter(object sender, FilterArguments args)
@@ -273,6 +262,7 @@ namespace FastSQL.App.UserControls.Indexes
         private async Task LoadData(IEnumerable<FilterArgument> filters, int limit, int offset, bool reset)
         {
             IsLoading = true;
+            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
             try
             {
                 await Task.Run(() =>
@@ -289,6 +279,7 @@ namespace FastSQL.App.UserControls.Indexes
             }
             finally
             {
+                entityRepository?.Dispose();
                 IsLoading = false;
             }
         }
@@ -335,25 +326,17 @@ namespace FastSQL.App.UserControls.Indexes
         public WManageIndexViewModel(
             IEventAggregator eventAggregator,
             IEnumerable<IIndexExporter> indexExporters,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository,
             LoggerFactory loggerFactory,
             IndexerManager indexerManager, 
             PusherManager syncManager,
-            MapperManager mapperManager,
-            ResolverFactory resolverFactory)
+            MapperManager mapperManager)
         {
             this.eventAggregator = eventAggregator;
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
-            this.connectionRepository = connectionRepository;
             this.loggerFactory = loggerFactory;
             this.indexExporters = indexExporters;
             this.indexerManager = indexerManager;
             this.syncManager = syncManager;
             this.mapperManager = mapperManager;
-            this.resolverFactory = resolverFactory;
         }
         
         private async void OnMapIndex(object obj)
@@ -381,6 +364,7 @@ namespace FastSQL.App.UserControls.Indexes
 
         private async void OnInitIndex(object obj)
         {
+            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
             try
             {
                 IsLoading = true;
@@ -401,6 +385,7 @@ namespace FastSQL.App.UserControls.Indexes
             finally
             {
                 IsLoading = false;
+                entityRepository?.Dispose();
             }
         }
 
@@ -450,30 +435,32 @@ namespace FastSQL.App.UserControls.Indexes
 
         public async void Loaded()
         {
-            this.logger = loggerFactory
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            {
+                this.logger = loggerFactory
                 .WriteToApplication($"{_indexModel.EntityType} Index")
                 .WriteToFile()
                 .CreateApplicationLogger();
-            this.indexerManager.OnReport(m =>
-            {
-                logger.Information(m);
-            });
-            _puller?.SetIndex(_indexModel);
-            _indexer?.SetIndex(_indexModel);
-            _pusher?.SetIndex(_indexModel);
-            
-            Initialized = _puller?.Initialized() == true && entityRepository?.Initialized(_indexModel) == true;
+                this.indexerManager.OnReport(m =>
+                {
+                    logger.Information(m);
+                });
+                _puller?.SetIndex(_indexModel);
+                _indexer?.SetIndex(_indexModel);
+                _pusher?.SetIndex(_indexModel);
 
-            if (Initialized)
-            {
-                await LoadData(null, DataGridContstants.PageLimit, 0, true);
+                Initialized = _puller?.Initialized() == true && entityRepository?.Initialized(_indexModel) == true;
+
+                if (Initialized)
+                {
+                    await LoadData(null, DataGridContstants.PageLimit, 0, true);
+                }
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            resolverFactory.Release(logger);
-            //throw new NotImplementedException();
+            ResolverFactory.Release(logger);
         }
     }
 }

@@ -50,45 +50,50 @@ LIMIT @Limit OFFSET @Offset;";
 
         public override PullResult PullNext(object lastToken = null)
         {
-            var options = AttributeRepository.LoadOptions(AttributeModel.Id.ToString());
-            var limit = options.GetValue("puller_page_limit", 100);
-            var offset = 0;
-            if (lastToken != null)
+            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
             {
-                var jToken = JObject.FromObject(lastToken);
-                if (jToken != null && jToken.ContainsKey("limit") && jToken.ContainsKey("offset"))
+                var options = attributeRepository.LoadOptions(AttributeModel.Id.ToString());
+                var limit = options.GetValue("puller_page_limit", 100);
+                var offset = 0;
+                if (lastToken != null)
                 {
-                    limit = int.Parse(jToken.GetValue("limit").ToString());
-                    offset = int.Parse(jToken.GetValue("offset").ToString());
-                    offset = offset + limit;
+                    var jToken = JObject.FromObject(lastToken);
+                    if (jToken != null && jToken.ContainsKey("limit") && jToken.ContainsKey("offset"))
+                    {
+                        limit = int.Parse(jToken.GetValue("limit").ToString());
+                        offset = int.Parse(jToken.GetValue("offset").ToString());
+                        offset = offset + limit;
+                    }
                 }
-            }
 
-            var sqlScript = GetSqlScript(options, true);
-            var sets = adapter.Query(sqlScript, new
-            {
-                Limit = limit,
-                Offset = offset
-            });
-            var set = sets.FirstOrDefault();
-            var results = set?.Rows;
-            return new PullResult
-            {
-                Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
-                LastToken = new
+                var sqlScript = GetSqlScript(options, true);
+                var sets = adapter.Query(sqlScript, new
                 {
                     Limit = limit,
                     Offset = offset
-                },
-                Data = results
-            };
+                });
+                var set = sets.FirstOrDefault();
+                var results = set?.Rows;
+                return new PullResult
+                {
+                    Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
+                    LastToken = new
+                    {
+                        Limit = limit,
+                        Offset = offset
+                    },
+                    Data = results
+                };
+            }
         }
 
         public override IPuller Init()
         {
-            var options = AttributeRepository.LoadOptions(AttributeModel.Id.ToString());
-            var sqlScript = options.GetValue("puller_sql_script");
-            var truncateSQL = $@"
+            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            {
+                var options = attributeRepository.LoadOptions(AttributeModel.Id.ToString());
+                var sqlScript = options.GetValue("puller_sql_script");
+                var truncateSQL = $@"
 IF EXISTS (
     SELECT * FROM sys.views
     WHERE name = N'{AttributeModel.SourceViewName}'
@@ -97,13 +102,14 @@ BEGIN
     DROP VIEW [{AttributeModel.SourceViewName}];
 END
 ";
-            adapter.Execute(truncateSQL);
-            var createViewSQL = $@"
+                adapter.Execute(truncateSQL);
+                var createViewSQL = $@"
 CREATE VIEW [{AttributeModel.SourceViewName}]
 AS
 {sqlScript}";
-            adapter.Execute(createViewSQL);
-            return this;
+                adapter.Execute(createViewSQL);
+                return this;
+            }
         }
 
         public override bool Initialized()
@@ -118,28 +124,31 @@ WHERE [name] = N'{AttributeModel.SourceViewName}'
 
         public override PullResult Preview()
         {
-            var options = AttributeRepository.LoadOptions(AttributeModel.Id.ToString());
-            var limit = options.GetValue("puller_page_limit", 100);
-            var offset = 0;
+            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            {
+                var options = attributeRepository.LoadOptions(AttributeModel.Id.ToString());
+                var limit = options.GetValue("puller_page_limit", 100);
+                var offset = 0;
 
-            var sqlScript = GetSqlScript(options, false); // should call raw SQL instead of calling view
-            var sets = adapter.Query(sqlScript, new
-            {
-                Limit = limit,
-                Offset = offset
-            });
-            var set = sets.FirstOrDefault();
-            var results = set?.Rows;
-            return new PullResult
-            {
-                Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
-                LastToken = new
+                var sqlScript = GetSqlScript(options, false); // should call raw SQL instead of calling view
+                var sets = adapter.Query(sqlScript, new
                 {
                     Limit = limit,
                     Offset = offset
-                },
-                Data = results
-            };
+                });
+                var set = sets.FirstOrDefault();
+                var results = set?.Rows;
+                return new PullResult
+                {
+                    Status = results?.Count() > 0 ? PullState.HasData : PullState.Invalid,
+                    LastToken = new
+                    {
+                        Limit = limit,
+                        Offset = offset
+                    },
+                    Data = results
+                };
+            }
         }
     }
 }

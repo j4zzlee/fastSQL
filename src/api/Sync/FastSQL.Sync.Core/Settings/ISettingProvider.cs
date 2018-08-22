@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FastSQL.Sync.Core.Settings
 {
-    public interface ISettingProvider
+    public interface ISettingProvider: IDisposable
     {
         string Id { get; }
         string Name { get; }

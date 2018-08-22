@@ -13,16 +13,22 @@ using WorkflowCore.Models;
 
 namespace FastSQL.Sync.Workflow.Steps
 {
-    public abstract class BaseStepBodyInvoker : StepBody
+    public abstract class BaseStepBodyInvoker : StepBody, IDisposable
     {
-        protected ILogger Logger;
-        protected ILogger ErrorLogger;
-        public MessageRepository MessageRepository { get; set; }
+        private ILogger _logger;
+        protected ILogger Logger => _logger ?? (_logger = ResolverFactory.Resolve<ILogger>("SyncService"));
+        private ILogger _errorLogger;
+        protected ILogger ErrorLogger => _logger ?? (_errorLogger = ResolverFactory.Resolve<ILogger>("Error"));
+        public ResolverFactory ResolverFactory { get; set; }
+        public RepositoryFactory RepositoryFactory { get; set; }
 
-        public BaseStepBodyInvoker(ResolverFactory resolver)
+        public BaseStepBodyInvoker()
         {
-            Logger = resolver.Resolve<ILogger>("SyncService");
-            ErrorLogger = resolver.Resolve<ILogger>("Error");
+        }
+
+        public virtual void Dispose()
+        {
+            RepositoryFactory.Release(this);
         }
 
         public abstract Task Invoke(IStepExecutionContext context = null);
@@ -38,23 +44,26 @@ namespace FastSQL.Sync.Workflow.Steps
             catch (Exception ex)
             {
                 ErrorLogger.Error(ex, ex.Message);
-                MessageRepository.Create(new
+                using (var messageRepository = RepositoryFactory.Create<MessageRepository>(this))
                 {
-                    CreatedAt = DateTime.Now.ToUnixTimestamp(),
-                    Message = runner?.Exception != null ? runner.Exception.ToString() : ex.ToString(),
-                    MessageType = MessageType.Exception,
-                    Status = MessageStatus.None
-                });
-                if (ex.InnerException != null)
-                {
-                    ErrorLogger.Error(ex.InnerException, ex.InnerException.Message);
-                    MessageRepository.Create(new
+                    messageRepository.Create(new
                     {
                         CreatedAt = DateTime.Now.ToUnixTimestamp(),
-                        Message = ex.InnerException.ToString(),
+                        Message = runner?.Exception != null ? runner.Exception.ToString() : ex.ToString(),
                         MessageType = MessageType.Exception,
                         Status = MessageStatus.None
                     });
+                    if (ex.InnerException != null)
+                    {
+                        ErrorLogger.Error(ex.InnerException, ex.InnerException.Message);
+                        messageRepository.Create(new
+                        {
+                            CreatedAt = DateTime.Now.ToUnixTimestamp(),
+                            Message = ex.InnerException.ToString(),
+                            MessageType = MessageType.Exception,
+                            Status = MessageStatus.None
+                        });
+                    }
                 }
             }
             return ExecutionResult.Next();

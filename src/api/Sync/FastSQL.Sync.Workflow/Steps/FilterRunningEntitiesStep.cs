@@ -14,29 +14,23 @@ namespace FastSQL.Sync.Workflow.Steps
     public class FilterRunningEntitiesStep : BaseStepBodyInvoker
     {
         private readonly WorkingSchedules workingSchedules;
-        private readonly ScheduleOptionRepository scheduleOptionRepository;
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
 
         public string WorkflowId { get; set; }
         public IEnumerable<IIndexModel> Indexes { get; set; }
-        public FilterRunningEntitiesStep(ResolverFactory resolver,
-            WorkingSchedules workingSchedules,
-            ScheduleOptionRepository scheduleOptionRepository,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository) : base(resolver)
+        public FilterRunningEntitiesStep(WorkingSchedules workingSchedules) : base()
         {
             this.workingSchedules = workingSchedules;
-            this.scheduleOptionRepository = scheduleOptionRepository;
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
         }
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
+            var scheduleOptionRepository = RepositoryFactory.Create<ScheduleOptionRepository>(this);
+            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
+            var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this);
             try
             {
-                await Task.Run(() => {
+                await Task.Run(() =>
+                {
                     var scheduleOptions = workingSchedules.GetWorkingSchedules() ?? scheduleOptionRepository
                     .GetByWorkflow(WorkflowId)
                     .Where(o => !o.IsParallel && o.Enabled);
@@ -58,6 +52,9 @@ namespace FastSQL.Sync.Workflow.Steps
             }
             finally
             {
+                entityRepository?.Dispose();
+                attributeRepository?.Dispose();
+                scheduleOptionRepository?.Dispose();
             }
         }
     }

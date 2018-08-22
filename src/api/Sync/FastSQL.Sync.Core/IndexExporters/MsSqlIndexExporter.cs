@@ -8,6 +8,10 @@ namespace FastSQL.Sync.Core.IndexExporters
 {
     public class MsSqlIndexExporterOptionManager : BaseOptionManager
     {
+        public override void Dispose()
+        {
+        }
+
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {
             return new List<OptionItem>();
@@ -15,7 +19,7 @@ namespace FastSQL.Sync.Core.IndexExporters
     }
     public class MsSqlIndexExporter : BaseIndexExporter
     {
-        public MsSqlIndexExporter(IOptionManager optionManager, IndexExporterRepository indexExporterRepository) : base(optionManager, indexExporterRepository)
+        public MsSqlIndexExporter(IOptionManager optionManager) : base(optionManager)
         {
         }
 

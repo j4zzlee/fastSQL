@@ -32,6 +32,10 @@ namespace FastSQL.Core
             return OptionManager.GetOptionsTemplate();
         }
 
+        public void Dispose()
+        {
+        }
+
         public IEnumerable<OptionItem> Options => OptionManager.Options;
     }
 }

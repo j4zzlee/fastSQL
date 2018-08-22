@@ -25,23 +25,26 @@ namespace FastSQL.Sync.Core.Indexer
             AttributeProcessor = attributeProcessor;
             EntityProcessor = entityProcessor;
         }
-        
+
         public override IIndexer SetIndex(IIndexModel model)
         {
-            AttributeModel = model as AttributeModel;
-            EntityModel = EntityRepository.GetById(AttributeModel.EntityId.ToString());
-            SpreadOptions();
-            return this;
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            {
+                AttributeModel = model as AttributeModel;
+                EntityModel = entityRepository.GetById(AttributeModel.EntityId.ToString());
+                SpreadOptions();
+                return this;
+            }
         }
 
         protected override IIndexModel GetIndexModel()
         {
             return AttributeModel;
         }
-        
+
         protected override BaseRepository GetRepository()
         {
-            return AttributeRepository;
+            return RepositoryFactory.Create<AttributeRepository>(this);
         }
 
         public bool IsImplemented(string attributeProcessorId, string entityProcessorId, string providerId)

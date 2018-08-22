@@ -24,40 +24,30 @@ namespace FastSQL.Sync.Workflow.Steps
         private readonly IEnumerable<IAttributeIndexer> attributeIndexers;
         private readonly IEnumerable<IEntityPusher> entityPushers;
         private readonly IEnumerable<IAttributePusher> attributePushers;
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
-        private readonly MessageRepository messageRepository;
-        private readonly QueueItemRepository queueItemRepository;
-        private readonly ConnectionRepository connectionRepository;
         private readonly PusherManager pusherManager;
         public PushItemChangedStep(
             IEnumerable<IEntityIndexer> entityIndexers,
             IEnumerable<IAttributeIndexer> attributeIndexers,
             IEnumerable<IEntityPusher> entityPushers,
             IEnumerable<IAttributePusher> attributePushers,
-            ResolverFactory resolver,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            MessageRepository messageRepository,
-            QueueItemRepository queueItemRepository,
-            ConnectionRepository connectionRepository,
-            PusherManager pusherManager) : base(resolver)
+            PusherManager pusherManager) : base()
         {
             this.entityIndexers = entityIndexers;
             this.attributeIndexers = attributeIndexers;
             this.entityPushers = entityPushers;
             this.attributePushers = attributePushers;
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
-            this.messageRepository = messageRepository;
-            this.queueItemRepository = queueItemRepository;
-            this.connectionRepository = connectionRepository;
             this.pusherManager = pusherManager;
         }
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
-            try
+            var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this);
+            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
+            var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this);
+            var messageRepository = RepositoryFactory.Create<MessageRepository>(this);
+            var queueItemRepository = RepositoryFactory.Create<QueueItemRepository>(this);
+            
+                try
             {
                 var executeAt = DateTime.Now.ToUnixTimestamp();
                 var firstQueuedItem = entityRepository.GetCurrentQueuedItems();
@@ -155,6 +145,11 @@ Exception:
             }
             finally
             {
+                entityRepository?.Dispose();
+                attributeRepository?.Dispose();
+                connectionRepository?.Dispose();
+                messageRepository?.Dispose();
+                queueItemRepository?.Dispose();
             }
         }
     }

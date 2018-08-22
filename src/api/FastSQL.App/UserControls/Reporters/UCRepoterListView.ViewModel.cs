@@ -9,15 +9,14 @@ using System.Linq;
 
 namespace FastSQL.App.UserControls.Reporters
 {
-    public class UCRepoterListViewViewModel: BaseViewModel
+    public class UCRepoterListViewViewModel : BaseViewModel
     {
-
-        private readonly ReporterRepository reporterRepository;
         private readonly IEventAggregator eventAggregator;
         private ReporterModel _selectedReporter;
         private ObservableCollection<ReporterModel> _reporters;
 
-        public BaseCommand SelectItemCommand => new BaseCommand(o => true, o => {
+        public BaseCommand SelectItemCommand => new BaseCommand(o => true, o =>
+        {
             var id = Guid.Parse(o.ToString());
             eventAggregator.GetEvent<SelectReporterEvent>().Publish(new SelectReporterEventArgument
             {
@@ -49,44 +48,47 @@ namespace FastSQL.App.UserControls.Reporters
             }
         }
 
-        public UCRepoterListViewViewModel(
-            ReporterRepository reporterRepository,
-            IEventAggregator eventAggregator)
+        public UCRepoterListViewViewModel(IEventAggregator eventAggregator)
         {
-            this.reporterRepository = reporterRepository;
             this.eventAggregator = eventAggregator;
-            Reporters = new ObservableCollection<ReporterModel>(reporterRepository.GetAll());
             eventAggregator.GetEvent<RefreshReporterListEvent>().Subscribe(OnRefreshReporters);
-            var firstConection = Reporters.FirstOrDefault();
-            if (firstConection != null)
-            {
-                eventAggregator.GetEvent<SelectReporterEvent>().Publish(new SelectReporterEventArgument
-                {
-                    ReporterId = firstConection.Id
-                });
-            }
+            //var firstConection = Reporters.FirstOrDefault();
+            //if (firstConection != null)
+            //{
+            //    eventAggregator.GetEvent<SelectReporterEvent>().Publish(new SelectReporterEventArgument
+            //    {
+            //        ReporterId = firstConection.Id
+            //    });
+            //}
         }
 
         private void OnRefreshReporters(RefreshReporterListEventArgument obj)
         {
-            Reporters = new ObservableCollection<ReporterModel>(reporterRepository.GetAll());
-            var selectedId = obj.SelectedReporterId;
-            if (obj.SelectedReporterId == Guid.Empty)
+            using (var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this))
             {
-                var firstConnection = Reporters.FirstOrDefault();
-                selectedId = firstConnection?.Id ?? Guid.Empty;
-            }
-            if (selectedId != Guid.Empty)
-            {
-                eventAggregator.GetEvent<SelectReporterEvent>().Publish(new SelectReporterEventArgument
+                Reporters = new ObservableCollection<ReporterModel>(reporterRepository.GetAll());
+                var selectedId = obj.SelectedReporterId;
+                if (obj.SelectedReporterId == Guid.Empty)
                 {
-                    ReporterId = selectedId
-                });
+                    var firstConnection = Reporters.FirstOrDefault();
+                    selectedId = firstConnection?.Id ?? Guid.Empty;
+                }
+                if (selectedId != Guid.Empty)
+                {
+                    eventAggregator.GetEvent<SelectReporterEvent>().Publish(new SelectReporterEventArgument
+                    {
+                        ReporterId = selectedId
+                    });
+                }
             }
         }
 
         public void Loaded()
         {
+            using (var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this))
+            {
+                Reporters = new ObservableCollection<ReporterModel>(reporterRepository.GetAll());
+            }
         }
     }
 }

@@ -34,6 +34,10 @@ namespace FastSQL.Core
             }
         }
 
+        public virtual void Dispose()
+        {
+
+        }
         public abstract IEnumerable<OptionItem> GetOptionsTemplate();
 
         public IOptionManager SetOptions(IEnumerable<OptionItem> options)

@@ -44,6 +44,10 @@ namespace FastSQL.Core
         }
         #endregion
         public abstract bool TryConnect(out string message);
+
+        public void Dispose()
+        {
+        }
     }
 
     public abstract class BaseSqlAdapter : BaseAdapter

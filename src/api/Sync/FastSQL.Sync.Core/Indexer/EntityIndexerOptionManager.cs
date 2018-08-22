@@ -8,6 +8,10 @@ namespace FastSQL.Sync.Core.Indexer
 {
     public class EntityIndexerOptionManager : BaseOptionManager
     {
+        public override void Dispose()
+        {
+
+        }
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {
             return new List<OptionItem>

@@ -74,7 +74,7 @@ namespace FastSQL.Magento1
             return CurrentSession;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _client?.Close();
             CurrentSession = null;

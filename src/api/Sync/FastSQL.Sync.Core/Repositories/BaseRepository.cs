@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace FastSQL.Sync.Core.Repositories
 {
-    public abstract class BaseRepository
+    public abstract class BaseRepository: IDisposable
     {
         protected DbConnection _connection;
         protected DbTransaction _transaction;
@@ -22,6 +22,7 @@ namespace FastSQL.Sync.Core.Repositories
         protected BaseRepository(DbConnection connection)
         {
             _connection = connection;
+            IsDisposed = false;
             //_connection.State != System.Data.ConnectionState.Open
         }
 
@@ -29,6 +30,8 @@ namespace FastSQL.Sync.Core.Repositories
         {
             _transaction = _connection?.BeginTransaction();
         }
+
+        public bool IsDisposed { get; private set; }
 
         public virtual void Commit()
         {
@@ -649,6 +652,14 @@ VALUE (
                 DependsOnItemId = itemId,
                 CreatedAt = DateTime.Now.ToUnixTimestamp()
             }, transaction: _transaction);
+        }
+
+        public virtual void Dispose()
+        {
+            //throw new NotImplementedException();
+            _transaction?.Dispose();
+            _connection?.Close();
+            IsDisposed = true;
         }
 
         protected abstract EntityType EntityType { get; }

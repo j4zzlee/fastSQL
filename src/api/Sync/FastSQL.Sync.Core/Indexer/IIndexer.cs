@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace FastSQL.Sync.Core.Indexer
 {
-    public interface IIndexer : IOptionManager
+    public interface IIndexer : IOptionManager, IDisposable
     {
         IIndexer Persist(IEnumerable<object> data = null);
         IIndexer OnReport(Action<string> reporter);

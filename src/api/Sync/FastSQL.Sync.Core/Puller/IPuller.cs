@@ -4,7 +4,7 @@ using System;
 
 namespace FastSQL.Sync.Core.Puller
 {
-    public interface IPuller : IOptionManager
+    public interface IPuller : IOptionManager, IDisposable
     {
         IPuller OnReport(Action<string> reporter);
         IPuller SetIndex(IIndexModel model);

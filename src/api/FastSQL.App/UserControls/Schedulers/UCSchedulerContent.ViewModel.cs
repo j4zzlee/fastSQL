@@ -21,9 +21,6 @@ namespace FastSQL.App.UserControls.Schedulers
     public class UCSchedulerContentViewModel : BaseViewModel
     {
         private DataGridViewModel dataGridViewModel;
-        private readonly ScheduleOptionRepository scheduleOptionRepository;
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
         private readonly IEnumerable<IBaseWorkflow> workflows;
         private readonly SyncService syncService;
 
@@ -57,16 +54,10 @@ namespace FastSQL.App.UserControls.Schedulers
         }
 
         public UCSchedulerContentViewModel(
-            ScheduleOptionRepository scheduleOptionRepository,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
             IEnumerable<IBaseWorkflow> workflows,
             SyncService syncService
         )
         {
-            this.scheduleOptionRepository = scheduleOptionRepository;
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
             this.workflows = workflows;
             this.syncService = syncService;
         }
@@ -101,23 +92,28 @@ namespace FastSQL.App.UserControls.Schedulers
         {
             await Task.Run(() =>
             {
-                var entities = entityRepository.GetAll().Select(e => e as IIndexModel);
-                var attributes = attributeRepository.GetAll().Select(e => e as IIndexModel);
-                var allIndexes = entities.Union(attributes);
-                var items = scheduleOptionRepository
-                .FilterOptions(filters, limit, offset, out int totalCount)
-                    .Select(o =>
-                    {
-                        o.TargetEntityName = allIndexes.FirstOrDefault(i => i.Id == o.TargetEntityId && i.EntityType == o.TargetEntityType)?.Name;
-                        return o;
-                    });
-                if (reset)
+                using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+                using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+                using (var scheduleOptionRepository = RepositoryFactory.Create<ScheduleOptionRepository>(this))
                 {
-                    SchedulerOptions.CleanFilters();
+                    var entities = entityRepository.GetAll().Select(e => e as IIndexModel);
+                    var attributes = attributeRepository.GetAll().Select(e => e as IIndexModel);
+                    var allIndexes = entities.Union(attributes);
+                    var items = scheduleOptionRepository
+                    .FilterOptions(filters, limit, offset, out int totalCount)
+                        .Select(o =>
+                        {
+                            o.TargetEntityName = allIndexes.FirstOrDefault(i => i.Id == o.TargetEntityId && i.EntityType == o.TargetEntityType)?.Name;
+                            return o;
+                        });
+                    if (reset)
+                    {
+                        SchedulerOptions.CleanFilters();
+                    }
+                    SchedulerOptions.SetTotalCount(totalCount);
+                    SchedulerOptions.SetOffset(limit, offset);
+                    SchedulerOptions.SetData(items);
                 }
-                SchedulerOptions.SetTotalCount(totalCount);
-                SchedulerOptions.SetOffset(limit, offset);
-                SchedulerOptions.SetData(items);
             });
         }
 
@@ -135,6 +131,9 @@ namespace FastSQL.App.UserControls.Schedulers
         {
             await Task.Run(async () =>
             {
+                var scheduleOptionRepository = RepositoryFactory.Create<ScheduleOptionRepository>(this);
+                var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
+                var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this);
                 try
                 {
                     // It is harder than you think!!!
@@ -197,6 +196,9 @@ namespace FastSQL.App.UserControls.Schedulers
                 }
                 finally
                 {
+                    entityRepository?.Dispose();
+                    attributeRepository?.Dispose();
+                    scheduleOptionRepository?.Dispose();
                     await LoadData(null, SchedulerOptions.GetLimit(), SchedulerOptions.GetOffset(), true);
                 }
             });

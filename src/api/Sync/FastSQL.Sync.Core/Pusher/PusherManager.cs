@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace FastSQL.Sync.Core.Pusher
 {
-    public class PusherManager
+    public class PusherManager: IDisposable
     {
         private List<string> _messages;
         private Action<string> _reporter;
@@ -25,12 +25,8 @@ namespace FastSQL.Sync.Core.Pusher
         private IEventAggregator eventAggregator;
         private readonly IEnumerable<IEntityPuller> entityPullers;
         private readonly IEnumerable<IAttributePuller> attributePullers;
-        private ResolverFactory resolverFactory;
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
-        private readonly ConnectionRepository connectionRepository;
-        private readonly MessageRepository messageRepository;
-        private readonly QueueItemRepository queueItemRepository;
+        public ResolverFactory ResolverFactory { get; set; }
+        public RepositoryFactory RepositoryFactory { get; set; }
 
         public void SetIndex(IIndexModel model)
         {
@@ -68,26 +64,14 @@ namespace FastSQL.Sync.Core.Pusher
         public PusherManager(
             IEventAggregator eventAggregator,
             IEnumerable<IEntityPuller> entityPullers,
-            IEnumerable<IAttributePuller> attributePullers,
-            ResolverFactory resolverFactory,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository,
-            MessageRepository messageRepository,
-            QueueItemRepository queueItemRepository)
+            IEnumerable<IAttributePuller> attributePullers)
         {
             this.eventAggregator = eventAggregator;
             this.entityPullers = entityPullers;
             this.attributePullers = attributePullers;
-            this.resolverFactory = resolverFactory;
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
-            this.connectionRepository = connectionRepository;
-            this.messageRepository = messageRepository;
-            this.queueItemRepository = queueItemRepository;
             _messages = new List<string>();
         }
-        
+
         public async Task<PushState> PushItem(IndexItemModel item)
         {
             Report($@"
@@ -97,6 +81,10 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
             _pusher.SetItem(item);
             var result = await Task.Run(() =>
             {
+                var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
+                var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this);
+                var messageRepository = RepositoryFactory.Create<MessageRepository>(this);
+
                 try
                 {
                     entityRepository.BeginTransaction();
@@ -134,7 +122,7 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
                             pushState = _pusher.Create(out destinationId);
                         }
                     }
-                    
+
                     if (!string.IsNullOrWhiteSpace(destinationId) && (pushState & PushState.Success) > 0)
                     {
                         entityRepository.UpdateItemDestinationId(_indexerModel, item.GetSourceId(), destinationId);
@@ -146,7 +134,7 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
                         // Signal to tell that the item is success or not
                         entityRepository.Retry(_indexerModel, item.GetId(), pushState);
                     }
-                    
+
                     entityRepository.Commit();
                     attributeRepository.Commit();
                     return pushState;
@@ -163,6 +151,9 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
                 }
                 finally
                 {
+                    entityRepository?.Dispose();
+                    attributeRepository?.Dispose();
+                    messageRepository?.Dispose();
                     Report($@"
 Ended synchronizing...
 ---------------------------------------------------------------------------------
@@ -183,50 +174,59 @@ Ended synchronizing...
                 await PushItem(item);
             }
         }
-        
+
         private void UpdateDependencies(IndexItemModel item, string destinationId)
         {
-            if (_indexerModel.EntityType == EntityType.Entity)
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
             {
-                // Update Attribute Mapping (DestinationId) if _indexerModel is Entity
-                var attrs = attributeRepository.GetByEntityId(_indexerModel.Id.ToString());
-                foreach (var attr in attrs)
+                if (_indexerModel.EntityType == EntityType.Entity)
                 {
-                    Report($"Updating destination ID for attribute {attr.Name}.");
-                    if (!attributeRepository.Initialized(attr))
+                    // Update Attribute Mapping (DestinationId) if _indexerModel is Entity
+                    var attrs = attributeRepository.GetByEntityId(_indexerModel.Id.ToString());
+                    foreach (var attr in attrs)
                     {
-                        Report($"Attribute {attr.Name} is not initialized.");
-                        continue;
-                    }
+                        Report($"Updating destination ID for attribute {attr.Name}.");
+                        if (!attributeRepository.Initialized(attr))
+                        {
+                            Report($"Attribute {attr.Name} is not initialized.");
+                            continue;
+                        }
 
-                    if (attr.HasState(EntityState.Disabled))
-                    {
-                        Report($"Attribute {attr.Name} is Disabled.");
-                        continue;
-                    }
+                        if (attr.HasState(EntityState.Disabled))
+                        {
+                            Report($"Attribute {attr.Name} is Disabled.");
+                            continue;
+                        }
 
-                    attributeRepository.UpdateItemDestinationId(attr, item.GetSourceId(), destinationId);
-                    Report($"Done updating destination ID for attribute {attr.Name}.");
-                }
-            }
-
-            var dependencies = entityRepository.GetDependenciesOn(_indexerModel.Id, _indexerModel.EntityType);
-            foreach (var dependency in dependencies)
-            {
-                if (dependency.HasDependOnStep(IntegrationStep.Pushing | IntegrationStep.Pushing))
-                {
-                    if (dependency.HasExecutionStep(IntegrationStep.Indexing | IntegrationStep.Indexed))
-                    {
-                        // Only add the signal to tell that the dependant entity should be pull (via PullNext) based on this item
-                        entityRepository.AddPullDependency(
-                            dependency.EntityId,
-                            dependency.EntityType,
-                            _indexerModel.Id,
-                            _indexerModel.EntityType,
-                            item.GetId());
+                        attributeRepository.UpdateItemDestinationId(attr, item.GetSourceId(), destinationId);
+                        Report($"Done updating destination ID for attribute {attr.Name}.");
                     }
                 }
+
+                var dependencies = entityRepository.GetDependenciesOn(_indexerModel.Id, _indexerModel.EntityType);
+                foreach (var dependency in dependencies)
+                {
+                    if (dependency.HasDependOnStep(IntegrationStep.Pushing | IntegrationStep.Pushing))
+                    {
+                        if (dependency.HasExecutionStep(IntegrationStep.Indexing | IntegrationStep.Indexed))
+                        {
+                            // Only add the signal to tell that the dependant entity should be pull (via PullNext) based on this item
+                            entityRepository.AddPullDependency(
+                                dependency.EntityId,
+                                dependency.EntityType,
+                                _indexerModel.Id,
+                                _indexerModel.EntityType,
+                                item.GetId());
+                        }
+                    }
+                }
             }
+        }
+
+        public virtual void Dispose()
+        {
+            RepositoryFactory.Release(this);
         }
     }
 }

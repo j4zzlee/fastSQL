@@ -104,7 +104,7 @@ namespace FastSQL.Core.Loggers
         }
 
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             resolverFactory.Release(_container);
             //resolverFactory.Release(_logger);

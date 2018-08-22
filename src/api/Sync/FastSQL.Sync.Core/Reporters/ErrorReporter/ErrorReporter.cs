@@ -8,16 +8,9 @@ namespace FastSQL.Sync.Core.Reporters
 {
     public class ErrorReporter : BaseReporter
     {
-        private readonly MessageRepository messageRepository;
 
-        public ErrorReporter(
-            ResolverFactory resolverFactory,
-            ErrorReporterOptionManager optionManager,
-            MessageRepository messageRepository,
-            MessageDeliveryChannelRepository messageDeliveryChannelRepository
-            ) : base(optionManager, resolverFactory, messageDeliveryChannelRepository)
+        public ErrorReporter(ErrorReporterOptionManager optionManager) : base(optionManager)
         {
-            this.messageRepository = messageRepository;
         }
 
         public override string Id => "hV1AesVeTCwzthQReQGh";
@@ -28,21 +21,24 @@ namespace FastSQL.Sync.Core.Reporters
         {
             await Task.Run(() =>
             {
-                var limit = 500;
-                var offset = 0;
-                while (true)
+                using (var messageRepository = RepositoryFactory.Create<MessageRepository>(this))
                 {
-                    var messages = messageRepository.GetUnqueuedMessages(ReporterModel, MessageType.Error, limit, offset);
-                    if (messages == null || messages.Count() <= 0)
+                    var limit = 500;
+                    var offset = 0;
+                    while (true)
                     {
-                        break;
-                    }
+                        var messages = messageRepository.GetUnqueuedMessages(ReporterModel, MessageType.Error, limit, offset);
+                        if (messages == null || messages.Count() <= 0)
+                        {
+                            break;
+                        }
 
-                    foreach (var message in messages)
-                    {
-                        messageRepository.LinkToReporter(message.Id.ToString(), ReporterModel);
+                        foreach (var message in messages)
+                        {
+                            messageRepository.LinkToReporter(message.Id.ToString(), ReporterModel);
+                        }
+                        offset += limit;
                     }
-                    offset += limit;
                 }
             });
         }

@@ -18,29 +18,23 @@ namespace FastSQL.Sync.Workflow.Steps
 {
     public class DeliverMessageStep : BaseStepBodyInvoker
     {
-        private readonly MessageRepository messageRepository;
         private readonly IEnumerable<IReporter> reporters;
         private readonly IEnumerable<IMessageDeliveryChannel> channels;
-        private readonly ReporterRepository reporterRepository;
-        private readonly MessageDeliveryChannelRepository messageDeliveryChannelRepository;
 
         public DeliverMessageStep(
-            MessageRepository messageRepository,
             IEnumerable<IReporter> reporters,
-            IEnumerable<IMessageDeliveryChannel> channels,
-            ReporterRepository reporterRepository,
-            MessageDeliveryChannelRepository messageDeliveryChannelRepository,
-            ResolverFactory resolver) : base(resolver)
+            IEnumerable<IMessageDeliveryChannel> channels) : base()
         {
-            this.messageRepository = messageRepository;
             this.reporters = reporters;
             this.channels = channels;
-            this.reporterRepository = reporterRepository;
-            this.messageDeliveryChannelRepository = messageDeliveryChannelRepository;
         }
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
+            var messageRepository = RepositoryFactory.Create<MessageRepository>(this);
+            var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this);
+            var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this);
+
             try
             {
                 var undeliverMessages = messageRepository.GetUndeliveredMessages(100, 0);
@@ -88,13 +82,13 @@ namespace FastSQL.Sync.Workflow.Steps
                             }
                             try
                             {
-                            // send bulk messages in sequence because of MessageType is different
-                            await delieveryChannel.DeliverMessage(string.Join("\n", dict.Value.Select(v => v.Message)), dict.Key);
+                                // send bulk messages in sequence because of MessageType is different
+                                await delieveryChannel.DeliverMessage(string.Join("\n", dict.Value.Select(v => v.Message)), dict.Key);
                             }
                             finally
                             {
-                            // Update the message as repotered no matter what
-                            messageRepository.SetMessagesAsReported(dict.Value.Select(v => v.Id));
+                                // Update the message as repotered no matter what
+                                messageRepository.SetMessagesAsReported(dict.Value.Select(v => v.Id));
                             }
                         }
                     }

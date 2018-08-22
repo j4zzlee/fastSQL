@@ -25,9 +25,6 @@ namespace FastSQL.App.UserControls.Indexes
         private ObservableCollection<string> _stepsToExecute;
         private ObservableCollection<DependencyItemViewModel> _dependencies;
         private ObservableCollection<IIndexModel> _indexModels;
-
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
         private IIndexModel _selectedIndexModel;
 
         private string _dependOnStep;
@@ -195,13 +192,8 @@ namespace FastSQL.App.UserControls.Indexes
             Dependencies.Remove((DependencyItemViewModel)obj);
         }
 
-        public UCIndexDependenciesViewModel(
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            IEventAggregator eventAggregator)
+        public UCIndexDependenciesViewModel(IEventAggregator eventAggregator)
         {
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
             DependOnSteps = new ObservableCollection<string>(Enum.GetNames(typeof(IntegrationStep)));
             StepsToExecute = new ObservableCollection<string>(Enum.GetNames(typeof(IntegrationStep)));
             Dependencies = new ObservableCollection<DependencyItemViewModel>();
@@ -227,47 +219,54 @@ namespace FastSQL.App.UserControls.Indexes
 
         private void LoadIndexModels()
         {
-            switch (_dependencyIndexType)
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
             {
-                case EntityType.Entity:
-                    IndexModels = new ObservableCollection<IIndexModel>(entityRepository.GetAll());
-                    break;
-                case EntityType.Attribute:
-                    IndexModels = new ObservableCollection<IIndexModel>(attributeRepository.GetAll());
-                    break;
-                default: return;
+                switch (_dependencyIndexType)
+                {
+                    case EntityType.Entity:
+                        IndexModels = new ObservableCollection<IIndexModel>(entityRepository.GetAll());
+                        break;
+                    case EntityType.Attribute:
+                        IndexModels = new ObservableCollection<IIndexModel>(attributeRepository.GetAll());
+                        break;
+                    default: return;
+                }
             }
         }
 
         public void SetIndex(IIndexModel indexModel)
         {
-            _indexModel = indexModel;
-            
-            if (_indexModel == null)
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
             {
-                return;
-            }
-            
-            var entityId = _indexModel.Id;
-            var entityType = _indexModel.EntityType;
-            var dependencies = entityRepository.GetDependencies(entityId, entityType, _dependencyIndexType);
+                _indexModel = indexModel;
 
-            Dependencies = new ObservableCollection<DependencyItemViewModel>(
-                        dependencies
-                        .Select(d => new DependencyItemViewModel
-                        {
-                            Id = d.Id,
-                            DependOn = IndexModels.FirstOrDefault(e => e.Id == d.TargetEntityId)?.Name,
-                            DependOnStep = d.DependOnStep,
-                            EntityId = entityId,
-                            EntityType = entityType,
-                            ExecuteImmediately = d.ExecuteImmediately,
-                            StepToExecute = d.StepToExecute,
-                            TargetEntityId = d.TargetEntityId,
-                            TargetEntityType = d.TargetEntityType,
-                            ForeignKeys = d.ForeignKeys,
-                            ReferenceKeys = d.ReferenceKeys
-                        }));
+                if (_indexModel == null)
+                {
+                    return;
+                }
+
+                var entityId = _indexModel.Id;
+                var entityType = _indexModel.EntityType;
+                var dependencies = entityRepository.GetDependencies(entityId, entityType, _dependencyIndexType);
+
+                Dependencies = new ObservableCollection<DependencyItemViewModel>(
+                            dependencies
+                            .Select(d => new DependencyItemViewModel
+                            {
+                                Id = d.Id,
+                                DependOn = IndexModels.FirstOrDefault(e => e.Id == d.TargetEntityId)?.Name,
+                                DependOnStep = d.DependOnStep,
+                                EntityId = entityId,
+                                EntityType = entityType,
+                                ExecuteImmediately = d.ExecuteImmediately,
+                                StepToExecute = d.StepToExecute,
+                                TargetEntityId = d.TargetEntityId,
+                                TargetEntityType = d.TargetEntityType,
+                                ForeignKeys = d.ForeignKeys,
+                                ReferenceKeys = d.ReferenceKeys
+                            }));
+            }
         }
     }
 }

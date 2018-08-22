@@ -5,7 +5,7 @@ using System;
 
 namespace FastSQL.Sync.Core.Pusher
 {
-    public interface IPusher: IOptionManager
+    public interface IPusher: IOptionManager, IDisposable
     {
         PushState Create(out string destinationId);
         PushState Remove(string destinationId = null);

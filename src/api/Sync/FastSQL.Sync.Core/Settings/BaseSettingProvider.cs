@@ -1,4 +1,5 @@
 ﻿using FastSQL.Core;
+using FastSQL.Sync.Core.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,8 @@ namespace FastSQL.Sync.Core.Settings
         public abstract Task<bool> Validate();
 
         protected readonly IOptionManager OptionManager;
-
+        public ResolverFactory ResolverFactory { get; set; }
+        public RepositoryFactory RepositoryFactory { get; set; }
         public BaseSettingProvider(IOptionManager optionManager)
         {
             OptionManager = optionManager;
@@ -55,6 +57,11 @@ namespace FastSQL.Sync.Core.Settings
                 return result;
             }
             return await InvokeChildCommand(commandName);
+        }
+
+        public virtual void Dispose()
+        {
+            RepositoryFactory.Release(this);
         }
     }
 }

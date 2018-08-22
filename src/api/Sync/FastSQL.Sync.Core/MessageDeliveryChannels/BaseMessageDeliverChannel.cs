@@ -45,5 +45,10 @@ namespace FastSQL.Sync.Core.MessageDeliveryChannels
         }
 
         public abstract Task DeliverMessage(string message, MessageType messageType);
+
+        public virtual void Dispose()
+        {
+
+        }
     }
 }

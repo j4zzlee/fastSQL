@@ -7,6 +7,10 @@ namespace FastSQL.MsAccess.Integration
 {
     public class EntityPullerOptionManager : BaseOptionManager
     {
+        public override void Dispose()
+        {
+
+        }
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {
             return new List<OptionItem>

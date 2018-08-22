@@ -21,12 +21,10 @@ namespace FastSQL.Sync.Core
     {
         protected readonly IOptionManager OptionManager;
         public DbConnection Connection { get; set; }
+        public RepositoryFactory RepositoryFactory { get; set; }
         protected Action<string> Reporter;
         protected DbTransaction Transaction;
         protected ConnectionModel ConnectionModel;
-        public virtual ConnectionRepository ConnectionRepository { get; set; }
-        public virtual EntityRepository EntityRepository { get; set; }
-        public virtual AttributeRepository AttributeRepository { get; set; }
         protected IRichAdapter Adapter;
         protected IRichProvider Provider;
 
@@ -132,6 +130,7 @@ END;
             }
             finally
             {
+                repo?.Dispose();
                 var dropTableSql = $@"
 IF EXISTS (
     SELECT * FROM sys.tables
@@ -449,11 +448,19 @@ commandTimeout: 86400); // old & new value table has exactly the same structure 
 
         protected virtual IIndexer SpreadOptions()
         {
-            ConnectionModel = ConnectionRepository.GetById(GetIndexModel().SourceConnectionId.ToString());
-            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
-            var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
-            Adapter.SetOptions(connectionOptionItems);
-            return this;
+            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            {
+                ConnectionModel = connectionRepository.GetById(GetIndexModel().SourceConnectionId.ToString());
+                var connectionOptions = connectionRepository.LoadOptions(ConnectionModel.Id.ToString());
+                var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
+                Adapter.SetOptions(connectionOptionItems);
+                return this;
+            }
+        }
+
+        public virtual void Dispose()
+        {
+            RepositoryFactory.Release(this);
         }
     }
 }

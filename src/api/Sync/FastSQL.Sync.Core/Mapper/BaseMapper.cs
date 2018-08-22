@@ -18,27 +18,21 @@ namespace FastSQL.Sync.Core.Mapper
         protected readonly IOptionManager OptionManager;
         protected readonly IRichProvider Provider;
         protected readonly IRichAdapter Adapter;
-        protected readonly EntityRepository EntityRepository;
-        protected readonly ConnectionRepository ConnectionRepository;
         protected EntityModel EntityModel;
         protected ConnectionModel ConnectionModel;
         public DbConnection Connection { get; set; }
+        public RepositoryFactory RepositoryFactory { get; set; }
         protected Action<string> _reporter;
 
         public BaseMapper(
             IProcessor processor,
             IOptionManager optionManager, 
-            IRichProvider provider,
-            IRichAdapter adapter,
-            EntityRepository entityRepository,
-            ConnectionRepository connectionRepository)
+            IRichAdapter adapter)
         {
             Processor = processor;
             OptionManager = optionManager;
-            Provider = provider;
+            Provider = adapter.GetProvider();
             Adapter = adapter;
-            EntityRepository = entityRepository;
-            ConnectionRepository = connectionRepository;
         }
 
         public virtual IEnumerable<OptionItem> Options => OptionManager.Options;
@@ -79,12 +73,15 @@ namespace FastSQL.Sync.Core.Mapper
 
         protected virtual IMapper SpreadOptions()
         {
-            ConnectionModel = ConnectionRepository.GetById(EntityModel.DestinationConnectionId.ToString());
-            var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
-            var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
-            Adapter.SetOptions(connectionOptionItems);
-            Provider.SetOptions(connectionOptionItems);
-            return this;
+            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            {
+                ConnectionModel = connectionRepository.GetById(EntityModel.DestinationConnectionId.ToString());
+                var connectionOptions = connectionRepository.LoadOptions(ConnectionModel.Id.ToString());
+                var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
+                Adapter.SetOptions(connectionOptionItems);
+                Provider.SetOptions(connectionOptionItems);
+                return this;
+            }
         }
 
         public abstract MapResult Pull(object lastToken = null);
@@ -143,6 +140,11 @@ new {
             }
             Report($@"Mapped {affectedRows} item(s).");
             return this;
+        }
+
+        public virtual void Dispose()
+        {
+            RepositoryFactory.Release(this);
         }
     }
 }

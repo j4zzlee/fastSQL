@@ -17,15 +17,12 @@ namespace FastSQL.Sync.Core.IndexExporters
         protected virtual EntityType IndexType { get; set; }
 
         protected readonly IOptionManager OptionManager;
-
-        protected IndexExporterRepository IndexExporterRepository { get; }
-
+        public ResolverFactory ResolverFactory { get; set; }
         public virtual IEnumerable<OptionItem> Options => OptionManager.Options;
 
-        public BaseIndexExporter(IOptionManager optionManager, IndexExporterRepository indexExporterRepository)
+        public BaseIndexExporter(IOptionManager optionManager)
         {
             OptionManager = optionManager;
-            IndexExporterRepository = indexExporterRepository;
         }
 
         public virtual IEnumerable<OptionItem> GetOptionsTemplate()
@@ -50,14 +47,20 @@ namespace FastSQL.Sync.Core.IndexExporters
 
         public virtual IIndexExporter LoadOptions()
         {
-            var options = IndexExporterRepository.LoadOptions(Id);
-            OptionManager.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-            return this;
+            using (var IndexExporterRepository = ResolverFactory.Resolve<IndexExporterRepository>())
+            {
+                var options = IndexExporterRepository.LoadOptions(Id);
+                OptionManager.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
+                return this;
+            }
         }
 
         public virtual IIndexExporter Save()
         {
-            IndexExporterRepository.LinkOptions(Id, OptionManager.Options);
+            using (var IndexExporterRepository = ResolverFactory.Resolve<IndexExporterRepository>())
+            {
+                IndexExporterRepository.LinkOptions(Id, OptionManager.Options);
+            }
             return this;
         }
     }

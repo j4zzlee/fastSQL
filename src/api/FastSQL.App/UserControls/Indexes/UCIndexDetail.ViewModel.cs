@@ -34,10 +34,7 @@ namespace FastSQL.App.UserControls.Indexes
         private readonly IEnumerable<IPusher> pushers;
         private readonly IEnumerable<IMapper> mappers;
         private readonly IEnumerable<ITransformer> transformers;
-        
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
-        private readonly ConnectionRepository connectionRepository;
+
         private ConnectionModel _sourceConnection;
         private ConnectionModel _destinationConnection;
         private IProcessor _sourceProcessor;
@@ -362,7 +359,7 @@ namespace FastSQL.App.UserControls.Indexes
                 OnPropertyChanged(nameof(TransformationConfigureViewModel));
             }
         }
-        
+
         public UCIndexDetailViewModel(
             IEventAggregator eventAggregator,
             IEnumerable<IProcessor> processors,
@@ -370,28 +367,22 @@ namespace FastSQL.App.UserControls.Indexes
             IEnumerable<IIndexer> indexers,
             IEnumerable<IPusher> pushers,
             IEnumerable<IMapper> mappers,
-            IEnumerable<ITransformer> transformers,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository)
+            IEnumerable<ITransformer> transformers)
         {
             this.eventAggregator = eventAggregator;
             this.processors = processors;
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
-            this.connectionRepository = connectionRepository;
 
             this.pullers = pullers;
             this.indexers = indexers;
             this.pushers = pushers;
             this.mappers = mappers;
             this.transformers = transformers;
-            
+
             eventAggregator.GetEvent<SelectIndexEvent>().Subscribe(OnSelectIndex);
             eventAggregator.GetEvent<RefreshConnectionListEvent>().Subscribe(OnConnectionsChanged);
             eventAggregator.GetEvent<RefreshIndexesListViewEvent>().Subscribe(OnIndexesChanged);
         }
-        
+
         public void FilterProcessors()
         {
             if (_indexType == EntityType.Entity)
@@ -403,7 +394,7 @@ namespace FastSQL.App.UserControls.Indexes
                         .Where(ps => pullers.Where(p => typeof(IEntityPuller).IsAssignableFrom(p.GetType()))
                             .Select(p => p as IEntityPuller)
                             .Any(p => p.IsImplemented(ps.Id, SelectedSourceConnection.ProviderId))));
-                } 
+                }
                 else
                 {
                     SourceProcessors = new ObservableCollection<IProcessor>(allProcessors);
@@ -542,7 +533,7 @@ namespace FastSQL.App.UserControls.Indexes
                   MessageBoxImage.Error);
                 return;
             }
-            
+
             _puller.SetOptions(PullerOptions.Select(o => new OptionItem { Name = o.Name, Value = o.Value }));
             _puller.SetIndex(_indexModel);
             eventAggregator.GetEvent<OpenIndexPreviewPageEvent>().Publish(new OpenIndexPreviewPageEventArgument
@@ -616,22 +607,20 @@ namespace FastSQL.App.UserControls.Indexes
                 message = "No item to save";
                 return true;
             }
-
             BaseRepository repo = null;
-            switch (_indexType)
-            {
-                case EntityType.Entity:
-                    repo = entityRepository;
-                    break;
-                case EntityType.Attribute:
-                    repo = attributeRepository;
-                    break;
-                default:
-                    throw new NotSupportedException($"Index Type {_indexType} is not supported");
-            }
-
             try
             {
+                switch (_indexType)
+                {
+                    case EntityType.Entity:
+                        repo = RepositoryFactory.Create<EntityRepository>(this);
+                        break;
+                    case EntityType.Attribute:
+                        repo = RepositoryFactory.Create<AttributeRepository>(this);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Index Type {_indexType} is not supported");
+                }
                 if (string.IsNullOrWhiteSpace(_indexModel?.SourceViewName))
                 {
                     // max to 128 characters, luckily we use SQL Server
@@ -699,27 +688,33 @@ namespace FastSQL.App.UserControls.Indexes
                 repo.RollBack();
                 throw;
             }
+            finally
+            {
+                repo?.Dispose();
+            }
 
             message = "Success";
             return true;
+
         }
 
         private bool New(out string message)
         {
             BaseRepository repo = null;
-            switch (_indexType)
-            {
-                case EntityType.Entity:
-                    repo = entityRepository;
-                    break;
-                case EntityType.Attribute:
-                    repo = attributeRepository;
-                    break;
-                default:
-                    throw new NotSupportedException($"Index Type {_indexType} is not supported");
-            }
             try
             {
+                switch (_indexType)
+                {
+                    case EntityType.Entity:
+                        repo = RepositoryFactory.Create<EntityRepository>(this);
+                        break;
+                    case EntityType.Attribute:
+                        repo = RepositoryFactory.Create<AttributeRepository>(this);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Index Type {_indexType} is not supported");
+                }
+
                 var strippedName = Regex.Replace(Name, @"[^0-9a-zA-Z_]+", "");
                 strippedName = strippedName.Length > 90 ? strippedName.Substring(0, 90) : strippedName;
                 var randomStr = StringExtensions.StringExtensions.Random(10);
@@ -783,6 +778,10 @@ namespace FastSQL.App.UserControls.Indexes
                 repo.RollBack();
                 throw;
             }
+            finally
+            {
+                repo?.Dispose();
+            }
             message = "Success";
             return true;
         }
@@ -795,28 +794,30 @@ namespace FastSQL.App.UserControls.Indexes
                 return true;
             }
             BaseRepository repo = null;
-            switch (_indexType)
-            {
-                case EntityType.Entity:
-                    repo = entityRepository;
-                    break;
-                case EntityType.Attribute:
-                    repo = attributeRepository;
-                    break;
-                default:
-                    throw new NotSupportedException($"Index Type {_indexType} is not supported");
-            }
             try
             {
+                switch (_indexType)
+                {
+                    case EntityType.Entity:
+                        repo = RepositoryFactory.Create<EntityRepository>(this);
+                        break;
+                    case EntityType.Attribute:
+                        repo = RepositoryFactory.Create<AttributeRepository>(this);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Index Type {_indexType} is not supported");
+                }
+
                 repo.BeginTransaction();
                 if (_indexType == EntityType.Entity)
                 {
                     repo.DeleteById<EntityModel>(_indexModel.Id.ToString());
-                } else
+                }
+                else
                 {
                     repo.DeleteById<AttributeModel>(_indexModel.Id.ToString());
                 }
-                
+
                 repo.UnlinkOptions(_indexModel.Id.ToString());
                 repo.RemoveDependencies(_indexModel.Id);
                 repo.RemoveTransformations(_indexModel.Id);
@@ -832,8 +833,12 @@ namespace FastSQL.App.UserControls.Indexes
             }
             catch
             {
-                entityRepository.RollBack();
+                repo.RollBack();
                 throw;
+            }
+            finally
+            {
+                repo?.Dispose();
             }
         }
 
@@ -867,39 +872,52 @@ namespace FastSQL.App.UserControls.Indexes
             EntityDependencyViewModel.SetTargetType(indexType);
             AttributeDependencyViewModel.SetTargetType(indexType);
         }
-        
+
         public void Loaded()
         {
-            Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
+            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            {
+                Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
 
-            // Need to duplication code here, weird behavior of WPF
-            SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
-            DestinationConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+                // Need to duplication code here, weird behavior of WPF
+                SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+                DestinationConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
 
-            Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete", "Preview" }); // , "Manage"
+                Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete", "Preview" }); // , "Manage"
+            }
         }
 
         private void OnIndexesChanged(RefreshIndexesListViewEventArgument args)
         {
-            Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            {
+                Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
+            }
         }
 
         private void OnConnectionsChanged(RefreshConnectionListEventArgument args)
         {
-            SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
-            DestinationConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            {
+                SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+                DestinationConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+            }
         }
 
         public void LoadOptions()
         {
-            var options = _indexModel != null 
-                ? entityRepository.LoadOptions(_indexModel?.Id.ToString(), _indexModel.EntityType)
-                : new List<OptionModel>();
-            var optionItems = options?.Select(o => new OptionItem { Name = o.Key, Value = o.Value }) ?? new List<OptionItem>();
-            LoadPuller(optionItems);
-            LoadPusher(optionItems);
-            LoadIndexer(optionItems);
-            LoadMapper(optionItems);
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            {
+                var options = _indexModel != null
+                    ? entityRepository.LoadOptions(_indexModel?.Id.ToString(), _indexModel.EntityType)
+                    : new List<OptionModel>();
+                var optionItems = options?.Select(o => new OptionItem { Name = o.Key, Value = o.Value }) ?? new List<OptionItem>();
+                LoadPuller(optionItems);
+                LoadPusher(optionItems);
+                LoadIndexer(optionItems);
+                LoadMapper(optionItems);
+            }
         }
 
         private void LoadIndexer(IEnumerable<OptionItem> options)

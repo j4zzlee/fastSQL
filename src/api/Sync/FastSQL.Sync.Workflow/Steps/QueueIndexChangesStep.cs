@@ -12,20 +12,10 @@ namespace FastSQL.Sync.Workflow.Steps
     {
         public IIndexModel IndexModel { get; set; }
         public int Counter { get; set; }
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
-        private readonly ConnectionRepository connectionRepository;
         private readonly QueueChangesManager queueChangesManager;
 
-        public QueueIndexChangesStep(ResolverFactory resolver,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository,
-            QueueChangesManager queueChangesManager) : base(resolver)
+        public QueueIndexChangesStep(QueueChangesManager queueChangesManager) : base()
         {
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
-            this.connectionRepository = connectionRepository;
             this.queueChangesManager = queueChangesManager;
         }
 

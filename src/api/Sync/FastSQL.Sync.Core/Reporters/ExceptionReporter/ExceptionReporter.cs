@@ -15,16 +15,8 @@ namespace FastSQL.Sync.Core.Reporters
 {
     public class ExceptionReporter : BaseReporter
     {
-        private readonly MessageRepository messageRepository;
-
-        public ExceptionReporter(
-            ResolverFactory resolverFactory,
-            ExceptionReporterOptionManager optionManager,
-            MessageRepository messageRepository,
-            MessageDeliveryChannelRepository messageDeliveryChannelRepository
-            ) : base(optionManager, resolverFactory, messageDeliveryChannelRepository)
+        public ExceptionReporter(ExceptionReporterOptionManager optionManager) : base(optionManager)
         {
-            this.messageRepository = messageRepository;
         }
 
         public override string Id => "z3FrdrHrKGutHSPCfdfd";
@@ -39,17 +31,20 @@ namespace FastSQL.Sync.Core.Reporters
                 var offset = 0;
                 while (true)
                 {
-                    var messages = messageRepository.GetUnqueuedMessages(ReporterModel, MessageType.Exception, limit, offset);
-                    if (messages == null || messages.Count() <= 0)
+                    using (var messageRepository = RepositoryFactory.Create<MessageRepository>(this))
                     {
-                        break;
-                    }
+                        var messages = messageRepository.GetUnqueuedMessages(ReporterModel, MessageType.Exception, limit, offset);
+                        if (messages == null || messages.Count() <= 0)
+                        {
+                            break;
+                        }
 
-                    foreach (var message in messages)
-                    {
-                        messageRepository.LinkToReporter(message.Id.ToString(), ReporterModel);
+                        foreach (var message in messages)
+                        {
+                            messageRepository.LinkToReporter(message.Id.ToString(), ReporterModel);
+                        }
+                        offset += limit;
                     }
-                    offset += limit;
                 }
             });
         }

@@ -17,8 +17,8 @@ namespace FastSQL.Magento1.Integration.Pushers.Products
         private List<string> HexaFields => new List<string> { "Id", "SourceId", "DestinationId", "State", "LastUpdated" };
 
         public ProductMultipleAttributePusher(ProductMultipleAttributePusherOptionManager optionManager,
-            ProductProcessor entityProcessor, 
-            MultipleAttributeProcessor attributeProcessor, 
+            ProductProcessor entityProcessor,
+            MultipleAttributeProcessor attributeProcessor,
             FastAdapter adapter,
             SoapM1 soap) : base(optionManager, entityProcessor, attributeProcessor, adapter)
         {
@@ -31,7 +31,7 @@ namespace FastSQL.Magento1.Integration.Pushers.Products
 
             return UpdateProduct(destinationId);
         }
-        
+
         public override string GetDestinationId()
         {
             return IndexedItem.GetDestinationId();
@@ -78,43 +78,48 @@ namespace FastSQL.Magento1.Integration.Pushers.Products
 
         private catalogProductCreateEntity LoadData()
         {
-            var relatedIndexedItems = EntityRepository.GetIndexedItemsBySourceId(GetIndexModel(), IndexedItem.GetSourceId());
-            var normalizedValues = relatedIndexedItems
-                .Select(i => new { k = i.GetId(), v = GetNormalizedValuesByDependencies(i) })
-                .ToDictionary(x => x.k, x => x.v);
-
-            var attributes = IndexedItem.Properties().Where(p => !HexaFields.Contains(p.Name))
-               .Select(a => new associativeMultiEntity
-               {
-                   key = a.Name,
-                   value = normalizedValues.Select(v => {
-                       var relatedIndexedItem = relatedIndexedItems.FirstOrDefault(r => r.GetId() == v.Key);
-                       if (relatedIndexedItem.HasState(ItemState.Removed))
-                       {
-                           return null;
-                       }
-                       var normalizedValue = v.Value;
-
-                       if (!normalizedValue.ContainsKey(a.Name))
-                       {
-                           return relatedIndexedItem.Value<string>(a.Name);
-                       }
-                       return normalizedValue[a.Name];
-                   })
-                   .Where(x => !string.IsNullOrWhiteSpace(x))
-                   .ToArray()
-               })
-               .ToArray();
-
-            var result = new catalogProductCreateEntity
+            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
             {
-                additional_attributes = new catalogProductAdditionalAttributesEntity
-                {
-                    multi_data = attributes
-                }
-            };
+                var relatedIndexedItems = entityRepository.GetIndexedItemsBySourceId(GetIndexModel(), IndexedItem.GetSourceId());
+                var normalizedValues = relatedIndexedItems
+                    .Select(i => new { k = i.GetId(), v = GetNormalizedValuesByDependencies(i) })
+                    .ToDictionary(x => x.k, x => x.v);
 
-            return result;
+                var attributes = IndexedItem.Properties().Where(p => !HexaFields.Contains(p.Name))
+                   .Select(a => new associativeMultiEntity
+                   {
+                       key = a.Name,
+                       value = normalizedValues.Select(v =>
+                       {
+                           var relatedIndexedItem = relatedIndexedItems.FirstOrDefault(r => r.GetId() == v.Key);
+                           if (relatedIndexedItem.HasState(ItemState.Removed))
+                           {
+                               return null;
+                           }
+                           var normalizedValue = v.Value;
+
+                           if (!normalizedValue.ContainsKey(a.Name))
+                           {
+                               return relatedIndexedItem.Value<string>(a.Name);
+                           }
+                           return normalizedValue[a.Name];
+                       })
+                       .Where(x => !string.IsNullOrWhiteSpace(x))
+                       .ToArray()
+                   })
+                   .ToArray();
+
+                var result = new catalogProductCreateEntity
+                {
+                    additional_attributes = new catalogProductAdditionalAttributesEntity
+                    {
+                        multi_data = attributes
+                    }
+                };
+
+                return result;
+            }
+
         }
 
     }

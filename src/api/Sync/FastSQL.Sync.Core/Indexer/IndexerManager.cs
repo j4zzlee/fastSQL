@@ -11,16 +11,15 @@ using System.Threading.Tasks;
 
 namespace FastSQL.Sync.Core.Indexer
 {
-    public class IndexerManager
+    public class IndexerManager: IDisposable
     {
         private IPuller _puller;
         private IIndexer _indexer;
         private IIndexModel _indexerModel;
         private readonly IEventAggregator eventAggregator;
-        private readonly IndexTokenRepository indexTokenRepository;
-        private readonly ResolverFactory resolverFactory;
         private List<string> _messages;
         private Action<string> _reporter;
+        public RepositoryFactory RepositoryFactory { get; set; }
 
         public void SetIndex(IIndexModel model)
         {
@@ -53,15 +52,10 @@ namespace FastSQL.Sync.Core.Indexer
         {
             return _messages ?? new List<string>();
         }
-        
-        public IndexerManager(
-            IEventAggregator eventAggregator,
-            IndexTokenRepository indexTokenRepository,
-            ResolverFactory resolverFactory)
+
+        public IndexerManager(IEventAggregator eventAggregator)
         {
             this.eventAggregator = eventAggregator;
-            this.indexTokenRepository = indexTokenRepository;
-            this.resolverFactory = resolverFactory;
             _messages = new List<string>();
         }
 
@@ -70,18 +64,21 @@ namespace FastSQL.Sync.Core.Indexer
             _messages = new List<string>();
             await Task.Run(() =>
             {
-                Report($@"Pulling data...");
-                // PullAll means pull from the beginning, no need to look for last token at the beginning
-                indexTokenRepository.CleanUp(_indexerModel.Id.ToString(), _indexerModel.EntityType);
-                while (true)
+                using (var indexTokenRepository = RepositoryFactory.Create<IndexTokenRepository>(this))
                 {
-                    var isValid = PullByLastToken(cleanAll);
-                    if (!isValid)
+                    Report($@"Pulling data...");
+                    // PullAll means pull from the beginning, no need to look for last token at the beginning
+                    indexTokenRepository.CleanUp(_indexerModel.Id.ToString(), _indexerModel.EntityType);
+                    while (true)
                     {
-                        break;
+                        var isValid = PullByLastToken(cleanAll);
+                        if (!isValid)
+                        {
+                            break;
+                        }
                     }
+                    Report("Done.");
                 }
-                Report("Done.");
             });
         }
 
@@ -100,6 +97,8 @@ namespace FastSQL.Sync.Core.Indexer
         {
             //_indexer.BeginTransaction();
             //indexTokenRepository.BeginTransaction();
+            var indexTokenRepository = RepositoryFactory.Create<IndexTokenRepository>(this);
+
             try
             {
                 var pullToken = indexTokenRepository.GetLastPullToken(_indexerModel.Id.ToString(), _indexerModel.EntityType);
@@ -138,6 +137,15 @@ namespace FastSQL.Sync.Core.Indexer
                 //indexTokenRepository.RollBack();
                 throw; // never let the while loop runs forever
             }
+            finally
+            {
+                indexTokenRepository?.Dispose();
+            }
+        }
+
+        public virtual void Dispose()
+        {
+            RepositoryFactory.Release(this);
         }
     }
 }

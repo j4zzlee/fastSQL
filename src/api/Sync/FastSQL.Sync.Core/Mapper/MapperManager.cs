@@ -16,7 +16,6 @@ namespace FastSQL.Sync.Core.Mapper
     {
         private IIndexModel _indexerModel;
         private readonly IEventAggregator eventAggregator;
-        private readonly EntityRepository entityRepository;
         private List<string> _messages;
         private Action<string> _reporter;
         private IMapper _mapper;
@@ -50,13 +49,9 @@ namespace FastSQL.Sync.Core.Mapper
             return _messages ?? new List<string>();
         }
 
-        public MapperManager(
-           IEventAggregator eventAggregator,
-           IndexTokenRepository indexTokenRepository,
-           EntityRepository entityRepository)
+        public MapperManager(IEventAggregator eventAggregator)
         {
             this.eventAggregator = eventAggregator;
-            this.entityRepository = entityRepository;
             _messages = new List<string>();
         }
 

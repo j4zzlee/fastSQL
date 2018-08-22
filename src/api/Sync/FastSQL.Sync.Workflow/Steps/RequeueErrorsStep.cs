@@ -11,26 +11,17 @@ namespace FastSQL.Sync.Workflow.Steps
 {
     public class RequeueErrorsStep : BaseStepBodyInvoker
     {
-        private readonly EntityRepository entityRepository;
-        private readonly AttributeRepository attributeRepository;
-        private readonly ConnectionRepository connectionRepository;
-
         public IIndexModel IndexModel { get; set; }
         public int Counter { get; set; }
 
-        public RequeueErrorsStep(
-            ResolverFactory resolver, 
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository) : base(resolver)
+        public RequeueErrorsStep()
         {
-            this.entityRepository = entityRepository;
-            this.attributeRepository = attributeRepository;
-            this.connectionRepository = connectionRepository;
         }
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
+            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
+            
             try
             {
                 Logger.Information($@"Requeuing items of {IndexModel.Name}/{IndexModel.Id}...");
@@ -45,6 +36,7 @@ namespace FastSQL.Sync.Workflow.Steps
             finally
             {
                 Counter += 1;
+                entityRepository?.Dispose();
             }
         }
     }

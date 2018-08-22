@@ -7,6 +7,11 @@ namespace FastSQL.MySQL.Integration
 {
     public class AttributePullerOptionManager : BaseOptionManager
     {
+        public override void Dispose()
+        {
+
+        }
+
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {
             return new List<OptionItem>
