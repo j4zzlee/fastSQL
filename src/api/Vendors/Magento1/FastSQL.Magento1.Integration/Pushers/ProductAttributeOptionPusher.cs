@@ -15,8 +15,7 @@ namespace FastSQL.Magento1.Integration.Pushers
         public ProductAttributeOptionPusher(
             ProductAttributeOptionPusherOptionManager optionManager,
             AttributeOptionProcessor processor,
-            FastProvider provider,
-            FastAdapter adapter) : base(optionManager, processor, provider, adapter)
+            FastAdapter adapter) : base(optionManager, processor, adapter)
         {
         }
 

@@ -14,12 +14,8 @@ namespace FastSQL.MySQL.Integration
         public AttributeIndexer(
             AttributeProcessor attributeProcessor,
             EntityProcessor entityProcessor,
-            FastProvider provider,
             FastAdapter adapter,
-            AttributeIndexerOptionManager optionManager,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository) : base(attributeProcessor, entityProcessor, optionManager, provider, adapter, entityRepository, attributeRepository, connectionRepository)
+            AttributeIndexerOptionManager optionManager) : base(attributeProcessor, entityProcessor, optionManager, adapter)
         {
         }
     }

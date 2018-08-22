@@ -13,10 +13,7 @@ namespace FastSQL.Magento2.Integration.Pullers
     {
         public OrderPuller(OrderPullerOptionManager optionManager, 
             OrderProcessor processor, 
-            FastProvider provider, 
-            FastAdapter adapter,
-            EntityRepository entityRepository,
-            ConnectionRepository connectionRepository) : base(optionManager, processor, provider, adapter, entityRepository, connectionRepository)
+            FastAdapter adapter) : base(optionManager, processor, adapter)
         {
         }
 

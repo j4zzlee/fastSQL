@@ -19,9 +19,8 @@ namespace FastSQL.Magento1.Integration.Pushers.Products
         public ProductMultipleAttributePusher(ProductMultipleAttributePusherOptionManager optionManager,
             ProductProcessor entityProcessor, 
             MultipleAttributeProcessor attributeProcessor, 
-            FastProvider provider,
             FastAdapter adapter,
-            SoapM1 soap) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter)
+            SoapM1 soap) : base(optionManager, entityProcessor, attributeProcessor, adapter)
         {
             this.soap = soap;
         }

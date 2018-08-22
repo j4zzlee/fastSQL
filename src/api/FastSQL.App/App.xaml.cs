@@ -104,7 +104,7 @@ namespace FastSQL.App
             }
 
             await Start();
-            _scope = _container.BeginScope();
+            //_scope = _container.BeginScope();
             _mainWindow = _container.Resolve<MainWindow>();
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
             Current.MainWindow = _mainWindow;
@@ -140,7 +140,7 @@ namespace FastSQL.App
 
         private void OnApplicationRestart(ApplicationRestartEventArgument obj)
         {
-            _mainWindow?.Dispatcher.Invoke(new Action(delegate ()
+            _mainWindow?.Dispatcher.Invoke(new Action(async delegate ()
             {
                 Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
                 var oldScope = _scope;
@@ -149,7 +149,7 @@ namespace FastSQL.App
                 oldWindow.Close();
                 oldScope?.Dispose();
 
-                Start();
+                await Start();
             }));
         }
 

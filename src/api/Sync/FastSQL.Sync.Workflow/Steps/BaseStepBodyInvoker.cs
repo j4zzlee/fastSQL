@@ -33,7 +33,7 @@ namespace FastSQL.Sync.Workflow.Steps
             try
             {
                 runner = Invoke(context);
-                runner.Wait();
+                runner?.Wait();
             }
             catch (Exception ex)
             {

@@ -15,8 +15,7 @@ namespace FastSQL.Magento2.Integration.Pushers.Products
         public ProductMultipleAttributePusher(ProductMultipleAttributePusherOptionManager optionManager,
             ProductProcessor entityProcessor, 
             MultipleAttributeProcessor attributeProcessor,
-            FastProvider provider,
-            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter)
+            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, adapter)
         {
         }
 

@@ -13,10 +13,7 @@ namespace FastSQL.MySQL.Integration
     {
         public EntityIndexer(EntityProcessor processor,
             EntityIndexerOptionManager optionManager,
-            FastProvider provider,
-            FastAdapter adapter,
-            EntityRepository entityRepository, 
-            ConnectionRepository connectionRepository) : base(processor, optionManager, provider, adapter, entityRepository, connectionRepository)
+            FastAdapter adapter) : base(processor, optionManager, adapter)
         {
         }
     }

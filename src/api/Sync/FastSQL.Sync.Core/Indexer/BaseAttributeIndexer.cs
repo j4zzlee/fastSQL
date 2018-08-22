@@ -13,8 +13,6 @@ namespace FastSQL.Sync.Core.Indexer
     {
         protected readonly IProcessor AttributeProcessor;
         protected readonly IProcessor EntityProcessor;
-        protected readonly EntityRepository EntityRepository;
-        protected readonly AttributeRepository AttributeRepository;
         protected EntityModel EntityModel;
         protected AttributeModel AttributeModel;
 
@@ -22,16 +20,10 @@ namespace FastSQL.Sync.Core.Indexer
             IProcessor entityProcessor,
             IProcessor attributeProcessor,
             IOptionManager optionManager,
-            IRichProvider provider,
-            IRichAdapter adapter,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository) : base(optionManager, adapter, provider, connectionRepository)
+            IRichAdapter adapter) : base(optionManager, adapter)
         {
             AttributeProcessor = attributeProcessor;
             EntityProcessor = entityProcessor;
-            EntityRepository = entityRepository;
-            AttributeRepository = attributeRepository;
         }
         
         public override IIndexer SetIndex(IIndexModel model)

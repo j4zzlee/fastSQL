@@ -15,18 +15,19 @@ namespace FastSQL.Sync.Core.Pusher
         protected readonly IOptionManager OptionManager;
         protected readonly IRichAdapter Adapter;
         protected readonly IRichProvider Provider;
-        public ConnectionRepository ConnectionRepository { get; set; }
-        protected Action<string> _reporter;
-        protected IndexItemModel IndexedItem;
-        protected ConnectionModel ConnectionModel;
+        public virtual ConnectionRepository ConnectionRepository { get; set; }
         public virtual EntityRepository EntityRepository { get; set; }
         public virtual AttributeRepository AttributeRepository { get; set; }
 
-        public BasePusher(IOptionManager optionManager, IRichAdapter adapter, IRichProvider provider)
+        protected Action<string> _reporter;
+        protected IndexItemModel IndexedItem;
+        protected ConnectionModel ConnectionModel;
+
+        public BasePusher(IOptionManager optionManager, IRichAdapter adapter)
         {
             OptionManager = optionManager;
             this.Adapter = adapter;
-            this.Provider = provider;
+            this.Provider = adapter.GetProvider();
         }
 
         public virtual IEnumerable<OptionItem> Options => OptionManager.Options;
@@ -68,7 +69,6 @@ namespace FastSQL.Sync.Core.Pusher
             var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
             var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
             Adapter.SetOptions(connectionOptionItems);
-            Provider.SetOptions(connectionOptionItems);
             return this;
         }
 
@@ -125,8 +125,7 @@ namespace FastSQL.Sync.Core.Pusher
         public BaseEntityPusher(
             IOptionManager optionManager,
             IProcessor processor,
-            IRichProvider provider,
-            IRichAdapter adapter) : base(optionManager, adapter, provider)
+            IRichAdapter adapter) : base(optionManager, adapter)
         {
             Processor = processor;
         }
@@ -160,8 +159,7 @@ namespace FastSQL.Sync.Core.Pusher
             IOptionManager optionManager,
             IProcessor entityProcessor,
             IProcessor attributeProcessor,
-            IRichProvider provider,
-            IRichAdapter adapter) : base(optionManager, adapter, provider)
+            IRichAdapter adapter) : base(optionManager, adapter)
         {
             this.EntityProcessor = entityProcessor;
             this.AttributeProcessor = attributeProcessor;

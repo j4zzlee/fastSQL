@@ -24,16 +24,17 @@ namespace FastSQL.Sync.Core
         protected Action<string> Reporter;
         protected DbTransaction Transaction;
         protected ConnectionModel ConnectionModel;
-        protected ConnectionRepository ConnectionRepository;
+        public virtual ConnectionRepository ConnectionRepository { get; set; }
+        public virtual EntityRepository EntityRepository { get; set; }
+        public virtual AttributeRepository AttributeRepository { get; set; }
         protected IRichAdapter Adapter;
         protected IRichProvider Provider;
 
-        public BaseIndexer(IOptionManager optionManager, IRichAdapter adapter, IRichProvider provider, ConnectionRepository connectionRepository)
+        public BaseIndexer(IOptionManager optionManager, IRichAdapter adapter)
         {
             OptionManager = optionManager;
             Adapter = adapter;
-            Provider = provider;
-            ConnectionRepository = connectionRepository;
+            Provider = adapter.GetProvider();
         }
 
         public virtual IEnumerable<OptionItem> Options => OptionManager.Options;
@@ -452,7 +453,6 @@ commandTimeout: 86400); // old & new value table has exactly the same structure 
             var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
             var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
             Adapter.SetOptions(connectionOptionItems);
-            Provider.SetOptions(connectionOptionItems);
             return this;
         }
     }

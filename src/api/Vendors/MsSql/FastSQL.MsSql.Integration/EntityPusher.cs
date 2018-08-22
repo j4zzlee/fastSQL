@@ -15,8 +15,7 @@ namespace FastSQL.MsSql.Integration
         public EntityPusher(
             EntityPusherOptionManager optionManager,
             EntityProcessor processor,
-            FastProvider provider,
-            FastAdapter adapter) : base(optionManager, processor, provider, adapter)
+            FastAdapter adapter) : base(optionManager, processor, adapter)
         {
         }
 

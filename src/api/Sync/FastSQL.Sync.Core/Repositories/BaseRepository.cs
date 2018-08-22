@@ -22,6 +22,7 @@ namespace FastSQL.Sync.Core.Repositories
         protected BaseRepository(DbConnection connection)
         {
             _connection = connection;
+            //_connection.State != System.Data.ConnectionState.Open
         }
 
         public virtual void BeginTransaction()

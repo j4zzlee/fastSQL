@@ -15,8 +15,7 @@ namespace FastSQL.Magento1.Integration.Pushers.Products
         public ProductParentCategoryPusher(ProductParentCategoryPusherOptionManager optionManager,
             ProductProcessor entityProcessor,
             ParentCategoryAttributeProcessor attributeProcessor,
-            FastProvider provider,
-            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter)
+            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, adapter)
         {
         }
 

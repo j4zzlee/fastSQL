@@ -22,11 +22,7 @@ namespace FastSQL.MsSql.Integration
             AttributePullerOptionManager optionManager,
             EntityProcessor entityProcessor,
             AttributeProcessor attributeProcessor,
-            FastProvider provider,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository,
-            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter, entityRepository, attributeRepository, connectionRepository)
+            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, adapter)
         {
             this.adapter = adapter;
         }

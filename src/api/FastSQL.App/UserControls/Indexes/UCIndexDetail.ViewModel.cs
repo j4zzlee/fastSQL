@@ -386,15 +386,7 @@ namespace FastSQL.App.UserControls.Indexes
             this.pushers = pushers;
             this.mappers = mappers;
             this.transformers = transformers;
-
-            Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
-
-            // Need to duplication code here, weird behavior of WPF
-            SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
-            DestinationConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
-
-            Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete", "Preview" }); // , "Manage"
-
+            
             eventAggregator.GetEvent<SelectIndexEvent>().Subscribe(OnSelectIndex);
             eventAggregator.GetEvent<RefreshConnectionListEvent>().Subscribe(OnConnectionsChanged);
             eventAggregator.GetEvent<RefreshIndexesListViewEvent>().Subscribe(OnIndexesChanged);
@@ -878,7 +870,13 @@ namespace FastSQL.App.UserControls.Indexes
         
         public void Loaded()
         {
-            //throw new NotImplementedException();
+            Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
+
+            // Need to duplication code here, weird behavior of WPF
+            SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+            DestinationConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
+
+            Commands = new ObservableCollection<string>(new List<string> { "Save", "New", "Delete", "Preview" }); // , "Manage"
         }
 
         private void OnIndexesChanged(RefreshIndexesListViewEventArgument args)

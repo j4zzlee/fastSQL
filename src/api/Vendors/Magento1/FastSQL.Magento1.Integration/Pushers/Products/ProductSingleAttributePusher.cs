@@ -18,9 +18,8 @@ namespace FastSQL.Magento1.Integration.Pushers.Products
             ProductSingleAttributePusherOptionManager optionManager,
             ProductProcessor entityProcessor, 
             SingleAttributeProcessor attributeProcessor,
-            FastProvider provider,
             FastAdapter adapter,
-            SoapM1 soap) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter)
+            SoapM1 soap) : base(optionManager, entityProcessor, attributeProcessor, adapter)
         {
             this.soap = soap;
         }

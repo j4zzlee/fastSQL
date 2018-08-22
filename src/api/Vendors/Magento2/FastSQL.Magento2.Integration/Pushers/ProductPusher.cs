@@ -13,8 +13,7 @@ namespace FastSQL.Magento2.Integration.Pushers
     {
         public ProductPusher(ProductPusherOptionManager optionManager,
             ProductProcessor processor,
-            FastProvider provider,
-            FastAdapter adapter) : base(optionManager, processor, provider, adapter)
+            FastAdapter adapter) : base(optionManager, processor, adapter)
         {
         }
 

@@ -15,14 +15,15 @@ namespace FastSQL.Sync.Core.Puller
         protected ConnectionModel ConnectionModel;
 
         public IRichAdapter Adapter { get; }
-        protected ConnectionRepository ConnectionRepository { get; }
+        public virtual ConnectionRepository ConnectionRepository { get; set; }
+        public virtual EntityRepository EntityRepository { get; set; }
+        public virtual AttributeRepository AttributeRepository { get; set; }
 
-        public BasePuller(IOptionManager optionManager, IRichProvider provider, IRichAdapter adapter, ConnectionRepository connectionRepository)
+        public BasePuller(IOptionManager optionManager, IRichAdapter adapter)
         {
             OptionManager = optionManager;
-            Provider = provider;
+            Provider = adapter.GetProvider();
             Adapter = adapter;
-            ConnectionRepository = connectionRepository;
         }
 
         public virtual IEnumerable<OptionItem> Options => OptionManager.Options;
@@ -64,7 +65,6 @@ namespace FastSQL.Sync.Core.Puller
             var connectionOptions = ConnectionRepository.LoadOptions(ConnectionModel.Id.ToString());
             var connectionOptionItems = connectionOptions.Select(c => new OptionItem { Name = c.Key, Value = c.Value });
             Adapter.SetOptions(connectionOptionItems);
-            Provider.SetOptions(connectionOptionItems);
             return this;
         }
     }
@@ -72,18 +72,14 @@ namespace FastSQL.Sync.Core.Puller
     public abstract class BaseEntityPuller : BasePuller, IEntityPuller
     {
         protected readonly IProcessor EntityProcessor;
-        protected readonly EntityRepository EntityRepository;
         protected EntityModel EntityModel;
 
-        public BaseEntityPuller(IOptionManager optionManager,
+        public BaseEntityPuller(
+            IOptionManager optionManager,
             IProcessor processor,
-            IRichProvider provider,
-            IRichAdapter adapter,
-            EntityRepository entityRepository,
-            ConnectionRepository connectionRepository) : base(optionManager, provider, adapter, connectionRepository)
+            IRichAdapter adapter) : base(optionManager, adapter)
         {
             EntityProcessor = processor;
-            EntityRepository = entityRepository;
         }
         
         public bool IsImplemented(string processorId, string providerId)
@@ -106,8 +102,6 @@ namespace FastSQL.Sync.Core.Puller
 
     public abstract class BaseAttributePuller : BasePuller, IAttributePuller
     {
-        protected readonly EntityRepository EntityRepository;
-        protected readonly AttributeRepository AttributeRepository;
         protected EntityModel EntityModel;
         protected AttributeModel AttributeModel;
         protected readonly IProcessor EntityProcessor;
@@ -117,16 +111,10 @@ namespace FastSQL.Sync.Core.Puller
             IOptionManager optionManager,
             IProcessor entityProcessor,
             IProcessor attributeProcessor,
-            IRichProvider provider,
-            IRichAdapter adapter,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository) : base(optionManager, provider, adapter, connectionRepository)
+            IRichAdapter adapter) : base(optionManager, adapter)
         {
             EntityProcessor = entityProcessor;
             AttributeProcessor = attributeProcessor;
-            EntityRepository = entityRepository;
-            AttributeRepository = attributeRepository;
         }
 
         public override IPuller SetIndex(IIndexModel model)

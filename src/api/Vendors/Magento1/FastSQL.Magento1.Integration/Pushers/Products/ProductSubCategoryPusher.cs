@@ -12,11 +12,11 @@ namespace FastSQL.Magento1.Integration.Pushers.Products
 {
     public class ProductSubCategoryPusher : BaseAttributePusher
     {
-        public ProductSubCategoryPusher(ProductSubCategoryPusherOptionManager optionManager, 
+        public ProductSubCategoryPusher(
+            ProductSubCategoryPusherOptionManager optionManager, 
             ProductProcessor entityProcessor, 
             SubCategoryAttributeProcessor attributeProcessor,
-            FastProvider provider,
-            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter)
+            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, adapter)
         {
         }
 

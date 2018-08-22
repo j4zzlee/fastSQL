@@ -14,9 +14,8 @@ namespace FastSQL.Magento1.Integration.Pushers.Products
         public ProductStockPusher(ProductStockPusherOptionManager optionManager, 
             ProductProcessor entityProcessor, 
             StockAttributeProcessor attributeProcessor,
-            FastProvider provider,
             FastAdapter adapter,
-            SoapM1 soap) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter)
+            SoapM1 soap) : base(optionManager, entityProcessor, attributeProcessor, adapter)
         {
             this.soap = soap;
         }

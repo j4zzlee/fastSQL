@@ -84,7 +84,6 @@ namespace FastSQL.App.UserControls.Indexes
             this.entityRepository = entityRepository;
             this.attributeRepository = attributeRepository;
             this.eventAggregator = eventAggregator;
-            //Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
             eventAggregator.GetEvent<RefreshIndexesListViewEvent>().Subscribe(OnRefreshIndexes);
         }
 
@@ -109,14 +108,7 @@ namespace FastSQL.App.UserControls.Indexes
 
         public void Loaded()
         {
-            var first = IndexModels?.FirstOrDefault();
-            if (first != null)
-            {
-                eventAggregator.GetEvent<SelectIndexEvent>().Publish(new SelectIndexEventArgument
-                {
-                    IndexModel = first
-                });
-            }
+
         }
 
         private void OnRefreshIndexes(RefreshIndexesListViewEventArgument obj)

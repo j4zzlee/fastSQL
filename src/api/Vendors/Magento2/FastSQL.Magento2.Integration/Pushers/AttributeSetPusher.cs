@@ -17,8 +17,7 @@ namespace FastSQL.Magento2.Integration.Pushers
         public AttributeSetPusher(
             AttributeSetPusherOptionManager optionManager, 
             AttributeSetProcessor processor, 
-            FastProvider provider, 
-            FastAdapter adapter) : base(optionManager, processor, provider, adapter)
+            FastAdapter adapter) : base(optionManager, processor, adapter)
         {
         }
 

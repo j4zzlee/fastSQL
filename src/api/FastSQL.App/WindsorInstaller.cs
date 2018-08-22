@@ -53,7 +53,9 @@ namespace FastSQL.App
             //var descriptor = container.Resolve<FromAssemblyDescriptor>();
             var assembly = this.GetType().Assembly;
             var assemblyName = assembly.GetName().Name;
-            var assemblyDescriptor = Classes.FromAssemblyInDirectory(new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory));
+            var assemblyFilter = new AssemblyFilter(AppDomain.CurrentDomain.BaseDirectory);
+            assemblyFilter = assemblyFilter.FilterByName(a => !a.Name.StartsWith("System.") && !a.Name.StartsWith("Microsoft"));
+            var assemblyDescriptor = Classes.FromAssemblyInDirectory(assemblyFilter);
             container.Register(Component.For<FromAssemblyDescriptor>().UsingFactoryMethod(() => assemblyDescriptor).LifestyleSingleton());
             container.Register(Component.For<ResourceManager>().UsingFactoryMethod(p => new ResourceManager($"{assemblyName}.Properties.Resources", assembly)).LifestyleSingleton());
 
@@ -64,17 +66,17 @@ namespace FastSQL.App
                 conn.Open();
                 return conn;
             }).LifestyleTransient());
-            container.Register(Component.For<DbTransaction>().UsingFactoryMethod((c) => {
-                var conn = c.Resolve<DbConnection>();
-                return conn.BeginTransaction();
-            }).LifestyleCustom<ScopedLifestyleManager>());
+            //container.Register(Component.For<DbTransaction>().UsingFactoryMethod((c) => {
+            //    var conn = c.Resolve<DbConnection>();
+            //    return conn.BeginTransaction();
+            //}).LifestyleCustom<ScopedLifestyleManager>());
             container.Register(Component.For<ResolverFactory>().ImplementedBy<ResolverFactory>().LifestyleSingleton());
             container.Register(assemblyDescriptor
                 .BasedOn<IRichProvider>()
                 .WithService.Select(new Type[] { typeof(IRichProvider) })
                 .WithServiceAllInterfaces()
                 .WithServiceSelf()
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+                .Configure(x => x.LifeStyle.Is(LifestyleType.Singleton)));
             container.Register(assemblyDescriptor
                 .BasedOn<IRichAdapter>()
                 .WithService.Select(new Type[] { typeof(IRichAdapter) })
@@ -134,7 +136,7 @@ namespace FastSQL.App
                 .WithService.Select(new Type[] { typeof(IProcessor) })
                 .WithServiceSelf()
                 .WithServiceAllInterfaces()
-                .Configure(x => x.LifeStyle.Is(LifestyleType.Transient)));
+                .Configure(x => x.LifeStyle.Is(LifestyleType.Singleton)));
 
             container.Register(assemblyDescriptor
                 .BasedOn<ISettingProvider>()

@@ -15,11 +15,7 @@ namespace FastSQL.MsAccess.Integration
             EntityProcessor entityProcessor,
             AttributeProcessor attributeProcessor,
             AttributeIndexerOptionManager optionManager,
-            FastProvider provider,
-            FastAdapter adapter,
-            EntityRepository entityRepository,
-            AttributeRepository attributeRepository,
-            ConnectionRepository connectionRepository) : base(entityProcessor, attributeProcessor, optionManager, provider, adapter, entityRepository, attributeRepository, connectionRepository)
+            FastAdapter adapter) : base(entityProcessor, attributeProcessor, optionManager, adapter)
         {
         }
     }

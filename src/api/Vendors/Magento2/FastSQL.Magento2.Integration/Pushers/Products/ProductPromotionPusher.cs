@@ -15,8 +15,7 @@ namespace FastSQL.Magento2.Integration.Pushers.Products
         public ProductPromotionPusher(ProductPromotionPusherOptionManager optionManager, 
             ProductProcessor entityProcessor, 
             PromotionAttributeProcessor attributeProcessor,
-            FastProvider provider,
-            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, provider, adapter)
+            FastAdapter adapter) : base(optionManager, entityProcessor, attributeProcessor, adapter)
         {
         }
 

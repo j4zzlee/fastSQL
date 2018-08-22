@@ -21,10 +21,7 @@ namespace FastSQL.MsSql.Integration
 
         public EntityPuller(EntityPullerOptionManager optionManager,
             EntityProcessor processor,
-            FastProvider provider,
-            FastAdapter adapter,
-            EntityRepository entityRepository,
-            ConnectionRepository connectionRepository) : base(optionManager, processor, provider, adapter, entityRepository, connectionRepository)
+            FastAdapter adapter) : base(optionManager, processor, adapter)
         {
             this.adapter = adapter;
         }

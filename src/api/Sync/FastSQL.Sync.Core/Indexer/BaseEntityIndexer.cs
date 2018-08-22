@@ -12,19 +12,14 @@ namespace FastSQL.Sync.Core.Indexer
     public abstract class BaseEntityIndexer : BaseIndexer, IEntityIndexer
     {
         protected readonly IProcessor Processor;
-        protected readonly EntityRepository EntityRepository;
         protected EntityModel EntityModel;
 
         public BaseEntityIndexer(
             IProcessor processor,
             IOptionManager optionManager,
-            IRichProvider provider,
-            IRichAdapter adapter,
-            EntityRepository entityRepository,
-            ConnectionRepository connectionRepository) : base(optionManager, adapter, provider, connectionRepository)
+            IRichAdapter adapter) : base(optionManager, adapter)
         {
             Processor = processor;
-            EntityRepository = entityRepository;
         }
 
         public bool IsImplemented(string processorId, string providerId)
