@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace FastSQL.Sync.Core.Mapper
 {
-    public class MapperManager
+    public class MapperManager: IDisposable
     {
         private IIndexModel _indexerModel;
         private readonly IEventAggregator eventAggregator;
@@ -76,6 +76,13 @@ namespace FastSQL.Sync.Core.Mapper
                     _mapper.Map(mapResult.Data);
                 }
             });
+        }
+
+        public virtual void Dispose()
+        {
+            _mapper?.Dispose();
+            _messages?.RemoveAll(r => true);
+            _messages = null;
         }
     }
 }

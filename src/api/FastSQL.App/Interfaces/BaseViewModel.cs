@@ -13,13 +13,12 @@ namespace FastSQL.App.Interfaces
     {
         protected object Owner;
 
-        public RepositoryFactory RepositoryFactory { get; set; }
         public ResolverFactory ResolverFactory { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
 
         public virtual void Dispose()
         {
-            RepositoryFactory.Release(this);
+            
         }
 
         public void OnPropertyChanged(string propertyName)

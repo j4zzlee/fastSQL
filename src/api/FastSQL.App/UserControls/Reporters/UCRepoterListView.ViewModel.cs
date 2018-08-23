@@ -65,7 +65,7 @@ namespace FastSQL.App.UserControls.Reporters
 
         private void OnRefreshReporters(RefreshReporterListEventArgument obj)
         {
-            using (var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this))
+            using (var reporterRepository = ResolverFactory.Resolve<ReporterRepository>())
             {
                 Reporters = new ObservableCollection<ReporterModel>(reporterRepository.GetAll());
                 var selectedId = obj.SelectedReporterId;
@@ -86,7 +86,7 @@ namespace FastSQL.App.UserControls.Reporters
 
         public Task<int> Loaded()
         {
-            using (var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this))
+            using (var reporterRepository = ResolverFactory.Resolve<ReporterRepository>())
             {
                 Reporters = new ObservableCollection<ReporterModel>(reporterRepository.GetAll());
                 return Task.FromResult(0);

@@ -6,9 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FastSQL.Sync.Core.Models
 {
-    [Table("core_entities")]
-    [EntityType(EntityType.Entity)]
-    public class EntityModel : IIndexModel
+    public class BaseIndexModel
     {
         [Key]
         public Guid Id { get; set; }
@@ -20,7 +18,12 @@ namespace FastSQL.Sync.Core.Models
         public Guid DestinationConnectionId { get; set; }
         public EntityState State { get; set; }
 
-
+        public virtual EntityType EntityType { get; }
+    }
+    [Table("core_entities")]
+    [EntityType(EntityType.Entity)]
+    public class EntityModel : BaseIndexModel, IIndexModel
+    {
         public string SourceViewName { get; set; }
         public string OldValueTableName { get; set; }
         public string NewValueTableName { get; set; }
@@ -44,7 +47,7 @@ namespace FastSQL.Sync.Core.Models
         }
 
         [NotMapped]
-        public EntityType EntityType => EntityType.Entity;
+        public override EntityType EntityType => EntityType.Entity;
 
         public void AddState(EntityState state)
         {

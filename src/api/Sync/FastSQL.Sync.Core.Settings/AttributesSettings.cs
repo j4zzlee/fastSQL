@@ -23,7 +23,6 @@ namespace FastSQL.Sync.Core.Settings
 {
     public class AttributesSettingsProvider : BaseSettingProvider
     {
-        private readonly IndexerManager indexerManager;
         private readonly IEnumerable<IAttributePuller> pullers;
         private readonly IEnumerable<IAttributeIndexer> indexers;
 
@@ -52,15 +51,12 @@ namespace FastSQL.Sync.Core.Settings
 
         public AttributesSettingsProvider(
             AttributesSettingsOptionManager optionManager,
-            IndexerManager indexerManager,
             IEnumerable<IAttributePuller> pullers,
             IEnumerable<IAttributeIndexer> indexers
             ) : base(optionManager)
         {
-            this.indexerManager = indexerManager;
             this.pullers = pullers;
             this.indexers = indexers;
-            this.indexerManager.OnReport(s => this.Logger.Information(s));
         }
         
         public override async Task<bool> Validate()
@@ -71,9 +67,9 @@ namespace FastSQL.Sync.Core.Settings
                 //IsLoading = true;
                 await Task.Run(() =>
                 {
-                    using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
-                    using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-                    using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+                    using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+                    using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+                    using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
                     {
                         var allAttributes = attributeRepository.GetAll();
                         foreach (var attr in allAttributes)
@@ -136,25 +132,14 @@ namespace FastSQL.Sync.Core.Settings
                 //IsLoading = true;
                 await Task.Run(async () =>
                 {
-                    using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
-                    using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-                    using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+                    using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
+                    using (var indexerManager = ResolverFactory.Resolve<IndexerManager>())
                     {
+                        indexerManager.OnReport(s => Logger.Information(s));
                         var allAttributes = attributeRepository.GetAll();
                         foreach (var attr in allAttributes)
                         {
-                            var entity = entityRepository.GetById(attr.EntityId.ToString());
-                            var options = attributeRepository.LoadOptions(attr.Id.ToString());
-                            var connection = connectionRepository.GetById(attr.SourceConnectionId.ToString());
-                            var puller = pullers.FirstOrDefault(p => p.IsImplemented(attr.SourceProcessorId, entity.SourceProcessorId, connection.ProviderId));
-                            var indexer = indexers.FirstOrDefault(p => p.IsImplemented(attr.SourceProcessorId, entity.SourceProcessorId, connection.ProviderId));
-                            puller.SetIndex(attr);
-                            puller.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-                            indexer.SetIndex(attr);
-                            indexer.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
                             indexerManager.SetIndex(attr);
-                            indexerManager.SetIndexer(indexer);
-                            indexerManager.SetPuller(puller);
                             await indexerManager.PullAll(true);
                         }
                     }
@@ -179,34 +164,18 @@ namespace FastSQL.Sync.Core.Settings
         {
             try
             {
-                //IsLoading = true;
-                await Task.Run(async () =>
+                using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
+                using (var indexerManager = ResolverFactory.Resolve<IndexerManager>())
                 {
-                    using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
-                    using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-                    using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+                    indexerManager.OnReport(s => Logger.Information(s));
+                    var allAttributes = attributeRepository.GetAll();
+                    foreach (var attr in allAttributes)
                     {
-                        var allAttributes = attributeRepository.GetAll();
-                        foreach (var attr in allAttributes)
-                        {
-                            var entity = entityRepository.GetById(attr.EntityId.ToString());
-                            var options = attributeRepository.LoadOptions(attr.Id.ToString());
-                            var connection = connectionRepository.GetById(attr.SourceConnectionId.ToString());
-                            var puller = pullers.FirstOrDefault(p => p.IsImplemented(attr.SourceProcessorId, entity.SourceProcessorId, connection.ProviderId));
-                            var indexer = indexers.FirstOrDefault(p => p.IsImplemented(attr.SourceProcessorId, entity.SourceProcessorId, connection.ProviderId));
-                            puller.SetIndex(attr);
-                            puller.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-                            puller.Init();
-                            indexer.SetIndex(attr);
-                            indexer.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-                            entityRepository.Init(attr);
-                            indexerManager.SetIndex(attr);
-                            indexerManager.SetIndexer(indexer);
-                            indexerManager.SetPuller(puller);
-                            await indexerManager.PullAll(true);
-                        }
+                        indexerManager.SetIndex(attr);
+                        await indexerManager.Init();
+                        await indexerManager.PullAll(true);
                     }
-                });
+                }
                 Message = "All attributes has been initialized.";
                 Logger.Information(Message);
 

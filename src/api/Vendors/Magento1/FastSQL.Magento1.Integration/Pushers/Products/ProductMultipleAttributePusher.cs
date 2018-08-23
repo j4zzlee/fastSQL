@@ -78,7 +78,7 @@ namespace FastSQL.Magento1.Integration.Pushers.Products
 
         private catalogProductCreateEntity LoadData()
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 var relatedIndexedItems = entityRepository.GetIndexedItemsBySourceId(GetIndexModel(), IndexedItem.GetSourceId());
                 var normalizedValues = relatedIndexedItems

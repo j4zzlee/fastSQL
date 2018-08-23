@@ -8,7 +8,7 @@ namespace FastSQL.Sync.Core.Models
 {
     [Table("core_attributes")]
     [EntityType(EntityType.Attribute)]
-    public class AttributeModel: IIndexModel
+    public class AttributeModel : BaseIndexModel, IIndexModel
     {
         [Key]
         public Guid Id { get; set; }
@@ -46,7 +46,7 @@ namespace FastSQL.Sync.Core.Models
 
 
         [NotMapped]
-        public EntityType EntityType => EntityType.Attribute;
+        public override EntityType EntityType => EntityType.Attribute;
 
 
         public void AddState(EntityState state)

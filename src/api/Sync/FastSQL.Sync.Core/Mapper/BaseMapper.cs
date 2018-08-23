@@ -21,7 +21,7 @@ namespace FastSQL.Sync.Core.Mapper
         protected EntityModel EntityModel;
         protected ConnectionModel ConnectionModel;
         public DbConnection Connection { get; set; }
-        public RepositoryFactory RepositoryFactory { get; set; }
+        public ResolverFactory ResolverFactory { get; set; }
         protected Action<string> _reporter;
 
         public BaseMapper(
@@ -73,7 +73,7 @@ namespace FastSQL.Sync.Core.Mapper
 
         protected virtual IMapper SpreadOptions()
         {
-            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
             {
                 ConnectionModel = connectionRepository.GetById(EntityModel.DestinationConnectionId.ToString());
                 var connectionOptions = connectionRepository.LoadOptions(ConnectionModel.Id.ToString());
@@ -144,7 +144,7 @@ new {
 
         public virtual void Dispose()
         {
-            RepositoryFactory.Release(this);
+            
         }
     }
 }

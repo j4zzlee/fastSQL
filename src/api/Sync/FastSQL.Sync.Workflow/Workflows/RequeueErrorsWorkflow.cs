@@ -48,7 +48,7 @@ namespace FastSQL.Sync.Workflow.Workflows
                                 .StartWith(ii => { })
                                 .While(w => w.Counter < w.Indexes.Count())
                                 .Do(dd => dd.StartWith<RequeueErrorsStep>()
-                                    .Input(u => u.IndexModel, g => g.Indexes.ElementAt(g.Counter))
+                                    .Input(u => u.IndexModel, g => g.Indexes[g.Counter])
                                     .Output(s => s.Counter, u => u.Counter))
                                 .Then<Delay>(d => TimeSpan.FromHours(1));
                         });

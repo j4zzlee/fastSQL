@@ -20,34 +20,22 @@ namespace FastSQL.Sync.Workflow.Steps
 {
     public class PushItemChangedStep : BaseStepBodyInvoker
     {
-        private readonly IEnumerable<IEntityIndexer> entityIndexers;
-        private readonly IEnumerable<IAttributeIndexer> attributeIndexers;
-        private readonly IEnumerable<IEntityPusher> entityPushers;
-        private readonly IEnumerable<IAttributePusher> attributePushers;
-        private readonly PusherManager pusherManager;
-        public PushItemChangedStep(
-            IEnumerable<IEntityIndexer> entityIndexers,
-            IEnumerable<IAttributeIndexer> attributeIndexers,
-            IEnumerable<IEntityPusher> entityPushers,
-            IEnumerable<IAttributePusher> attributePushers,
-            PusherManager pusherManager) : base()
+        public PushItemChangedStep() : base()
         {
-            this.entityIndexers = entityIndexers;
-            this.attributeIndexers = attributeIndexers;
-            this.entityPushers = entityPushers;
-            this.attributePushers = attributePushers;
-            this.pusherManager = pusherManager;
         }
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
-            var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this);
-            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
-            var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this);
-            var messageRepository = RepositoryFactory.Create<MessageRepository>(this);
-            var queueItemRepository = RepositoryFactory.Create<QueueItemRepository>(this);
-            
-                try
+            var entityRepository = ResolverFactory.Resolve<EntityRepository>();
+            var attributeRepository = ResolverFactory.Resolve<AttributeRepository>();
+            var messageRepository = ResolverFactory.Resolve<MessageRepository>();
+            var queueItemRepository = ResolverFactory.Resolve<QueueItemRepository>();
+            IIndexModel indexModel = null;
+            IndexItemModel itemModel = null;
+            var logger = ResolverFactory.Resolve<ILogger>("SyncService");
+            var errorLogger = ResolverFactory.Resolve<ILogger>("Error");
+            var pusherManager = ResolverFactory.Resolve<PusherManager>();
+            try
             {
                 var executeAt = DateTime.Now.ToUnixTimestamp();
                 var firstQueuedItem = entityRepository.GetCurrentQueuedItems();
@@ -55,40 +43,18 @@ namespace FastSQL.Sync.Workflow.Steps
                 {
                     return;
                 }
-                IIndexModel indexModel = null;
-                IndexItemModel itemModel = null;
-                IIndexer indexer = null;
-                IPusher pusher = null;
-                IEnumerable<OptionItem> options = null;
+
                 if (firstQueuedItem.TargetEntityType == EntityType.Entity)
                 {
                     indexModel = entityRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
-                    options = entityRepository.LoadOptions(indexModel.Id.ToString()).Select(o => new OptionItem { Name = o.Key, Value = o.Value });
-                    var sourceConnection = connectionRepository.GetById(indexModel.SourceConnectionId.ToString());
-                    var destinationConnection = connectionRepository.GetById(indexModel.DestinationConnectionId.ToString());
-                    indexer = entityIndexers.FirstOrDefault(i => i.IsImplemented(indexModel.SourceProcessorId, sourceConnection.ProviderId));
-                    pusher = entityPushers.FirstOrDefault(p => p.IsImplemented(indexModel.DestinationProcessorId, destinationConnection.ProviderId));
                 }
                 else
                 {
-                    var attributeModel = attributeRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
-                    indexModel = attributeModel;
-                    var entityModel = entityRepository.GetById(attributeModel.EntityId.ToString());
-                    options = attributeRepository.LoadOptions(attributeModel.Id.ToString()).Select(o => new OptionItem { Name = o.Key, Value = o.Value });
-                    var sourceConnection = connectionRepository.GetById(attributeModel.SourceConnectionId.ToString());
-                    var destinationConnection = connectionRepository.GetById(attributeModel.DestinationConnectionId.ToString());
-                    indexer = attributeIndexers.FirstOrDefault(i => i.IsImplemented(attributeModel.SourceProcessorId, entityModel.SourceProcessorId, sourceConnection.ProviderId));
-                    pusher = attributePushers.FirstOrDefault(p => p.IsImplemented(attributeModel.DestinationProcessorId, entityModel.DestinationProcessorId, destinationConnection.ProviderId));
+                    indexModel = attributeRepository.GetById(firstQueuedItem.TargetEntityId.ToString());
                 }
-
-                indexer.SetIndex(indexModel);
-                indexer.SetOptions(options);
-                pusher.SetIndex(indexModel);
-                pusher.SetOptions(options);
+                
                 pusherManager.SetIndex(indexModel);
-                pusherManager.OnReport(s => Logger.Information(s));
-                pusherManager.SetIndexer(indexer);
-                pusherManager.SetPusher(pusher);
+                pusherManager.OnReport(s => logger.Information(s));
 
                 try
                 {
@@ -140,16 +106,19 @@ Exception:
             }
             catch (Exception ex)
             {
-                ErrorLogger.Error(ex, ex.Message);
+                errorLogger.Error(ex, ex.Message);
                 throw;
             }
             finally
             {
                 entityRepository?.Dispose();
                 attributeRepository?.Dispose();
-                connectionRepository?.Dispose();
                 messageRepository?.Dispose();
                 queueItemRepository?.Dispose();
+                ResolverFactory.Release(logger);
+                ResolverFactory.Release(errorLogger);
+                logger = null;
+                errorLogger = null;
             }
         }
     }

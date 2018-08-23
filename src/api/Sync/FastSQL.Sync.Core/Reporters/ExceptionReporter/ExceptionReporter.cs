@@ -31,7 +31,7 @@ namespace FastSQL.Sync.Core.Reporters
                 var offset = 0;
                 while (true)
                 {
-                    using (var messageRepository = RepositoryFactory.Create<MessageRepository>(this))
+                    using (var messageRepository = ResolverFactory.Resolve<MessageRepository>())
                     {
                         var messages = messageRepository.GetUnqueuedMessages(ReporterModel, MessageType.Exception, limit, offset);
                         if (messages == null || messages.Count() <= 0)

@@ -66,7 +66,7 @@ namespace FastSQL.App.UserControls.Queues
         {
             await Task.Run(() =>
             {
-                using (var queueItemRepository = RepositoryFactory.Create<QueueItemRepository>(this))
+                using (var queueItemRepository = ResolverFactory.Resolve<QueueItemRepository>())
                 {
                     var items = queueItemRepository.FilterQueueItems(filters, limit, offset, out int totalCount);
                     if (reset)

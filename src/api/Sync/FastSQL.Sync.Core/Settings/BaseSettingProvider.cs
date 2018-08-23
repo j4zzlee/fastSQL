@@ -28,7 +28,6 @@ namespace FastSQL.Sync.Core.Settings
 
         protected readonly IOptionManager OptionManager;
         public ResolverFactory ResolverFactory { get; set; }
-        public RepositoryFactory RepositoryFactory { get; set; }
         public BaseSettingProvider(IOptionManager optionManager)
         {
             OptionManager = optionManager;
@@ -61,7 +60,7 @@ namespace FastSQL.Sync.Core.Settings
 
         public virtual void Dispose()
         {
-            RepositoryFactory.Release(this);
+            
         }
     }
 }

@@ -9,6 +9,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using WorkflowCore.Extensions.WorkflowController;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
@@ -19,7 +20,6 @@ namespace FastSQL.Sync.Workflow
     {
         private IWorkflowHost _host;
         public ResolverFactory ResolverFactory { get; set; }
-        public RepositoryFactory RepositoryFactory { get; set; }
         private readonly IEnumerable<IBaseWorkflow> workflows;
         private readonly WorkingSchedules workingSchedules;
         private ILogger _logger;
@@ -43,7 +43,7 @@ namespace FastSQL.Sync.Workflow
 
         public virtual void Dispose()
         {
-            RepositoryFactory.Release(this);
+            
         }
 
         private void RegisterWorkflows()
@@ -52,7 +52,7 @@ namespace FastSQL.Sync.Workflow
             {
                 return;
             }
-
+            //var savedWorkflows = _host.PersistenceStore.GetWorkflowInstances(null, null, null, null, 0, 100);
             foreach (var workflow in workflows.Where(w => !w.IsGeneric))
             {
                 _host.RegisterWorkflow(workflow as IWorkflow);
@@ -86,7 +86,15 @@ namespace FastSQL.Sync.Workflow
                     if (!_ranWorkflows.Contains(workflow.Id))
                     {
                         _ranWorkflows.Add(workflow.Id);
-                        _host.StartWorkflow(workflow.Id, workflow.Version, null);
+                        if (workflow.IsGeneric)
+                        {
+                            _host.StartGenericWorkflow(workflow);
+                        }
+                        else
+                        {
+                            _host.StartWorkflow(workflow.Id);
+                        }
+                       
                     }
                     else
                     {
@@ -123,8 +131,8 @@ namespace FastSQL.Sync.Workflow
 
         public void StartTest(ScheduleOptionModel option)
         {
-            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
-            var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this);
+            var entityRepository = ResolverFactory.Resolve<EntityRepository>();
+            var attributeRepository = ResolverFactory.Resolve<AttributeRepository>();
             try
             {
                 if (_running)
@@ -139,17 +147,24 @@ namespace FastSQL.Sync.Workflow
                 IIndexModel indexModel = option.TargetEntityType == EntityType.Entity
                         ? entityRepository.GetById(option.TargetEntityId.ToString()) as IIndexModel
                         : attributeRepository.GetById(option.TargetEntityId.ToString());
-                
+
                 if (indexModel == null)
                 {
                     throw new Exception($"Could not find Index with ID: {option.TargetEntityId}, Name: {option.TargetEntityName}, Type: {option.TargetEntityType}");
                 }
-                
+
                 _host.Start();
                 if (!_ranWorkflows.Contains(workflow.Id))
                 {
                     _ranWorkflows.Add(workflow.Id);
-                    _host.StartWorkflow(workflow.Id, workflow.Version, null);
+                    if (workflow.IsGeneric)
+                    {
+                        _host.StartGenericWorkflow(workflow);
+                    }
+                    else
+                    {
+                        _host.StartWorkflow(workflow.Id);
+                    }
                 }
                 else
                 {

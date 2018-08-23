@@ -31,10 +31,11 @@ namespace FastSQL.Sync.Workflow.Steps
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
-            var messageRepository = RepositoryFactory.Create<MessageRepository>(this);
-            var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this);
-            var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this);
-
+            var messageRepository = ResolverFactory.Resolve<MessageRepository>();
+            var reporterRepository = ResolverFactory.Resolve<ReporterRepository>();
+            var messageDeliveryChannelRepository = ResolverFactory.Resolve<MessageDeliveryChannelRepository>();
+            var logger = ResolverFactory.Resolve<ILogger>("SyncService");
+            var errorLogger = ResolverFactory.Resolve<ILogger>("Error");
             try
             {
                 var undeliverMessages = messageRepository.GetUndeliveredMessages(100, 0);
@@ -73,7 +74,7 @@ namespace FastSQL.Sync.Workflow.Steps
                         var options = messageDeliveryChannelRepository.LoadOptions(channel.Id.ToString(), channel.EntityType);
                         var delieveryChannel = channels.FirstOrDefault(cc => cc.Id == channel.ChannelId);
                         delieveryChannel.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-                        delieveryChannel.OnReport(s => Logger.Information(s));
+                        delieveryChannel.OnReport(s => logger.Information(s));
                         foreach (var dict in messageDic)
                         {
                             if (dict.Value == null || dict.Value.Count == 0)
@@ -96,11 +97,15 @@ namespace FastSQL.Sync.Workflow.Steps
             }
             catch (Exception ex)
             {
-                ErrorLogger.Error(ex, ex.Message);
+                errorLogger.Error(ex, ex.Message);
                 throw;
             }
             finally
             {
+                ResolverFactory.Release(logger);
+                ResolverFactory.Release(errorLogger);
+                logger = null;
+                errorLogger = null;
             }
         }
     }

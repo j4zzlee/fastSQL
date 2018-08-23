@@ -13,29 +13,21 @@ using WorkflowCore.Models;
 
 namespace FastSQL.Sync.Workflow.Steps
 {
-    public abstract class BaseStepBodyInvoker : StepBody, IDisposable
+    public abstract class BaseStepBodyInvoker : StepBody
     {
-        private ILogger _logger;
-        protected ILogger Logger => _logger ?? (_logger = ResolverFactory.Resolve<ILogger>("SyncService"));
-        private ILogger _errorLogger;
-        protected ILogger ErrorLogger => _logger ?? (_errorLogger = ResolverFactory.Resolve<ILogger>("Error"));
         public ResolverFactory ResolverFactory { get; set; }
-        public RepositoryFactory RepositoryFactory { get; set; }
 
         public BaseStepBodyInvoker()
         {
         }
-
-        public virtual void Dispose()
-        {
-            RepositoryFactory.Release(this);
-        }
-
+        
         public abstract Task Invoke(IStepExecutionContext context = null);
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
             Task runner = null;
+            var logger = ResolverFactory.Resolve<ILogger>("SyncService");
+            var errorLogger = ResolverFactory.Resolve<ILogger>("Error");
             try
             {
                 runner = Invoke(context);
@@ -43,8 +35,8 @@ namespace FastSQL.Sync.Workflow.Steps
             }
             catch (Exception ex)
             {
-                ErrorLogger.Error(ex, ex.Message);
-                using (var messageRepository = RepositoryFactory.Create<MessageRepository>(this))
+                errorLogger.Error(ex, ex.Message);
+                using (var messageRepository = ResolverFactory.Resolve<MessageRepository>())
                 {
                     messageRepository.Create(new
                     {
@@ -55,7 +47,7 @@ namespace FastSQL.Sync.Workflow.Steps
                     });
                     if (ex.InnerException != null)
                     {
-                        ErrorLogger.Error(ex.InnerException, ex.InnerException.Message);
+                        errorLogger.Error(ex.InnerException, ex.InnerException.Message);
                         messageRepository.Create(new
                         {
                             CreatedAt = DateTime.Now.ToUnixTimestamp(),
@@ -65,6 +57,14 @@ namespace FastSQL.Sync.Workflow.Steps
                         });
                     }
                 }
+            }
+            finally
+            {
+                ResolverFactory.Release(logger);
+                ResolverFactory.Release(errorLogger);
+                logger = null;
+                errorLogger = null;
+                runner?.Dispose();
             }
             return ExecutionResult.Next();
         }

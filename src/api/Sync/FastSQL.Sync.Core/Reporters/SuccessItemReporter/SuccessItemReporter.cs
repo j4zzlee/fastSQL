@@ -32,8 +32,8 @@ namespace FastSQL.Sync.Core.Reporters
         {
             await Task.Run(() =>
             {
-                using (var messageRepository = RepositoryFactory.Create<MessageRepository>(this))
-                using (var queueItemRepository = RepositoryFactory.Create<QueueItemRepository>(this))
+                using (var messageRepository = ResolverFactory.Resolve<MessageRepository>())
+                using (var queueItemRepository = ResolverFactory.Resolve<QueueItemRepository>())
                 {
                     var showDebugInfo = Options.FirstOrDefault(o => o.Name == "show_debug_info").Value;
                     var showProgressInfo = Options.FirstOrDefault(o => o.Name == "show_progress_info").Value;
@@ -91,8 +91,8 @@ namespace FastSQL.Sync.Core.Reporters
 
         private string GetAttributeMessage(QueueItemModel item, out IIndexModel indexModel, out IndexItemModel itemModel)
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var attributeModel = attributeRepository.GetById(item.TargetEntityId.ToString());
                 var entityModel = entityRepository.GetById(attributeModel.EntityId.ToString());
@@ -141,7 +141,7 @@ namespace FastSQL.Sync.Core.Reporters
 
         private string GetEntityMessage(QueueItemModel item, out IIndexModel indexModel, out IndexItemModel itemModel)
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 indexModel = entityRepository.GetById(item.TargetEntityId.ToString());
                 var options = entityRepository.LoadOptions(indexModel.Id.ToString(), new List<string> { "Indexer" });

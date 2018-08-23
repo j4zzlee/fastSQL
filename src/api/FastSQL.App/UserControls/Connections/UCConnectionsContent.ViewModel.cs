@@ -83,7 +83,7 @@ namespace FastSQL.App.UserControls.Connections
             get => _selectedProvider;
             set
             {
-                using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+                using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
                 {
                     _selectedProvider = value;
                     IEnumerable<OptionModel> options = null;
@@ -103,13 +103,11 @@ namespace FastSQL.App.UserControls.Connections
         public UCConnectionsContentViewModel(
             IEnumerable<IRichAdapter> adapters,
             IEnumerable<IRichProvider> providers,
-            IEventAggregator eventAggregator,
-            RepositoryFactory repositoryFactory)
+            IEventAggregator eventAggregator)
         {
             this.adapters = adapters;
             this.providers = providers;
             this.eventAggregator = eventAggregator;
-            RepositoryFactory = repositoryFactory;
 
             Commands = new ObservableCollection<string>(new List<string> { "Try Connect", "Save", "New", "Delete" });
             eventAggregator.GetEvent<SelectConnectionEvent>().Subscribe(OnSelectConnection);
@@ -118,7 +116,7 @@ namespace FastSQL.App.UserControls.Connections
 
         private void OnSelectConnection(SelectConnectionEventArgument obj)
         {
-            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
             {
                 var connection = connectionRepository.GetById(obj.ConnectionId);
                 Name = connection.Name;
@@ -153,7 +151,7 @@ namespace FastSQL.App.UserControls.Connections
                 message = "No item to save";
                 return true;
             }
-            var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this);
+            var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>();
 
             try
             {
@@ -190,7 +188,7 @@ namespace FastSQL.App.UserControls.Connections
 
         private bool New(out string message)
         {
-            var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this);
+            var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>();
 
             try
             {
@@ -232,7 +230,7 @@ namespace FastSQL.App.UserControls.Connections
                 message = "No item to delete";
                 return true;
             }
-            var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this);
+            var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>();
 
             try
             {

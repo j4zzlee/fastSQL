@@ -3,7 +3,6 @@ using FastSQL.Sync.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using WorkflowCore.Interface;
 
 namespace FastSQL.Sync.Core.Workflows
 {

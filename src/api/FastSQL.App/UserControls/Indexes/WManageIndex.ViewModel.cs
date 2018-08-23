@@ -47,9 +47,6 @@ namespace FastSQL.App.UserControls.Indexes
         private readonly IEventAggregator eventAggregator;
         private readonly LoggerFactory loggerFactory;
         private readonly IEnumerable<IIndexExporter> indexExporters;
-        private readonly IndexerManager indexerManager;
-        private readonly PusherManager syncManager;
-        private readonly MapperManager mapperManager;
         private ILogger logger;
         
         public BaseCommand InitIndexCommand => new BaseCommand(o => true, OnInitIndex);
@@ -176,7 +173,7 @@ namespace FastSQL.App.UserControls.Indexes
 
         private async void DataGridViewModel_OnEvent(object sender, Events.DataGridCommandEventArgument args)
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 var selectedItems = args.SelectedItems
                 .Select(i => IndexItemModel.FromJObject(JObject.FromObject(i)));
@@ -244,10 +241,11 @@ namespace FastSQL.App.UserControls.Indexes
                             null);
                         break;
                     case "Sync":
-                        syncManager.SetIndex(_indexModel);
-                        syncManager.SetIndexer(_indexer);
-                        syncManager.SetPusher(_pusher);
-                        await syncManager.Push(selectedItems.ToArray());
+                        using (var syncManager = ResolverFactory.Resolve<PusherManager>())
+                        {
+                            syncManager.SetIndex(_indexModel);
+                            await syncManager.Push(selectedItems.ToArray());
+                        }
                         break;
                 }
                 await LoadData(null, DataGridViewModel.GetLimit(), DataGridViewModel.GetOffset(), true);
@@ -262,7 +260,7 @@ namespace FastSQL.App.UserControls.Indexes
         private async Task LoadData(IEnumerable<FilterArgument> filters, int limit, int offset, bool reset)
         {
             IsLoading = true;
-            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
+            var entityRepository = ResolverFactory.Resolve<EntityRepository>();
             try
             {
                 await Task.Run(() =>
@@ -326,17 +324,11 @@ namespace FastSQL.App.UserControls.Indexes
         public WManageIndexViewModel(
             IEventAggregator eventAggregator,
             IEnumerable<IIndexExporter> indexExporters,
-            LoggerFactory loggerFactory,
-            IndexerManager indexerManager, 
-            PusherManager syncManager,
-            MapperManager mapperManager)
+            LoggerFactory loggerFactory)
         {
             this.eventAggregator = eventAggregator;
             this.loggerFactory = loggerFactory;
             this.indexExporters = indexExporters;
-            this.indexerManager = indexerManager;
-            this.syncManager = syncManager;
-            this.mapperManager = mapperManager;
         }
         
         private async void OnMapIndex(object obj)
@@ -344,10 +336,14 @@ namespace FastSQL.App.UserControls.Indexes
             try
             {
                 IsLoading = true;
-                await mapperManager
-                    .SetIndex(_indexModel)
-                    .SetMapper(_mapper)
-                    .Map();
+                using (var mapperManager = ResolverFactory.Resolve<MapperManager>())
+                {
+                    await mapperManager
+                         .SetIndex(_indexModel)
+                         .SetMapper(_mapper)
+                         .Map();
+                }
+             
                 await LoadData(null, DataGridContstants.PageLimit, 0, true);
                 MessageBox.Show(
                     (Owner as Window) ?? Application.Current.MainWindow,
@@ -364,15 +360,15 @@ namespace FastSQL.App.UserControls.Indexes
 
         private async void OnInitIndex(object obj)
         {
-            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
+            var entityRepository = ResolverFactory.Resolve<EntityRepository>();
+            var indexerManager = ResolverFactory.Resolve<IndexerManager>();
+            indexerManager.OnReport(m => logger.Information(m));
             try
             {
                 IsLoading = true;
                 _puller.Init();
                 entityRepository.Init(_indexModel);
                 indexerManager.SetIndex(_indexModel);
-                indexerManager.SetIndexer(_indexer);
-                indexerManager.SetPuller(_puller);
                 await indexerManager.PullAll(true);
                 await LoadData(null, DataGridContstants.PageLimit, 0, true);
                 MessageBox.Show(
@@ -386,17 +382,18 @@ namespace FastSQL.App.UserControls.Indexes
             {
                 IsLoading = false;
                 entityRepository?.Dispose();
+                indexerManager?.Dispose();
             }
         }
 
         private async void OnUpdateIndex(object obj)
         {
+            var indexerManager = ResolverFactory.Resolve<IndexerManager>();
+            indexerManager.OnReport(m => logger.Information(m));
             try
             {
                 IsLoading = true;
                 indexerManager.SetIndex(_indexModel);
-                indexerManager.SetIndexer(_indexer);
-                indexerManager.SetPuller(_puller);
                 await indexerManager.PullAll(false);
                 await LoadData(null, DataGridContstants.PageLimit, 0, true);
                 MessageBox.Show(
@@ -409,6 +406,7 @@ namespace FastSQL.App.UserControls.Indexes
             finally
             {
                 IsLoading = false;
+                indexerManager?.Dispose();
             }
         }
 
@@ -435,16 +433,12 @@ namespace FastSQL.App.UserControls.Indexes
 
         public async Task Loaded()
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 this.logger = loggerFactory
                 .WriteToApplication($"{_indexModel.EntityType} Index")
                 .WriteToFile()
                 .CreateApplicationLogger();
-                this.indexerManager.OnReport(m =>
-                {
-                    logger.Information(m);
-                });
                 _puller?.SetIndex(_indexModel);
                 _indexer?.SetIndex(_indexModel);
                 _pusher?.SetIndex(_indexModel);

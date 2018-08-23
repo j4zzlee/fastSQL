@@ -613,10 +613,10 @@ namespace FastSQL.App.UserControls.Indexes
                 switch (_indexType)
                 {
                     case EntityType.Entity:
-                        repo = RepositoryFactory.Create<EntityRepository>(this);
+                        repo = ResolverFactory.Resolve<EntityRepository>();
                         break;
                     case EntityType.Attribute:
-                        repo = RepositoryFactory.Create<AttributeRepository>(this);
+                        repo = ResolverFactory.Resolve<AttributeRepository>();
                         break;
                     default:
                         throw new NotSupportedException($"Index Type {_indexType} is not supported");
@@ -706,10 +706,10 @@ namespace FastSQL.App.UserControls.Indexes
                 switch (_indexType)
                 {
                     case EntityType.Entity:
-                        repo = RepositoryFactory.Create<EntityRepository>(this);
+                        repo = ResolverFactory.Resolve<EntityRepository>();
                         break;
                     case EntityType.Attribute:
-                        repo = RepositoryFactory.Create<AttributeRepository>(this);
+                        repo = ResolverFactory.Resolve<AttributeRepository>();
                         break;
                     default:
                         throw new NotSupportedException($"Index Type {_indexType} is not supported");
@@ -799,10 +799,10 @@ namespace FastSQL.App.UserControls.Indexes
                 switch (_indexType)
                 {
                     case EntityType.Entity:
-                        repo = RepositoryFactory.Create<EntityRepository>(this);
+                        repo = ResolverFactory.Resolve<EntityRepository>();
                         break;
                     case EntityType.Attribute:
-                        repo = RepositoryFactory.Create<AttributeRepository>(this);
+                        repo = ResolverFactory.Resolve<AttributeRepository>();
                         break;
                     default:
                         throw new NotSupportedException($"Index Type {_indexType} is not supported");
@@ -875,8 +875,8 @@ namespace FastSQL.App.UserControls.Indexes
 
         public Task<int> Loaded()
         {
-            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
 
@@ -891,7 +891,7 @@ namespace FastSQL.App.UserControls.Indexes
 
         private void OnIndexesChanged(RefreshIndexesListViewEventArgument args)
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 Entities = new ObservableCollection<EntityModel>(entityRepository.GetAll());
             }
@@ -899,7 +899,7 @@ namespace FastSQL.App.UserControls.Indexes
 
         private void OnConnectionsChanged(RefreshConnectionListEventArgument args)
         {
-            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
             {
                 SourceConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
                 DestinationConnections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
@@ -908,7 +908,7 @@ namespace FastSQL.App.UserControls.Indexes
 
         public void LoadOptions()
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 var options = _indexModel != null
                     ? entityRepository.LoadOptions(_indexModel?.Id.ToString(), _indexModel.EntityType)

@@ -21,7 +21,7 @@ namespace FastSQL.API.Controllers
     [Route("api/[controller]")]
     public class EntitiesController : Controller
     {
-        private readonly RepositoryFactory repositoryFactory;
+        private ResolverFactory ResolverFactory { get; set; }
         private readonly IEnumerable<IProcessor> processors;
         private readonly IEnumerable<IEntityPuller> pullers;
         private readonly IEnumerable<IEntityIndexer> indexers;
@@ -30,7 +30,6 @@ namespace FastSQL.API.Controllers
         private readonly JsonSerializer serializer;
 
         public EntitiesController(
-            RepositoryFactory repositoryFactory,
             IEnumerable<IProcessor> processors,
             IEnumerable<IEntityPuller> pullers,
             IEnumerable<IEntityIndexer> indexers,
@@ -38,7 +37,6 @@ namespace FastSQL.API.Controllers
             DbTransaction transaction,
             JsonSerializer serializer)
         {
-            this.repositoryFactory = repositoryFactory;
             this.processors = processors;
             this.pullers = pullers;
             this.indexers = indexers;
@@ -49,9 +47,9 @@ namespace FastSQL.API.Controllers
 
         private IEnumerable<OptionItem> GetPullerTemplateOptions(EntityModel e)
         {
-            using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-            using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 if (string.IsNullOrWhiteSpace(e.SourceConnectionId.ToString()) || e.SourceConnectionId == Guid.Empty)
                 {
@@ -71,9 +69,9 @@ namespace FastSQL.API.Controllers
 
         private IEnumerable<OptionItem> GetPusherTemplateOptions(EntityModel e)
         {
-            using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-            using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 if (string.IsNullOrWhiteSpace(e.DestinationConnectionId.ToString()) || e.DestinationConnectionId == Guid.Empty)
                 {
@@ -92,9 +90,9 @@ namespace FastSQL.API.Controllers
             IEntityPusher pusher = null;
             ConnectionModel source = null;
             ConnectionModel dest = null;
-            using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-            using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 if (!string.IsNullOrWhiteSpace(model.SourceConnectionId))
                 {
@@ -125,9 +123,9 @@ namespace FastSQL.API.Controllers
             IEntityPusher pusher = null;
             ConnectionModel source = null;
             ConnectionModel dest = null;
-            using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-            using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var entity = entityRepository.GetById(id.ToString());
                 var options = entityRepository.LoadOptions(id.ToString());
@@ -166,9 +164,9 @@ namespace FastSQL.API.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(string id)
         {
-            using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-            using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var entity = entityRepository.GetById(id);
                 var options = entityRepository.LoadOptions(entity.Id.ToString());
@@ -198,9 +196,9 @@ namespace FastSQL.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-            using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var entities = entityRepository.GetAll();
                 var options = entityRepository.LoadOptions(entities.Select(c => c.Id.ToString()));
@@ -235,9 +233,9 @@ namespace FastSQL.API.Controllers
         {
             try
             {
-                using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-                using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-                using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+                using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+                using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+                using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
                 {
                     var result = entityRepository.Create(new
                     {
@@ -270,9 +268,9 @@ namespace FastSQL.API.Controllers
         {
             try
             {
-                using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-                using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-                using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+                using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+                using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+                using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
                 {
                     if (options != null && options.Count() > 0)
                     {
@@ -294,9 +292,9 @@ namespace FastSQL.API.Controllers
         {
             try
             {
-                using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-                using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-                using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+                using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+                using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+                using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
                 {
                     var entity = entityRepository.GetById(id);
                     var state = entity.State;

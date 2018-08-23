@@ -10,19 +10,19 @@ namespace FastSQL.Magento1.Integration.Pushers
 {
     public class SubCategoryPusherOptionManager : BaseOptionManager
     { 
-        public RepositoryFactory RepositoryFactory { get; set; }
+        public ResolverFactory ResolverFactory { get; set; }
         public SubCategoryPusherOptionManager()
         {
         }
 
         public override void Dispose()
         {
-            RepositoryFactory.Release(this);
+            //
         }
 
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 return new List<OptionItem> {
                     new OptionItem

@@ -30,7 +30,7 @@ namespace FastSQL.App.UserControls.Connections
 
         public Task<int> Loaded()
         {
-            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
             {
                 Connections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
                 return Task.FromResult(0);
@@ -70,7 +70,7 @@ namespace FastSQL.App.UserControls.Connections
 
         private void OnRefreshConnections(RefreshConnectionListEventArgument obj)
         {
-            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
             {
                 Connections = new ObservableCollection<ConnectionModel>(connectionRepository.GetAll());
                 var selectedId = obj.SelectedConnectionId;

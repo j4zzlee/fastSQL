@@ -95,7 +95,7 @@ namespace FastSQL.App.UserControls.Reporters
             get => _selectedReporter;
             set
             {
-                using (var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this))
+                using (var reporterRepository = ResolverFactory.Resolve<ReporterRepository>())
                 {
                     _selectedReporter = value;
                     IEnumerable<OptionModel> options = null;
@@ -157,7 +157,7 @@ namespace FastSQL.App.UserControls.Reporters
 
         private void OnChannelsRefresh(RefreshChannelListEventArgument obj)
         {
-            using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
+            using (var messageDeliveryChannelRepository = ResolverFactory.Resolve<MessageDeliveryChannelRepository>())
             {
                 Channels = new ObservableCollection<MessageDeliveryChannelModel>(messageDeliveryChannelRepository.GetAll());
             }
@@ -165,7 +165,7 @@ namespace FastSQL.App.UserControls.Reporters
 
         private void OnSelectReporter(SelectReporterEventArgument obj)
         {
-            using (var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this))
+            using (var reporterRepository = ResolverFactory.Resolve<ReporterRepository>())
             {
                 _reporterModel = reporterRepository.GetById(obj.ReporterId.ToString());
                 Name = _reporterModel.Name;
@@ -193,7 +193,7 @@ namespace FastSQL.App.UserControls.Reporters
                 message = "No item to save";
                 return true;
             }
-            var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this);
+            var reporterRepository = ResolverFactory.Resolve<ReporterRepository>();
 
             try
             {
@@ -232,7 +232,7 @@ namespace FastSQL.App.UserControls.Reporters
 
         private bool New(out string message)
         {
-            var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this);
+            var reporterRepository = ResolverFactory.Resolve<ReporterRepository>();
 
             try
             {
@@ -292,7 +292,7 @@ namespace FastSQL.App.UserControls.Reporters
                 message = "No item to delete";
                 return true;
             }
-            var reporterRepository = RepositoryFactory.Create<ReporterRepository>(this);
+            var reporterRepository = ResolverFactory.Resolve<ReporterRepository>();
 
             try
             {
@@ -350,7 +350,7 @@ namespace FastSQL.App.UserControls.Reporters
 
         public Task<int> Loaded()
         {
-            using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
+            using (var messageDeliveryChannelRepository = ResolverFactory.Resolve<MessageDeliveryChannelRepository>())
             {
                 Channels = new ObservableCollection<MessageDeliveryChannelModel>(messageDeliveryChannelRepository.GetAll());
                 return Task.FromResult(0);

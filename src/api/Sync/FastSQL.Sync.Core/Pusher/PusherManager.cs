@@ -1,6 +1,7 @@
 ﻿using DateTimeExtensions;
 using FastSQL.Core;
 using FastSQL.Sync.Core.Enums;
+using FastSQL.Sync.Core.Factories;
 using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Puller;
@@ -20,31 +21,14 @@ namespace FastSQL.Sync.Core.Pusher
         private List<string> _messages;
         private Action<string> _reporter;
         private IIndexModel _indexerModel;
-        private IIndexer _indexer;
-        private IPusher _pusher;
         private IEventAggregator eventAggregator;
-        private readonly IEnumerable<IEntityPuller> entityPullers;
-        private readonly IEnumerable<IAttributePuller> attributePullers;
         public ResolverFactory ResolverFactory { get; set; }
-        public RepositoryFactory RepositoryFactory { get; set; }
 
         public void SetIndex(IIndexModel model)
         {
             _indexerModel = model;
         }
-
-        public void SetIndexer(IIndexer indexer)
-        {
-            _indexer = indexer;
-            _indexer.OnReport(Report);
-        }
-
-        public void SetPusher(IPusher pusher)
-        {
-            _pusher = pusher;
-            _pusher.OnReport(Report);
-        }
-
+        
         public void OnReport(Action<string> reporter)
         {
             _reporter = reporter;
@@ -61,14 +45,9 @@ namespace FastSQL.Sync.Core.Pusher
             return _messages ?? new List<string>();
         }
 
-        public PusherManager(
-            IEventAggregator eventAggregator,
-            IEnumerable<IEntityPuller> entityPullers,
-            IEnumerable<IAttributePuller> attributePullers)
+        public PusherManager(IEventAggregator eventAggregator)
         {
             this.eventAggregator = eventAggregator;
-            this.entityPullers = entityPullers;
-            this.attributePullers = attributePullers;
             _messages = new List<string>();
         }
 
@@ -77,13 +56,14 @@ namespace FastSQL.Sync.Core.Pusher
             Report($@"
 ---------------------------------------------------------------------------------
 Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)}...");
-            _pusher.SetIndex(_indexerModel);
-            _pusher.SetItem(item);
+            var synchronizerFactory = ResolverFactory.Resolve<SynchronizerFactory>();
+            var pusher = synchronizerFactory.CreatePusher(_indexerModel);
+            pusher.OnReport(m => Report(m));
             var result = await Task.Run(() =>
             {
-                var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
-                var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this);
-                var messageRepository = RepositoryFactory.Create<MessageRepository>(this);
+                var entityRepository = ResolverFactory.Resolve<EntityRepository>();
+                var attributeRepository = ResolverFactory.Resolve<AttributeRepository>();
+                var messageRepository = ResolverFactory.Resolve<MessageRepository>();
 
                 try
                 {
@@ -96,30 +76,30 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
                     {
                         if (item.HasState(ItemState.Removed))
                         {
-                            pushState = _pusher.Remove();
+                            pushState = pusher.Remove();
                         }
                         else
                         {
-                            pushState = _pusher.Update();
+                            pushState = pusher.Update();
                         }
                     }
                     else
                     {
-                        destinationId = _pusher.GetDestinationId();
+                        destinationId = pusher.GetDestinationId();
                         if (!string.IsNullOrWhiteSpace(destinationId))
                         {
                             if (item.HasState(ItemState.Removed))
                             {
-                                pushState = _pusher.Remove(destinationId);
+                                pushState = pusher.Remove(destinationId);
                             }
                             else
                             {
-                                pushState = _pusher.Update(destinationId);
+                                pushState = pusher.Update(destinationId);
                             }
                         }
                         else // still cannot find a destinationId, which means the entity/attribute does not exists
                         {
-                            pushState = _pusher.Create(out destinationId);
+                            pushState = pusher.Create(out destinationId);
                         }
                     }
 
@@ -154,6 +134,7 @@ Begin synchronizing item {JsonConvert.SerializeObject(item, Formatting.Indented)
                     entityRepository?.Dispose();
                     attributeRepository?.Dispose();
                     messageRepository?.Dispose();
+                    pusher?.Dispose();
                     Report($@"
 Ended synchronizing...
 ---------------------------------------------------------------------------------
@@ -177,8 +158,8 @@ Ended synchronizing...
 
         private void UpdateDependencies(IndexItemModel item, string destinationId)
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 if (_indexerModel.EntityType == EntityType.Entity)
                 {
@@ -226,7 +207,8 @@ Ended synchronizing...
 
         public virtual void Dispose()
         {
-            RepositoryFactory.Release(this);
+            _messages?.RemoveAll(r => true);
+            _messages = null;
         }
     }
 }

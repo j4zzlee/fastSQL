@@ -89,7 +89,7 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
             get => _selectedChannel;
             set
             {
-                using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
+                using (var messageDeliveryChannelRepository = ResolverFactory.Resolve<MessageDeliveryChannelRepository>())
                 {
                     _selectedChannel = value;
                     IEnumerable<OptionModel> options = null;
@@ -120,7 +120,7 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
 
         private void OnSelectChannel(SelectChannelEventArgument obj)
         {
-            using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
+            using (var messageDeliveryChannelRepository = ResolverFactory.Resolve<MessageDeliveryChannelRepository>())
             {
                 _channelModel = messageDeliveryChannelRepository.GetById(obj.ChannelId.ToString());
                 Name = _channelModel.Name;
@@ -155,7 +155,7 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
                 message = "No item to save";
                 return true;
             }
-            var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this);
+            var messageDeliveryChannelRepository = ResolverFactory.Resolve<MessageDeliveryChannelRepository>();
             try
             {
                 messageDeliveryChannelRepository.BeginTransaction();
@@ -191,7 +191,7 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
 
         private bool New(out string message)
         {
-            var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this);
+            var messageDeliveryChannelRepository = ResolverFactory.Resolve<MessageDeliveryChannelRepository>();
             try
             {
                 messageDeliveryChannelRepository.BeginTransaction();
@@ -233,7 +233,7 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
                 message = "No item to delete";
                 return true;
             }
-            var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this);
+            var messageDeliveryChannelRepository = ResolverFactory.Resolve<MessageDeliveryChannelRepository>();
                 try
             {
                 messageDeliveryChannelRepository.BeginTransaction();

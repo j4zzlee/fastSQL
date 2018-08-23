@@ -21,7 +21,7 @@ namespace FastSQL.Sync.Core
     {
         protected readonly IOptionManager OptionManager;
         public DbConnection Connection { get; set; }
-        public RepositoryFactory RepositoryFactory { get; set; }
+        public ResolverFactory ResolverFactory { get; set; }
         protected Action<string> Reporter;
         protected DbTransaction Transaction;
         protected ConnectionModel ConnectionModel;
@@ -101,43 +101,46 @@ namespace FastSQL.Sync.Core
             var keyColumns = columnMappings.Where(c => c.Key && !c.Primary);
             var valueColumns = columnMappings.Where(c => !c.Key && !c.Primary);
             var columnsNotId = columnMappings.Where(c => !c.Primary);
-            
+            var unq = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), @"[+=/_-]", "", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            var tmpTable = $@"{indexer.NewValueTableName}_tmp_{unq}";
             try
             {
+                
                 // create temporary table
                 var createTableSQL = $@"
 IF NOT EXISTS (
     SELECT * FROM sys.tables
-    WHERE name = N'{indexer.NewValueTableName}_tmp' AND type = 'U'
+    WHERE name = N'{tmpTable}' AND type = 'U'
 )
 BEGIN
-    CREATE TABLE {indexer.NewValueTableName}_tmp (
+    CREATE TABLE {tmpTable} (
 	    [{idColumn.SourceName}] {idColumn.DataType} NOT NULL,
         {string.Join(",\n\t", columnsNotId.Select(p => $"[{p.SourceName}] {p.DataType}"))}
     );
-    TRUNCATE TABLE {indexer.NewValueTableName}_tmp
+    TRUNCATE TABLE {tmpTable}
 END;
 ";
                 Connection.Execute(createTableSQL, transaction: Transaction);
                 // Persist the data
-                Insert(idColumn, keyColumns, valueColumns, columnsNotId, data);
+                Insert(idColumn, keyColumns, valueColumns, columnsNotId, data, tmpTable);
 
                 // Check items that are created
-                CheckNewItems(idColumn, keyColumns, valueColumns, columnsNotId);
+                CheckNewItems(idColumn, keyColumns, valueColumns, columnsNotId, tmpTable);
 
                 // Check items that are updated
-                CheckChangedItems(idColumn, keyColumns, valueColumns, columnsNotId);
+                CheckChangedItems(idColumn, keyColumns, valueColumns, columnsNotId, tmpTable);
             }
             finally
             {
                 repo?.Dispose();
+                // release the table
                 var dropTableSql = $@"
 IF EXISTS (
     SELECT * FROM sys.tables
-    WHERE name = N'{indexer.NewValueTableName}_tmp' AND type = 'U'
+    WHERE name = N'{tmpTable}' AND type = 'U'
 )
 BEGIN
-    DROP TABLE {indexer.NewValueTableName}_tmp
+    DROP TABLE {tmpTable}
 END;
 ";
                 Connection.Execute(dropTableSql, transaction: Transaction);
@@ -153,7 +156,8 @@ END;
             IEnumerable<IndexColumnMapping> primaryColumns,
             IEnumerable<IndexColumnMapping> valueColumns,
             IEnumerable<IndexColumnMapping> columnsNotId,
-            IEnumerable<object> data)
+            IEnumerable<object> data,
+            string tmpTable)
         {
             var schemaSQL = string.Join(", ", columnsNotId.Select(c => $"[{c.MappingName}]"));
             var paramsSQL = string.Join(", ", columnsNotId.Select(c => $"@{c.MappingName}"));
@@ -163,7 +167,7 @@ END;
             using (var bcp = new SqlBulkCopy(Connection as SqlConnection, SqlBulkCopyOptions.TableLock, Transaction as SqlTransaction))
             using (var tbl = data.ToDataTable())
             {
-                bcp.DestinationTableName = $"{indexer.NewValueTableName}_tmp";
+                bcp.DestinationTableName = tmpTable;
                 bcp.WriteToServer(tbl);
                 
                 var mergeCondition = primaryColumns == null || primaryColumns.Count() <= 0
@@ -176,7 +180,7 @@ END;
 MERGE INTO [{indexer.NewValueTableName}] as t
 USING (
     SELECT {string.Join(",\n", sourceColumns)}
-    FROM {indexer.NewValueTableName}_tmp
+    FROM {tmpTable}
 )
 AS s({string.Join(",\n", mapColumns)})
 ON {mergeCondition}
@@ -186,7 +190,6 @@ WHEN NOT MATCHED THEN
 ";
                 var affectedRows = Connection.Execute(sql, transaction: Transaction);
                 Report($"Inserted {affectedRows} to {indexer.NewValueTableName}");
-
             }
 
         }
@@ -199,7 +202,8 @@ WHEN NOT MATCHED THEN
         protected virtual void CheckNewItems(IndexColumnMapping idColumn,
             IEnumerable<IndexColumnMapping> primaryColumns,
             IEnumerable<IndexColumnMapping> valueColumns,
-            IEnumerable<IndexColumnMapping> columnsNotId)
+            IEnumerable<IndexColumnMapping> columnsNotId,
+            string tmpTable)
         {
             var indexer = GetIndexModel();
             var comparePrimarySQL = $@"o.[Id] = n.[{idColumn.SourceName}]";
@@ -223,7 +227,7 @@ WHEN NOT MATCHED THEN
 MERGE INTO [{indexer.ValueTableName}] as t
 USING (
     SELECT {string.Join(", ", sourceColumns)}
-    FROM {indexer.NewValueTableName}_tmp n
+    FROM {tmpTable} n
     LEFT JOIN [{indexer.OldValueTableName}] AS o ON {comparePrimarySQL}
     WHERE o.[Id] IS NULL
 )
@@ -265,7 +269,8 @@ WHEN MATCHED AND ([State] & {(int)ItemState.Removed}) > 0 THEN
         protected virtual void CheckChangedItems(IndexColumnMapping idColumn,
             IEnumerable<IndexColumnMapping> primaryColumns,
             IEnumerable<IndexColumnMapping> valueColumns,
-            IEnumerable<IndexColumnMapping> columnsNotId)
+            IEnumerable<IndexColumnMapping> columnsNotId,
+            string tmpTable)
         {
             if (valueColumns == null || valueColumns.Count() <= 0)
             {
@@ -293,7 +298,7 @@ WHEN MATCHED AND ([State] & {(int)ItemState.Removed}) > 0 THEN
 MERGE INTO [{indexer.ValueTableName}] as t
 USING (
     SELECT {string.Join(", ", sourceColumns)}
-    FROM {indexer.NewValueTableName}_tmp n
+    FROM {tmpTable} n
     LEFT JOIN [{indexer.OldValueTableName}] AS o ON {comparePrimarySQL}
     LEFT JOIN [{indexer.ValueTableName}] AS v ON v.SourceId = o.Id
     WHERE o.[Id] IS NOT NULL AND (
@@ -400,14 +405,12 @@ WHERE [SourceId] IN @SourceIds";
 
             // Copy New Values to Old Values
             Connection.Execute($@"TRUNCATE TABLE [{indexer.OldValueTableName}];", transaction: Transaction); // truncate the old table first
-            // TODO: Performance
-            var t = Connection.ExecuteAsync($@"
+            Connection.Execute($@"
 INSERT INTO [{indexer.OldValueTableName}]
 SELECT * FROM [{indexer.NewValueTableName}]
 ",
 transaction: Transaction,
-commandTimeout: 86400); // old & new value table has exactly the same structure - shoot the moon
-            t.Wait();
+commandTimeout: 86400);
             return this;
         }
 
@@ -448,7 +451,7 @@ commandTimeout: 86400); // old & new value table has exactly the same structure 
 
         protected virtual IIndexer SpreadOptions()
         {
-            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
             {
                 ConnectionModel = connectionRepository.GetById(GetIndexModel().SourceConnectionId.ToString());
                 var connectionOptions = connectionRepository.LoadOptions(ConnectionModel.Id.ToString());
@@ -460,7 +463,13 @@ commandTimeout: 86400); // old & new value table has exactly the same structure 
 
         public virtual void Dispose()
         {
-            RepositoryFactory.Release(this);
+            Transaction?.Dispose();
+            Connection?.Close();
+            Connection?.Dispose();
+            Connection = null;
+            Transaction = null;
+            Adapter?.Dispose();
+            Provider?.Dispose();
         }
     }
 }

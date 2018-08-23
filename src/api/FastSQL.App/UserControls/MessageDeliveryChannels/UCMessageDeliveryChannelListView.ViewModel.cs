@@ -59,7 +59,7 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
 
         private void OnRefreshConnections(RefreshChannelListEventArgument obj)
         {
-            using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
+            using (var messageDeliveryChannelRepository = ResolverFactory.Resolve<MessageDeliveryChannelRepository>())
             {
                 Channels = new ObservableCollection<MessageDeliveryChannelModel>(messageDeliveryChannelRepository.GetAll());
                 var selectedId = obj.SelectedChannelId;
@@ -80,7 +80,7 @@ namespace FastSQL.App.UserControls.MessageDeliveryChannels
 
         public Task<int> Loaded()
         {
-            using (var messageDeliveryChannelRepository = RepositoryFactory.Create<MessageDeliveryChannelRepository>(this))
+            using (var messageDeliveryChannelRepository = ResolverFactory.Resolve<MessageDeliveryChannelRepository>())
             {
                 Channels = new ObservableCollection<MessageDeliveryChannelModel>(messageDeliveryChannelRepository.GetAll());
                 return Task.FromResult(0);

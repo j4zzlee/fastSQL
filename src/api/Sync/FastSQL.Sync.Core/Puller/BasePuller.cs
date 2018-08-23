@@ -15,7 +15,7 @@ namespace FastSQL.Sync.Core.Puller
         protected ConnectionModel ConnectionModel;
 
         public IRichAdapter Adapter { get; }
-        public RepositoryFactory RepositoryFactory { get; set; }
+        public ResolverFactory ResolverFactory { get; set; }
 
         public BasePuller(IOptionManager optionManager, IRichAdapter adapter)
         {
@@ -59,7 +59,7 @@ namespace FastSQL.Sync.Core.Puller
 
         protected virtual IPuller SpreadOptions()
         {
-            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
             {
                 ConnectionModel = connectionRepository.GetById(GetIndexModel().SourceConnectionId.ToString());
                 var connectionOptions = connectionRepository.LoadOptions(ConnectionModel.Id.ToString());
@@ -71,7 +71,7 @@ namespace FastSQL.Sync.Core.Puller
 
         public virtual void Dispose()
         {
-            RepositoryFactory.Release(this);
+            Adapter?.Dispose();
         }
     }
 
@@ -125,7 +125,7 @@ namespace FastSQL.Sync.Core.Puller
 
         public override IPuller SetIndex(IIndexModel model)
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 AttributeModel = model as AttributeModel;
                 EntityModel = entityRepository.GetById(AttributeModel.EntityId.ToString());

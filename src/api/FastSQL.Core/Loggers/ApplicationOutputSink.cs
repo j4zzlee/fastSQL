@@ -30,7 +30,7 @@ namespace FastSQL.Core.Loggers
         public void Emit(LogEvent logEvent)
         {
             var message = logEvent.RenderMessage(_formatProvider);
-            eventAggregator.GetEvent<ApplicationOutputEvent>().Publish(new ApplicationOutputEventArgument
+            eventAggregator.GetEvent<ApplicationOutputEvent>()?.Publish(new ApplicationOutputEventArgument
             {
                 //Owner = _owner,
                 Channel = _channel,

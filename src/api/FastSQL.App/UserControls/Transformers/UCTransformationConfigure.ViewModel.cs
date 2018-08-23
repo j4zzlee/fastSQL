@@ -132,7 +132,7 @@ namespace FastSQL.App.UserControls.Transformers
             
             _entityId = entity.Id;
             _entityType = entity.EntityType;
-            using (var transformerRepository = RepositoryFactory.Create<TransformerRepository>(this))
+            using (var transformerRepository = ResolverFactory.Resolve<TransformerRepository>())
             {
                 var transformations = transformerRepository.GetTransformations(_entityId, _entityType);
                 Transformations = new ObservableCollection<TransformationItemViewModel>(

@@ -18,25 +18,23 @@ namespace FastSQL.API.Controllers
         private readonly IEnumerable<IEntityPuller> _entityPullers;
         private readonly IEnumerable<IAttributePuller> _attributePullers;
         private readonly IEnumerable<IIndexer> _indexers;
-        private readonly RepositoryFactory repositoryFactory;
+        public ResolverFactory ResolverFactory { get; set; }
 
         public PullersController(IEnumerable<IEntityPuller> entityPullers,
             IEnumerable<IAttributePuller> attributePullers,
-            IEnumerable<IIndexer> indexers,
-            RepositoryFactory repositoryFactory)
+            IEnumerable<IIndexer> indexers)
         {
             _entityPullers = entityPullers;
             _attributePullers = attributePullers;
             _indexers = indexers;
-            this.repositoryFactory = repositoryFactory;
         }
         
         [HttpPost("entity/{id}")]
         public IActionResult PullEntityData(string id, [FromBody] object nextToken = null)
         {
-            using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-            using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var entity = entityRepository.GetById(id);
                 var sourceConnection = connectionRepository.GetById(entity.SourceConnectionId.ToString());
@@ -50,9 +48,9 @@ namespace FastSQL.API.Controllers
         [HttpPost("attribute/{id}")]
         public IActionResult PullAttributeData(string id, [FromBody] object nextToken = null)
         {
-            using (var connectionRepository = repositoryFactory.Create<ConnectionRepository>(this))
-            using (var entityRepository = repositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = repositoryFactory.Create<AttributeRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var attribute = attributeRepository.GetById(id);
                 var entity = entityRepository.GetById(attribute.EntityId.ToString());

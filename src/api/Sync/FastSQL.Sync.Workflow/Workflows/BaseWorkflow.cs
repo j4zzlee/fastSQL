@@ -4,6 +4,7 @@ using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Core.Workflows;
+using Serilog;
 using System;
 using WorkflowCore.Interface;
 
@@ -14,7 +15,7 @@ namespace FastSQL.Sync.Workflow.Workflows
         public override bool IsGeneric => false;
     }
 
-    public abstract class BaseWorkflow<T> : IWorkflow<T>, IGenericWorkflow, IDisposable
+    public abstract class BaseWorkflow<T> : IWorkflow<T>, IGenericWorkflow
         where T : class, new()
     {
         public abstract string Id { get; }
@@ -24,12 +25,6 @@ namespace FastSQL.Sync.Workflow.Workflows
 
         public abstract void Build(IWorkflowBuilder<T> builder);
 
-        public ResolverFactory ResolverFactory { get; set; } 
-        public RepositoryFactory RepositoryFactory { get; set; }
-
-        public virtual void Dispose()
-        {
-            RepositoryFactory.Release(this);
-        }
+        public ResolverFactory ResolverFactory { get; set; }
     }
 }

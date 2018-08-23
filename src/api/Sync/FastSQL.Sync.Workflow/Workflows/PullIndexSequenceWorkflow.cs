@@ -19,11 +19,6 @@ namespace FastSQL.Sync.Workflow.Workflows
     [Description("Pull Indexes in Sequence Mode")]
     public class PullIndexSequenceWorkflow : BaseWorkflow<GeneralMessage>
     {
-        private ILogger _logger;
-        protected ILogger Logger => _logger ?? (_logger = ResolverFactory.Resolve<ILogger>("SyncService"));
-        private ILogger _errorLogger;
-        protected ILogger ErrorLogger => _logger ?? (_errorLogger = ResolverFactory.Resolve<ILogger>("Error"));
-
         public override string Id => nameof(PullIndexSequenceWorkflow);
 
         public override int Version => 1;
@@ -33,7 +28,7 @@ namespace FastSQL.Sync.Workflow.Workflows
         public PullIndexSequenceWorkflow()
         {
         }
-
+        
         public override void Build(IWorkflowBuilder<GeneralMessage> builder)
         {
             builder.StartWith(x => { })
@@ -45,7 +40,7 @@ namespace FastSQL.Sync.Workflow.Workflows
                     .Output(d => d.Indexes, d => d.Indexes)
                     .Output(d => d.Counter, d => 0)
                     .If(s => s.Indexes == null || s.Indexes.Count() <= 0)
-                    .Do(i => i.StartWith<Delay>(d => TimeSpan.FromMinutes(10)))
+                    .Do(i => i.StartWith<Delay>(d => TimeSpan.FromMinutes(1)))
                     .If(s => s.Indexes != null && s.Indexes.Count() > 0)
                     .Do(i =>
                     {
@@ -54,9 +49,12 @@ namespace FastSQL.Sync.Workflow.Workflows
                             .While(w => w.Counter < w.Indexes.Count())
                             .Do(dd => dd.StartWith<UpdateIndexChangesStep>()
                                 .Input(u => u.IndexModel, g => g.Indexes.ElementAt(g.Counter))
+                                .Input(u => u.Counter, w => w.Counter)
                                 .Output(s => s.Counter, u => u.Counter))
                             .Then<Delay>(d => TimeSpan.FromSeconds(2));
-                    });
+                    })
+                    .Then<Delay>(d => TimeSpan.FromSeconds(2));
+                   ;
                });
         }
     }

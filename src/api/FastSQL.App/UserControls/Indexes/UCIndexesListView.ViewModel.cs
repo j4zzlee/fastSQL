@@ -88,8 +88,8 @@ namespace FastSQL.App.UserControls.Indexes
 
         private void LoadIndexModels()
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 if (_indexType == EntityType.Entity)
                 {

@@ -7,6 +7,7 @@ using FastSQL.Core;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using FastSQL.Sync.Core.Workflows;
+using Serilog;
 using WorkflowCore.Interface;
 
 namespace FastSQL.Sync.Workflow.Steps
@@ -16,7 +17,8 @@ namespace FastSQL.Sync.Workflow.Steps
         private readonly WorkingSchedules workingSchedules;
 
         public string WorkflowId { get; set; }
-        public IEnumerable<IIndexModel> Indexes { get; set; }
+        public List<IIndexModel> Indexes { get; set; }
+
         public FilterRunningEntitiesStep(WorkingSchedules workingSchedules) : base()
         {
             this.workingSchedules = workingSchedules;
@@ -24,30 +26,31 @@ namespace FastSQL.Sync.Workflow.Steps
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
-            var scheduleOptionRepository = RepositoryFactory.Create<ScheduleOptionRepository>(this);
-            var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
-            var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this);
+            var scheduleOptionRepository = ResolverFactory.Resolve<ScheduleOptionRepository>();
+            var entityRepository = ResolverFactory.Resolve<EntityRepository>();
+            var attributeRepository = ResolverFactory.Resolve<AttributeRepository>();
+            var logger = ResolverFactory.Resolve<ILogger>("SyncService");
+            var errorLogger = ResolverFactory.Resolve<ILogger>("Error");
             try
             {
-                await Task.Run(() =>
+                
+                Indexes = await Task.Run(() =>
                 {
                     var scheduleOptions = workingSchedules.GetWorkingSchedules() ?? scheduleOptionRepository
-                    .GetByWorkflow(WorkflowId)
-                    .Where(o => !o.IsParallel && o.Enabled);
+                        .GetByWorkflow(WorkflowId)
+                        .Where(o => !o.IsParallel && o.Enabled);
                     var entities = entityRepository
                         .GetAll()
                         .Where(e => e.Enabled && scheduleOptions.Any(o => o.TargetEntityId == e.Id && o.TargetEntityType == e.EntityType));
                     var attributes = attributeRepository
                         .GetAll()
                         .Where(e => e.Enabled && scheduleOptions.Any(o => o.TargetEntityId == e.Id && o.TargetEntityType == e.EntityType));
-                    Indexes = entities
-                        .Select(e => e as IIndexModel)
-                        .Union(attributes.Select(a => a as IIndexModel));
+                    return entities.Union(attributes.Select(a => a as IIndexModel)).ToList();
                 });
             }
             catch (Exception ex)
             {
-                ErrorLogger.Error(ex, ex.Message);
+                errorLogger.Error(ex, ex.Message);
                 throw;
             }
             finally
@@ -55,6 +58,10 @@ namespace FastSQL.Sync.Workflow.Steps
                 entityRepository?.Dispose();
                 attributeRepository?.Dispose();
                 scheduleOptionRepository?.Dispose();
+                ResolverFactory.Release(logger);
+                ResolverFactory.Release(errorLogger);
+                logger = null;
+                errorLogger = null;
             }
         }
     }

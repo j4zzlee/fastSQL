@@ -1,4 +1,5 @@
-﻿using FastSQL.Sync.Core.Enums;
+﻿using FastSQL.Core;
+using FastSQL.Sync.Core.Enums;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Repositories;
 using System;
@@ -14,7 +15,7 @@ namespace FastSQL.Sync.Core.Queuers
     {
         private IIndexModel _indexerModel;
         private Action<string> _reporter;
-        public RepositoryFactory RepositoryFactory { get; set; }
+        public ResolverFactory ResolverFactory { get; set; }
 
         public void SetIndex(IIndexModel model)
         {
@@ -40,8 +41,8 @@ namespace FastSQL.Sync.Core.Queuers
         {
             await Task.Run(() =>
             {
-                using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-                using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+                using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+                using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
                 {
                     var limit = 100;
                     var offset = 0;
@@ -161,7 +162,7 @@ namespace FastSQL.Sync.Core.Queuers
 
         public virtual void Dispose()
         {
-            RepositoryFactory.Release(this);
+            
         }
     }
 }

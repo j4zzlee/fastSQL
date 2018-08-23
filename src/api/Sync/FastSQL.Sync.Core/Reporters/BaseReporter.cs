@@ -13,7 +13,6 @@ namespace FastSQL.Sync.Core.Reporters
     {
         protected readonly IOptionManager OptionManager;
         public ResolverFactory ResolverFactory { get; set; }
-        public RepositoryFactory RepositoryFactory { get; set; }
         private ILogger _logger;
         protected ILogger Logger => _logger ?? (_logger = ResolverFactory.Resolve<ILogger>("SyncService"));
         private ILogger _errorLogger;
@@ -63,6 +62,7 @@ namespace FastSQL.Sync.Core.Reporters
         public virtual void Dispose()
         {
             ResolverFactory.Release(Logger);
+            ResolverFactory.Release(ErrorLogger);
         }
     }
 }

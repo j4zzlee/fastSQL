@@ -13,6 +13,7 @@ using FastSQL.Core.Loggers;
 using FastSQL.Core.Middlewares;
 using FastSQL.Core.UI.Interfaces;
 using FastSQL.Sync.Core;
+using FastSQL.Sync.Core.Factories;
 using FastSQL.Sync.Core.Indexer;
 using FastSQL.Sync.Core.IndexExporters;
 using FastSQL.Sync.Core.Mapper;
@@ -62,7 +63,9 @@ namespace FastSQL.App
             container.Register(Component.For(typeof(DbConnection), typeof(IDbConnection)).UsingFactoryMethod((p) => {
                 var conf = p.Resolve<IConfiguration>();
                 var connectionString = conf.GetConnectionString("__MigrationDatabase");
-                var conn = new SqlConnection(connectionString);
+                var builder = new SqlConnectionStringBuilder(connectionString);
+                builder.MaxPoolSize = 200;
+                var conn = new SqlConnection(builder.ConnectionString);
                 conn.Open();
                 return conn;
             }).LifestyleTransient());
@@ -71,7 +74,7 @@ namespace FastSQL.App
             //    return conn.BeginTransaction();
             //}).LifestyleCustom<ScopedLifestyleManager>());
             container.Register(Component.For<ResolverFactory>().ImplementedBy<ResolverFactory>().LifestyleSingleton());
-            container.Register(Component.For<RepositoryFactory>().ImplementedBy<RepositoryFactory>().LifestyleSingleton());
+            container.Register(Component.For<SynchronizerFactory>().ImplementedBy<SynchronizerFactory>().LifestyleTransient());
             container.Register(assemblyDescriptor
                 .BasedOn<IRichProvider>()
                 .WithService.Select(new Type[] { typeof(IRichProvider) })
@@ -272,12 +275,12 @@ namespace FastSQL.App
             container.Register(Component.For<WorkingSchedules>().ImplementedBy<WorkingSchedules>().LifeStyle.Singleton);
             var services = new WindsorServiceCollection(container);
             services.AddLogging(c => c.AddSerilog(dispose: true));
-            services.AddWorkflow(/* o =>
+            services.AddWorkflow(o =>
             {
                 var conf = container.Resolve<IConfiguration>();
                 var connectionString = conf.GetConnectionString("__MigrationDatabase");
-                o.UseSqlServer(connectionString, false, true);
-            }*/);
+                o.UseSqlServer(connectionString, true, true);
+            });
         }
     }
 }

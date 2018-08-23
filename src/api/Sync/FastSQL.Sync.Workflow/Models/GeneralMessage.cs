@@ -7,7 +7,7 @@ namespace FastSQL.Sync.Workflow.Models
 {
     public class GeneralMessage
     {
-        public IEnumerable<IIndexModel> Indexes { get; set; }
+        public List<IIndexModel> Indexes { get; set; }
         public int Counter { get; set; }
     }
 }

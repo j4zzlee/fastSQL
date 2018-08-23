@@ -41,7 +41,7 @@ namespace FastSQL.Sync.Core.Indexer
         
         protected override BaseRepository GetRepository()
         {
-            return RepositoryFactory.Create<EntityRepository>(this);
+            return ResolverFactory.Resolve<EntityRepository>();
         }
     }
 }

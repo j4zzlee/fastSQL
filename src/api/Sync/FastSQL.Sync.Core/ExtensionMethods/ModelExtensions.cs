@@ -63,9 +63,6 @@ namespace FastSQL.Sync.Core.ExtensionMethods
                 }
             }
             
-
-            
-
             return tb;
         }
 

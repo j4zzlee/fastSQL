@@ -96,7 +96,7 @@ SELECT * FROM
 
         public override PullResult PullNext(object lastToken = null)
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 var options = entityRepository.LoadOptions(EntityModel.Id.ToString());
                 var totalCount = GetCount(options, true);
@@ -151,7 +151,7 @@ SELECT * FROM
 
         public override IPuller Init()
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 var options = entityRepository.LoadOptions(EntityModel.Id.ToString());
                 var sqlScript = options.GetValue("puller_sql_script");
@@ -177,7 +177,7 @@ AS
 
         public override PullResult Preview()
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 var options = entityRepository.LoadOptions(EntityModel.Id.ToString());
                 int limit = options.GetValue("puller_page_limit", 100);

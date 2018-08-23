@@ -21,7 +21,7 @@ namespace FastSQL.Sync.Core.Reporters
         {
             await Task.Run(() =>
             {
-                using (var messageRepository = RepositoryFactory.Create<MessageRepository>(this))
+                using (var messageRepository = ResolverFactory.Resolve<MessageRepository>())
                 {
                     var limit = 500;
                     var offset = 0;

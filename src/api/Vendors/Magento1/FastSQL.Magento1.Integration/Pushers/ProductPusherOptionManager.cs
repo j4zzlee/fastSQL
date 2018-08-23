@@ -9,16 +9,16 @@ namespace FastSQL.Magento1.Integration.Pushers
 {
     public class ProductPusherOptionManager : BaseOptionManager
     {
-        public RepositoryFactory RepositoryFactory { get; set; }
+        public ResolverFactory ResolverFactory { get; set; }
 
         public ProductPusherOptionManager()
         {
         }
         public override IEnumerable<OptionItem> GetOptionsTemplate()
         {
-            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var entities = entityRepository.GetAll();
                 return new List<OptionItem> {
@@ -42,7 +42,7 @@ namespace FastSQL.Magento1.Integration.Pushers
 
         public override void Dispose()
         {
-            RepositoryFactory.Release(this);
+            //
         }
     }
 }

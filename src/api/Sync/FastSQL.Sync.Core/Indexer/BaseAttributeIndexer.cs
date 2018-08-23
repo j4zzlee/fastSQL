@@ -28,7 +28,7 @@ namespace FastSQL.Sync.Core.Indexer
 
         public override IIndexer SetIndex(IIndexModel model)
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 AttributeModel = model as AttributeModel;
                 EntityModel = entityRepository.GetById(AttributeModel.EntityId.ToString());
@@ -44,7 +44,7 @@ namespace FastSQL.Sync.Core.Indexer
 
         protected override BaseRepository GetRepository()
         {
-            return RepositoryFactory.Create<AttributeRepository>(this);
+            return ResolverFactory.Resolve<AttributeRepository>();
         }
 
         public bool IsImplemented(string attributeProcessorId, string entityProcessorId, string providerId)

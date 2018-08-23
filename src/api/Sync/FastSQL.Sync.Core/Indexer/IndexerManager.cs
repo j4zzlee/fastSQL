@@ -1,4 +1,6 @@
 ﻿using FastSQL.Core;
+using FastSQL.Sync.Core.Enums;
+using FastSQL.Sync.Core.Factories;
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Puller;
 using FastSQL.Sync.Core.Repositories;
@@ -13,30 +15,20 @@ namespace FastSQL.Sync.Core.Indexer
 {
     public class IndexerManager: IDisposable
     {
-        private IPuller _puller;
-        private IIndexer _indexer;
-        private IIndexModel _indexerModel;
+        private IIndexModel indexerModel;
         private readonly IEventAggregator eventAggregator;
-        private List<string> _messages;
         private Action<string> _reporter;
-        public RepositoryFactory RepositoryFactory { get; set; }
+        public ResolverFactory ResolverFactory { get; set; }
+
+        public IndexerManager()
+        {
+        }
 
         public void SetIndex(IIndexModel model)
         {
-            _indexerModel = model;
+            indexerModel = model;
         }
-
-        public void SetPuller(IPuller puller)
-        {
-            _puller = puller;
-            _puller.OnReport(Report);
-        }
-        public void SetIndexer(IIndexer indexer)
-        {
-            _indexer = indexer;
-            _indexer.OnReport(Report);
-        }
-
+        
         public void OnReport(Action<string> reporter)
         {
             _reporter = reporter;
@@ -44,31 +36,23 @@ namespace FastSQL.Sync.Core.Indexer
 
         private void Report(string message)
         {
-            _messages.Add(message);
             _reporter?.Invoke(message);
         }
-
-        public IEnumerable<string> GetReportMessages()
-        {
-            return _messages ?? new List<string>();
-        }
-
+        
         public IndexerManager(IEventAggregator eventAggregator)
         {
             this.eventAggregator = eventAggregator;
-            _messages = new List<string>();
         }
 
         public async Task PullAll(bool cleanAll)
         {
-            _messages = new List<string>();
             await Task.Run(() =>
             {
-                using (var indexTokenRepository = RepositoryFactory.Create<IndexTokenRepository>(this))
+                using (var indexTokenRepository = ResolverFactory.Resolve<IndexTokenRepository>())
                 {
                     Report($@"Pulling data...");
                     // PullAll means pull from the beginning, no need to look for last token at the beginning
-                    indexTokenRepository.CleanUp(_indexerModel.Id.ToString(), _indexerModel.EntityType);
+                    indexTokenRepository.CleanUp(indexerModel.Id.ToString(), indexerModel.EntityType);
                     while (true)
                     {
                         var isValid = PullByLastToken(cleanAll);
@@ -84,9 +68,7 @@ namespace FastSQL.Sync.Core.Indexer
 
         public async Task PullNext()
         {
-            _messages = new List<string>();
-            await Task.Run(() =>
-            {
+            await Task.Run(() => {
                 Report($@"Pulling data...");
                 PullByLastToken(false);
                 Report("Done.");
@@ -95,57 +77,71 @@ namespace FastSQL.Sync.Core.Indexer
 
         private bool PullByLastToken(bool cleanAll)
         {
-            //_indexer.BeginTransaction();
-            //indexTokenRepository.BeginTransaction();
-            var indexTokenRepository = RepositoryFactory.Create<IndexTokenRepository>(this);
-
+            var indexTokenRepository = ResolverFactory.Resolve<IndexTokenRepository>();
+            var synchronizerFactory = ResolverFactory.Resolve<SynchronizerFactory>();
+            var puller = synchronizerFactory.CreatePuller(indexerModel);
+            puller.OnReport(m => Report(m));
+            var indexer = synchronizerFactory.CreateIndexer(indexerModel);
+            indexer.OnReport(m => Report(m));
             try
             {
-                var pullToken = indexTokenRepository.GetLastPullToken(_indexerModel.Id.ToString(), _indexerModel.EntityType);
+                var pullToken = indexTokenRepository.GetLastPullToken(indexerModel.Id.ToString(), indexerModel.EntityType);
                 var pullResult = pullToken?.PullResult;
                 if (pullResult == null)
                 {
-                    _indexer.StartIndexing(cleanAll);
+                    indexer.StartIndexing(cleanAll);
                 }
                 var lastTokenMessage = pullResult?.LastToken == null || !pullResult.IsValid()
                     ? "Begin"
                     : JsonConvert.SerializeObject(pullResult?.LastToken);
-                pullResult = _puller.PullNext(pullResult?.LastToken);
+                pullResult = puller.PullNext(pullResult?.LastToken);
 
                 var nextTokenMessage = pullResult?.LastToken == null || !pullResult.IsValid() ? "Begin" : JsonConvert.SerializeObject(pullResult?.LastToken);
                 Report($@"Pulled {pullResult?.Data?.Count() ?? 0} rows from LastToken: {lastTokenMessage}, got NextToken: {nextTokenMessage}");
 
-                _indexer.Persist(pullResult?.Data);
-                indexTokenRepository.UpdateLastToken(_indexerModel.Id.ToString(), _indexerModel.EntityType, pullResult);
+                indexer.Persist(pullResult?.Data);
+                indexTokenRepository.UpdateLastToken(indexerModel.Id.ToString(), indexerModel.EntityType, pullResult);
 
                 var isValid = pullResult.IsValid();
                 if (!isValid)
                 {
                     Report("Reached last page...");
-                    _indexer.EndIndexing();
-                    indexTokenRepository.CleanUp(_indexerModel.Id.ToString(), _indexerModel.EntityType);
+                    indexer.EndIndexing();
+                    indexTokenRepository.CleanUp(indexerModel.Id.ToString(), indexerModel.EntityType);
                 }
 
-                //_indexer.Commit();
-                //indexTokenRepository.Commit();
-
                 return isValid;
-            }
-            catch
-            {
-                //_indexer.RollBack();
-                //indexTokenRepository.RollBack();
-                throw; // never let the while loop runs forever
             }
             finally
             {
                 indexTokenRepository?.Dispose();
+                synchronizerFactory?.Dispose();
+                puller?.Dispose();
+                indexer?.Dispose();
+                indexer = null;
+                puller = null;
+                synchronizerFactory = null;
+                indexTokenRepository = null;
+                GC.Collect();
             }
+        }
+
+        public async Task Init()
+        {
+            await Task.Run(() =>
+            {
+                using (var synchronizerFactory = ResolverFactory.Resolve<SynchronizerFactory>())
+                using (var puller = synchronizerFactory.CreatePuller(indexerModel))
+                using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+                {
+                    puller.Init();
+                    entityRepository.Init(indexerModel);
+                }
+            });
         }
 
         public virtual void Dispose()
         {
-            RepositoryFactory.Release(this);
         }
     }
 }

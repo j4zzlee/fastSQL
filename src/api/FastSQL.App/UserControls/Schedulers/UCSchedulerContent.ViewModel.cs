@@ -92,9 +92,9 @@ namespace FastSQL.App.UserControls.Schedulers
         {
             await Task.Run(() =>
             {
-                using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-                using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
-                using (var scheduleOptionRepository = RepositoryFactory.Create<ScheduleOptionRepository>(this))
+                using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+                using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
+                using (var scheduleOptionRepository = ResolverFactory.Resolve<ScheduleOptionRepository>())
                 {
                     var entities = entityRepository.GetAll().Select(e => e as IIndexModel);
                     var attributes = attributeRepository.GetAll().Select(e => e as IIndexModel);
@@ -131,9 +131,9 @@ namespace FastSQL.App.UserControls.Schedulers
         {
             await Task.Run(async () =>
             {
-                var scheduleOptionRepository = RepositoryFactory.Create<ScheduleOptionRepository>(this);
-                var entityRepository = RepositoryFactory.Create<EntityRepository>(this);
-                var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this);
+                var scheduleOptionRepository = ResolverFactory.Resolve<ScheduleOptionRepository>();
+                var entityRepository = ResolverFactory.Resolve<EntityRepository>();
+                var attributeRepository = ResolverFactory.Resolve<AttributeRepository>();
                 try
                 {
                     // It is harder than you think!!!

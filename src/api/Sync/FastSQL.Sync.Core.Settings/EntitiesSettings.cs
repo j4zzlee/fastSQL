@@ -23,7 +23,6 @@ namespace FastSQL.Sync.Core.Settings
 {
     public class EntitiesSettingsProvider : BaseSettingProvider
     {
-        private readonly IndexerManager indexerManager;
         private readonly IEnumerable<IEntityPuller> pullers;
         private readonly IEnumerable<IEntityIndexer> indexers;
 
@@ -51,14 +50,11 @@ namespace FastSQL.Sync.Core.Settings
 
         public EntitiesSettingsProvider(
             EntitiesSettingsOptionManager optionManager,
-            IndexerManager indexerManager,
             IEnumerable<IEntityPuller> pullers,
             IEnumerable<IEntityIndexer> indexers) : base(optionManager)
         {
-            this.indexerManager = indexerManager;
             this.pullers = pullers;
             this.indexers = indexers;
-            this.indexerManager.OnReport(s => this.Logger.Information(s));
         }
 
         public override ISettingProvider Save()
@@ -74,9 +70,9 @@ namespace FastSQL.Sync.Core.Settings
                 //IsLoading = true;
                 await Task.Run(() =>
                 {
-                    using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
-                    using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-                    using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+                    using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
+                    using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+                    using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
                     {
                         var allEntities = entityRepository.GetAll();
                         foreach (var entity in allEntities)
@@ -138,24 +134,14 @@ namespace FastSQL.Sync.Core.Settings
                 //IsLoading = true;
                 await Task.Run(async () =>
                 {
-                    using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
-                    using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-                    using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+                    using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+                    using (var indexerManager = ResolverFactory.Resolve<IndexerManager>())
                     {
+                        indexerManager.OnReport(s => Logger.Information(s));
                         var allEntities = entityRepository.GetAll();
                         foreach (var entity in allEntities)
                         {
-                            var options = entityRepository.LoadOptions(entity.Id.ToString());
-                            var connection = connectionRepository.GetById(entity.SourceConnectionId.ToString());
-                            var puller = pullers.FirstOrDefault(p => p.IsImplemented(entity.SourceProcessorId, connection.ProviderId));
-                            var indexer = indexers.FirstOrDefault(p => p.IsImplemented(entity.SourceProcessorId, connection.ProviderId));
-                            puller.SetIndex(entity);
-                            puller.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-                            indexer.SetIndex(entity);
-                            indexer.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
                             indexerManager.SetIndex(entity);
-                            indexerManager.SetIndexer(indexer);
-                            indexerManager.SetPuller(puller);
                             await indexerManager.PullAll(true);
                         }
                     }
@@ -183,26 +169,14 @@ namespace FastSQL.Sync.Core.Settings
                 //IsLoading = true;
                 await Task.Run(async () =>
                 {
-                    using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
-                    using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-                    using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+                    using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+                    using (var indexerManager = ResolverFactory.Resolve<IndexerManager>())
                     {
+                        indexerManager.OnReport(s => Logger.Information(s));
                         var allEntities = entityRepository.GetAll();
                         foreach (var entity in allEntities)
                         {
-                            var options = entityRepository.LoadOptions(entity.Id.ToString());
-                            var connection = connectionRepository.GetById(entity.SourceConnectionId.ToString());
-                            var puller = pullers.FirstOrDefault(p => p.IsImplemented(entity.SourceProcessorId, connection.ProviderId));
-                            var indexer = indexers.FirstOrDefault(p => p.IsImplemented(entity.SourceProcessorId, connection.ProviderId));
-                            puller.SetIndex(entity);
-                            puller.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-                            puller.Init();
-                            indexer.SetIndex(entity);
-                            indexer.SetOptions(options.Select(o => new OptionItem { Name = o.Key, Value = o.Value }));
-                            entityRepository.Init(entity);
-                            indexerManager.SetIndex(entity);
-                            indexerManager.SetIndexer(indexer);
-                            indexerManager.SetPuller(puller);
+                            await indexerManager.Init();
                             await indexerManager.PullAll(true);
                         }
                     }

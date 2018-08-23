@@ -2,6 +2,7 @@
 using FastSQL.Sync.Core.Models;
 using FastSQL.Sync.Core.Queuers;
 using FastSQL.Sync.Core.Repositories;
+using Serilog;
 using System;
 using System.Threading.Tasks;
 using WorkflowCore.Interface;
@@ -21,22 +22,28 @@ namespace FastSQL.Sync.Workflow.Steps
 
         public override async Task Invoke(IStepExecutionContext context = null)
         {
+            var logger = ResolverFactory.Resolve<ILogger>("SyncService");
+            var errorLogger = ResolverFactory.Resolve<ILogger>("Error");
             try
             {
-                Logger.Information($@"Queueing index changes of {IndexModel.Name}/{IndexModel.Id}...");
+                logger.Information($@"Queueing index changes of {IndexModel.Name}/{IndexModel.Id}...");
                 queueChangesManager.SetIndex(IndexModel);
-                queueChangesManager.OnReport(s => Logger.Information(s));
+                queueChangesManager.OnReport(s => logger.Information(s));
                 await queueChangesManager.QueueChanges();
-                Logger.Information($@"Queued index changes of {IndexModel.Name}/{IndexModel.Id}");
+                logger.Information($@"Queued index changes of {IndexModel.Name}/{IndexModel.Id}");
             }
             catch (Exception ex)
             {
-                ErrorLogger.Error(ex, ex.Message);
+                errorLogger.Error(ex, ex.Message);
                 throw;
             }
             finally
             {
                 Counter += 1;
+                ResolverFactory.Release(logger);
+                ResolverFactory.Release(errorLogger);
+                logger = null;
+                errorLogger = null;
             }
         }
     }

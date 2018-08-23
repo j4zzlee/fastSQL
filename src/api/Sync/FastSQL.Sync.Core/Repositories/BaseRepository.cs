@@ -659,6 +659,9 @@ VALUE (
             //throw new NotImplementedException();
             _transaction?.Dispose();
             _connection?.Close();
+            _connection?.Dispose();
+            _connection = null;
+            _transaction = null;
             IsDisposed = true;
         }
 

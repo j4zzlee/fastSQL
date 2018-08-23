@@ -15,7 +15,7 @@ namespace FastSQL.Sync.Core.Pusher
         protected readonly IOptionManager OptionManager;
         protected readonly IRichAdapter Adapter;
         protected readonly IRichProvider Provider;
-        public RepositoryFactory RepositoryFactory { get; set; }
+        public ResolverFactory ResolverFactory { get; set; }
 
         protected Action<string> _reporter;
         protected IndexItemModel IndexedItem;
@@ -62,7 +62,7 @@ namespace FastSQL.Sync.Core.Pusher
 
         protected virtual IPusher SpreadOptions()
         {
-            using (var connectionRepository = RepositoryFactory.Create<ConnectionRepository>(this))
+            using (var connectionRepository = ResolverFactory.Resolve<ConnectionRepository>())
             {
                 var indexModel = GetIndexModel();
                 ConnectionModel = connectionRepository.GetById(indexModel.DestinationConnectionId.ToString());
@@ -75,8 +75,8 @@ namespace FastSQL.Sync.Core.Pusher
 
         protected virtual Dictionary<string, string> GetNormalizedValuesByDependencies(IndexItemModel indexedItem = null)
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
-            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var indexedModel = GetIndexModel();
                 indexedItem = indexedItem ?? IndexedItem;
@@ -123,7 +123,7 @@ namespace FastSQL.Sync.Core.Pusher
 
         public virtual void Dispose()
         {
-            RepositoryFactory.Release(this);
+            
         }
     }
 
@@ -182,7 +182,7 @@ namespace FastSQL.Sync.Core.Pusher
 
         public override IPusher SetIndex(IIndexModel model)
         {
-            using (var entityRepository = RepositoryFactory.Create<EntityRepository>(this))
+            using (var entityRepository = ResolverFactory.Resolve<EntityRepository>())
             {
                 AttributeModel = model as AttributeModel;
                 EntityModel = entityRepository.GetById(AttributeModel.EntityId.ToString());

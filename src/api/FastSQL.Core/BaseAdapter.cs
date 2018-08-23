@@ -45,7 +45,7 @@ namespace FastSQL.Core
         #endregion
         public abstract bool TryConnect(out string message);
 
-        public void Dispose()
+        public virtual void Dispose()
         {
         }
     }
@@ -53,12 +53,12 @@ namespace FastSQL.Core
     public abstract class BaseSqlAdapter : BaseAdapter
     {
         #region Adapter
-        protected BaseSqlAdapter(IRichProvider provider): base(provider)
+        protected BaseSqlAdapter(IRichProvider provider) : base(provider)
         {
         }
-        
+
         protected abstract DbConnection GetConnection();
-        
+
         public abstract IEnumerable<string> GetTables();
 
         public abstract IEnumerable<string> GetViews();
@@ -66,71 +66,76 @@ namespace FastSQL.Core
         public virtual IEnumerable<QueryResult> Query(string raw, object @params = null)
         {
             IDbConnection conn = null;
+            IDataReader reader = null;
+            StringWriter sw = null;
+            JsonTextWriter writer = null;
             try
             {
-                using (conn = GetConnection())
+                conn = GetConnection();
+                conn.Open();
+                reader = conn.ExecuteReader(raw, @params);
+                sw = new StringWriter();
+                writer = new JsonTextWriter(sw);
+                var results = new List<QueryResult>();
+                writer.WriteStartArray();
+                do
                 {
-                    conn.Open();
-                    var reader = conn.ExecuteReader(raw, @params);
-                    var results = new List<QueryResult>();
-                    using (var sw = new StringWriter())
-                    using (var writer = new JsonTextWriter(sw))
+                    var row = 0;
+                    var hasRow = false;
+                    writer.WriteStartObject();
+                    while (reader.Read())
                     {
-                        writer.WriteStartArray();
-                        do
+                        if (row++ == 0)
                         {
-                            var row = 0;
-                            var hasRow = false;
-                            writer.WriteStartObject();
-                            while (reader.Read())
+                            writer.WritePropertyName(nameof(QueryResult.Id));
+                            writer.WriteValue(Guid.NewGuid());
+                            writer.WritePropertyName(nameof(QueryResult.RecordsAffected));
+                            writer.WriteValue(reader.RecordsAffected);
+                            writer.WritePropertyName(nameof(QueryResult.Rows));
+                            writer.WriteStartArray();
+                            hasRow = true;
+                        }
+                        writer.WriteStartObject();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            writer.WritePropertyName(reader.GetName(i));
+                            if (!reader.IsDBNull(i))
                             {
-                                if (row++ == 0)
-                                {
-                                    writer.WritePropertyName(nameof(QueryResult.Id));
-                                    writer.WriteValue(Guid.NewGuid());
-                                    writer.WritePropertyName(nameof(QueryResult.RecordsAffected));
-                                    writer.WriteValue(reader.RecordsAffected);
-                                    writer.WritePropertyName(nameof(QueryResult.Rows));
-                                    writer.WriteStartArray();
-                                    hasRow = true;
-                                }
-                                writer.WriteStartObject();
-                                for (int i = 0; i < reader.FieldCount; i++)
-                                {
-                                    writer.WritePropertyName(reader.GetName(i));
-                                    if (!reader.IsDBNull(i))
-                                    {
-                                        writer.WriteValue(reader.GetValue(i));
-                                    }
-                                    else
-                                    {
-                                        writer.WriteNull();
-                                    }
-                                }
-                                writer.WriteEndObject();
-                            }
-                            if (hasRow)
-                            {
-                                writer.WriteEndArray();
+                                writer.WriteValue(reader.GetValue(i));
                             }
                             else
                             {
-                                writer.WritePropertyName(nameof(QueryResult.RecordsAffected));
-                                writer.WriteValue(reader.RecordsAffected);
+                                writer.WriteNull();
                             }
-
-                            writer.WriteEndObject();
-                        } while (reader.NextResult()); // another table
+                        }
+                        writer.WriteEndObject();
+                    }
+                    if (hasRow)
+                    {
                         writer.WriteEndArray();
-                        results = JsonConvert.DeserializeObject<List<QueryResult>>(sw.ToString());
+                    }
+                    else
+                    {
+                        writer.WritePropertyName(nameof(QueryResult.RecordsAffected));
+                        writer.WriteValue(reader.RecordsAffected);
                     }
 
-                    return results;
-                }
+                    writer.WriteEndObject();
+                } while (reader.NextResult()); // another table
+                writer.WriteEndArray();
+                results = JsonConvert.DeserializeObject<List<QueryResult>>(sw.ToString());
+                
+                return results;
             }
             finally
             {
+                sw?.Close();
+                reader?.Close();
+                writer?.Close();
+
                 conn?.Dispose();
+                reader?.Dispose();
+                sw?.Dispose();
             }
         }
 

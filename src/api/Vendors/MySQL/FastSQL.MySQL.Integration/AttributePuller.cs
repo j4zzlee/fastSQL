@@ -50,7 +50,7 @@ LIMIT @Limit OFFSET @Offset;";
 
         public override PullResult PullNext(object lastToken = null)
         {
-            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var options = attributeRepository.LoadOptions(AttributeModel.Id.ToString());
                 var limit = options.GetValue("puller_page_limit", 100);
@@ -89,7 +89,7 @@ LIMIT @Limit OFFSET @Offset;";
 
         public override IPuller Init()
         {
-            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var options = attributeRepository.LoadOptions(AttributeModel.Id.ToString());
                 var sqlScript = options.GetValue("puller_sql_script");
@@ -124,7 +124,7 @@ WHERE [name] = N'{AttributeModel.SourceViewName}'
 
         public override PullResult Preview()
         {
-            using (var attributeRepository = RepositoryFactory.Create<AttributeRepository>(this))
+            using (var attributeRepository = ResolverFactory.Resolve<AttributeRepository>())
             {
                 var options = attributeRepository.LoadOptions(AttributeModel.Id.ToString());
                 var limit = options.GetValue("puller_page_limit", 100);
